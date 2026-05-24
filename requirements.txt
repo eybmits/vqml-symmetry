@@ -1,0 +1,6 @@
+numpy>=1.26,<3
+pandas>=2.0
+matplotlib>=3.8
+torch>=2.0
+pennylane>=0.35
+pennylane-lightning>=0.35

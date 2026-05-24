@@ -17,3 +17,11 @@ venv/
 
 # macOS
 .DS_Store
+
+# Experiment outputs
+results/csv/*.csv
+results/csv/*.md
+results/csv/*.pdf
+results/figures/*.pdf
+results/figures/*.png
+results/logs/*.log
