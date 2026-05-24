@@ -25,3 +25,4 @@ results/csv/*.pdf
 results/figures/*.pdf
 results/figures/*.png
 results/logs/*.log
+results/logs/*.pid
