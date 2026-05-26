@@ -1,0 +1,149 @@
+\begingroup
+\definecolor{qblue}{HTML}{0072B2}
+\definecolor{qorange}{HTML}{E69F00}
+\definecolor{qgreen}{HTML}{168A3A}
+\definecolor{qpurple}{HTML}{8E63D6}
+\definecolor{qpurpledark}{HTML}{5A3A8A}
+\definecolor{panelgray}{HTML}{F7F7F7}
+\definecolor{panelviolet}{HTML}{F8F4FF}
+\definecolor{panelgreen}{HTML}{F2FAF3}
+\definecolor{cornerfill}{HTML}{D8F1DF}
+\definecolor{edgefill}{HTML}{FDE0DD}
+\definecolor{centerfill}{HTML}{FFF5B8}
+
+\newcommand{\BoardLines}{%
+  \draw[line width=0.55pt, black!88] (-0.28,-0.90) -- (-0.28,0.90);
+  \draw[line width=0.55pt, black!88] (0.28,-0.90) -- (0.28,0.90);
+  \draw[line width=0.55pt, black!88] (-0.90,-0.28) -- (0.90,-0.28);
+  \draw[line width=0.55pt, black!88] (-0.90,0.28) -- (0.90,0.28);
+}
+\newcommand{\XMark}[2]{\node[inner sep=0pt, text=qblue, font=\bfseries\large] at (#1,#2) {$\times$};}
+\newcommand{\OMark}[2]{\node[inner sep=0pt, text=qorange, font=\bfseries\large] at (#1,#2) {$\circ$};}
+\newcommand{\BoardA}{%
+  \BoardLines
+  \XMark{-0.58}{0.58}\XMark{0}{0.58}\OMark{0.58}{0.58}
+  \OMark{0}{0}\XMark{0.58}{0}
+  \OMark{-0.58}{-0.58}\OMark{0.58}{-0.58}
+}
+\newcommand{\BoardRot}{%
+  \BoardLines
+  \OMark{-0.58}{0.58}\XMark{0}{0.58}\OMark{0.58}{0.58}
+  \XMark{-0.58}{0}\OMark{0}{0}
+  \XMark{0}{-0.58}\OMark{0.58}{-0.58}
+}
+\newcommand{\BoardRef}{%
+  \BoardLines
+  \OMark{-0.58}{0.58}\XMark{0}{0.58}\XMark{0.58}{0.58}
+  \XMark{0}{0}\OMark{0.58}{0}
+  \OMark{-0.58}{-0.58}\OMark{0.58}{-0.58}
+}
+\newcommand{\DataGrid}{%
+  \foreach \x in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (\x,-0.63)--(\x,0.63);}
+  \foreach \y in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (-0.63,\y)--(0.63,\y);}
+  \node[text=qblue,font=\small] at (-0.42,0.42) {$+1$};
+  \node[text=qblue,font=\small] at (0,0.42) {$+1$};
+  \node[text=qorange,font=\small] at (0.42,0.42) {$-1$};
+  \node[text=black!55,font=\small] at (-0.42,0) {$0$};
+  \node[text=qorange,font=\small] at (0,0) {$-1$};
+  \node[text=qblue,font=\small] at (0.42,0) {$+1$};
+  \node[text=qorange,font=\small] at (-0.42,-0.42) {$-1$};
+  \node[text=black!55,font=\small] at (0,-0.42) {$0$};
+  \node[text=qorange,font=\small] at (0.42,-0.42) {$-1$};
+}
+\newcommand{\OrbitBoard}{%
+  \BoardLines
+  \foreach \x/\y/\c in {-0.58/0.58/cornerfill,0/0.58/edgefill,0.58/0.58/cornerfill,-0.58/0/edgefill,0/0/centerfill,0.58/0/edgefill,-0.58/-0.58/cornerfill,0/-0.58/edgefill,0.58/-0.58/cornerfill} {
+    \node[draw=black!45, fill=\c, rounded corners=1.2pt, minimum width=0.28cm, minimum height=0.28cm, inner sep=0pt] at (\x,\y) {};
+  }
+}
+\newcommand{\DeclareBoardCoords}{%
+  \coordinate (p0) at (-0.58,0.58);
+  \coordinate (p1) at (0,0.58);
+  \coordinate (p2) at (0.58,0.58);
+  \coordinate (p7) at (-0.58,0);
+  \coordinate (p8) at (0,0);
+  \coordinate (p3) at (0.58,0);
+  \coordinate (p6) at (-0.58,-0.58);
+  \coordinate (p5) at (0,-0.58);
+  \coordinate (p4) at (0.58,-0.58);
+}
+\newcommand{\EdgeOverlay}{%
+  \BoardLines\DeclareBoardCoords
+  \foreach \a/\b in {p0/p1,p2/p1,p2/p3,p4/p3,p4/p5,p6/p5,p6/p7,p0/p7,p1/p8,p3/p8,p5/p8,p7/p8,p8/p0,p8/p2,p8/p4,p8/p6} {
+    \draw[-{Stealth[length=2.1pt,width=2.1pt]}, line width=0.38pt, draw=black!55, opacity=0.82] ($(\a)!0.18!(\b)$) -- ($(\a)!0.82!(\b)$);
+  }
+}
+\newcommand{\LineOverlay}{%
+  \EdgeOverlay\DeclareBoardCoords
+  \draw[qblue,line width=1.05pt] (p0)--(p1)--(p2);
+  \draw[qgreen,line width=1.05pt] (p7)--(p8)--(p3);
+  \draw[qorange,line width=1.05pt] (p6)--(p5)--(p4);
+  \draw[qblue,line width=1.05pt,opacity=0.78] (p0)--(p7)--(p6);
+  \draw[qgreen,line width=1.05pt,opacity=0.78] (p1)--(p8)--(p5);
+  \draw[qorange,line width=1.05pt,opacity=0.78] (p2)--(p3)--(p4);
+  \draw[qpurple,line width=1.15pt] (p0)--(p8)--(p4);
+  \draw[qpurple,line width=1.15pt,opacity=0.82] (p2)--(p8)--(p6);
+}
+\newcommand{\GateChip}[4]{%
+  \node[draw=#4, fill=white, rounded corners=2pt, line width=0.45pt, inner xsep=4.0pt, inner ysep=2.3pt, font=\small] at (#1,#2) {#3};
+}
+
+\begin{tikzpicture}[
+  x=1cm,
+  y=1cm,
+  >={Stealth[length=4.0pt,width=4.0pt]},
+  panel/.style={rounded corners=7pt, line width=0.65pt},
+  flow/.style={-{Stealth[length=4.6pt,width=4.6pt]}, line width=0.65pt, draw=black!75},
+]
+  % Panels
+  \draw[panel, fill=panelgray, draw=black!45] (0.15,0.72) rectangle (4.40,5.58);
+  \draw[panel, fill=panelviolet, draw=qpurple] (4.85,0.72) rectangle (9.10,5.58);
+  \draw[panel, fill=panelviolet, draw=qpurple] (9.55,0.72) rectangle (17.45,5.58);
+
+  % Panel labels
+  \node[font=\bfseries\small, text=black!55] at (0.43,5.32) {(a)};
+  \node[font=\bfseries\small, text=qpurpledark] at (5.13,5.32) {(b)};
+  \node[font=\bfseries\small, text=qpurpledark] at (9.83,5.32) {(c)};
+
+  % Symmetry panel
+  \node[font=\large, text=black!75] at (2.28,5.20) {$D_4=\langle r,f\rangle$};
+  \node[font=\small] at (1.30,4.82) {game};
+  \node[font=\small] at (3.18,4.82) {$90^\circ$ rotation};
+  \begin{scope}[shift={(1.30,3.95)}, scale=0.72]\BoardA\end{scope}
+  \begin{scope}[shift={(3.18,3.95)}, scale=0.72]\BoardRot\end{scope}
+  \begin{scope}[shift={(3.18,2.25)}, scale=0.72]\BoardRef\end{scope}
+  \draw[flow] (2.00,3.95) -- (2.48,3.95);
+  \draw[flow] (1.98,3.18) -- (2.50,2.62);
+  \node[font=\small] at (3.18,1.36) {reflection};
+  \node[font=\small, text=qorange, rotate=90] at (0.42,3.05) {same label};
+  \node[font=\Large] at (2.28,0.23) {Symmetry};
+
+  % Encoding panel
+  \node[font=\small] at (5.95,4.98) {board};
+  \node[font=\small] at (7.95,4.98) {data $g_i$};
+  \begin{scope}[shift={(5.95,4.12)}, scale=0.70]\BoardA\end{scope}
+  \begin{scope}[shift={(7.95,4.12)}, scale=0.88]\DataGrid\end{scope}
+  \draw[flow] (6.62,4.12) -- (7.20,4.12);
+  \node[draw=qpurple, fill=white, rounded corners=2pt, line width=0.45pt, inner xsep=4pt, inner ysep=2pt, font=\small] at (6.30,2.78) {$x_i=\frac{2\pi}{3}g_i$};
+  \node[font=\large] at (7.05,2.78) {$=$};
+  \node[draw=qpurple, fill=white, rounded corners=2pt, line width=0.45pt, inner xsep=5pt, inner ysep=2pt, font=\small] at (7.72,2.78) {$R_X(x_i)$};
+  \begin{scope}[shift={(6.98,1.72)}, scale=0.75]\OrbitBoard\end{scope}
+  \node[font=\small, text=qpurpledark] at (6.98,1.00) {corner / edge / center orbits};
+  \node[font=\Large] at (6.98,0.23) {Encoding};
+
+  % Gateset panel
+  \node[font=\small, text=qpurpledark] at (11.75,4.98) {edge ansatz};
+  \node[font=\small, text=qgreen] at (15.28,4.98) {winning-line gates};
+  \begin{scope}[shift={(11.75,3.70)}, scale=0.95]\EdgeOverlay\end{scope}
+  \begin{scope}[shift={(15.28,3.70)}, scale=0.95]\LineOverlay\end{scope}
+  \draw[flow] (13.10,3.70) -- (13.95,3.70);
+  \GateChip{11.18}{2.00}{$R_XR_Y$}{qpurple}
+  \GateChip{12.36}{2.00}{$CRY$}{qpurple}
+  \node[font=\small, text=qpurpledark] at (11.76,1.48) {orbit sharing};
+  \GateChip{14.22}{2.05}{$ZZZ$}{qgreen}
+  \GateChip{15.30}{2.05}{$CCR_Z$}{qgreen}
+  \GateChip{14.76}{1.48}{$+$ edge CRY}{qgreen}
+  \node[font=\small, text=qgreen] at (15.40,0.98) {equivariant extension};
+  \node[font=\Large] at (13.50,0.23) {Equivariant gateset};
+\end{tikzpicture}
+\endgroup
