@@ -17,9 +17,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.patches import FancyArrowPatch
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 
-from src.groups_d4 import COORDS, DIRECTED_PAIRS, WIN_LINE_TRIPLES
+from src.groups_d4 import COORDS, DIRECTED_PAIRS, WIN_LINE_TRIPLES, apply_transform_to_board
 
 
 CSV_DIR = ROOT / "results" / "csv"
@@ -177,53 +177,206 @@ def draw_line(ax: plt.Axes, line: tuple[int, int, int], color: str, lw: float = 
     ax.scatter([center[0]], [center[1]], s=11, color=color, zorder=2)
 
 
+def rounded_panel(
+    ax: plt.Axes,
+    xy: tuple[float, float],
+    width: float,
+    height: float,
+    *,
+    facecolor: str = "#f7f7f7",
+    edgecolor: str = "#8f8f8f",
+    linewidth: float = 0.8,
+) -> None:
+    patch = FancyBboxPatch(
+        xy,
+        width,
+        height,
+        boxstyle="round,pad=0.012,rounding_size=0.018",
+        facecolor=facecolor,
+        edgecolor=edgecolor,
+        linewidth=linewidth,
+        zorder=0,
+    )
+    ax.add_patch(patch)
+
+
+def draw_ttt_board(
+    ax: plt.Axes,
+    center: tuple[float, float],
+    size: float,
+    board: list[int] | np.ndarray | None = None,
+    *,
+    indices: bool = False,
+    colors: bool = False,
+    line_overlay: bool = False,
+    edge_overlay: bool = False,
+) -> None:
+    cx, cy = center
+    cell = size / 3.0
+    for delta in [-0.5, 0.5]:
+        ax.plot([cx + delta * cell, cx + delta * cell], [cy - 1.5 * cell, cy + 1.5 * cell], color="#222222", lw=0.75)
+        ax.plot([cx - 1.5 * cell, cx + 1.5 * cell], [cy + delta * cell, cy + delta * cell], color="#222222", lw=0.75)
+
+    def pos(index: int) -> tuple[float, float]:
+        x, y = COORDS[index]
+        return cx + x * cell, cy + y * cell
+
+    if colors:
+        for group, color in [((0, 2, 4, 6), "#d8f1df"), ((1, 3, 5, 7), "#fde0dd"), ((8,), "#fff8b5")]:
+            for idx in group:
+                x, y = pos(idx)
+                ax.add_patch(
+                    FancyBboxPatch(
+                        (x - 0.31 * cell, y - 0.31 * cell),
+                        0.62 * cell,
+                        0.62 * cell,
+                        boxstyle="round,pad=0.004,rounding_size=0.006",
+                        facecolor=color,
+                        edgecolor="#555555",
+                        linewidth=0.55,
+                        zorder=1,
+                    )
+                )
+
+    if edge_overlay:
+        for control, target in DIRECTED_PAIRS:
+            x0, y0 = pos(control)
+            x1, y1 = pos(target)
+            vec = np.array([x1 - x0, y1 - y0], dtype=float)
+            length = float(np.linalg.norm(vec))
+            if length:
+                unit = vec / length
+                start = np.array([x0, y0]) + unit * cell * 0.22
+                end = np.array([x1, y1]) - unit * cell * 0.22
+                ax.add_patch(
+                    FancyArrowPatch(
+                        start,
+                        end,
+                        arrowstyle="-|>",
+                        mutation_scale=5.6,
+                        lw=0.55,
+                        color="#777777",
+                        alpha=0.72,
+                        zorder=2,
+                    )
+                )
+
+    if line_overlay:
+        line_colors = ["#0072B2", "#009E73", "#E69F00", "#CC79A7"]
+        for i, line in enumerate(WIN_LINE_TRIPLES):
+            coords = np.asarray([pos(idx) for idx in line])
+            direction = coords[np.argmax(coords[:, 0] + 0.37 * coords[:, 1])] - coords[
+                np.argmin(coords[:, 0] + 0.37 * coords[:, 1])
+            ]
+            if np.linalg.norm(direction) > 0:
+                coords = coords[np.argsort(coords @ direction)]
+            ax.plot(coords[:, 0], coords[:, 1], color=line_colors[i % len(line_colors)], lw=1.65, alpha=0.86, zorder=2)
+
+    if board is not None:
+        arr = np.asarray(board)
+        for idx, value in enumerate(arr):
+            x, y = pos(idx)
+            if value == 1:
+                ax.text(x, y, r"$\times$", color="#0072B2", fontsize=9.5, ha="center", va="center", fontweight="bold", zorder=5)
+            elif value == -1:
+                ax.text(x, y, r"$\circ$", color="#E69F00", fontsize=10.5, ha="center", va="center", fontweight="bold", zorder=5)
+
+    if indices:
+        for idx in range(9):
+            x, y = pos(idx)
+            ax.text(x, y, rf"$x_{idx}$", fontsize=6.3, ha="center", va="center", zorder=5)
+
+
+def draw_data_grid(ax: plt.Axes, center: tuple[float, float], size: float, values: list[int]) -> None:
+    cx, cy = center
+    cell = size / 3.0
+    for r in range(3):
+        for c in range(3):
+            x0 = cx - 1.5 * cell + c * cell
+            y0 = cy + 1.5 * cell - (r + 1) * cell
+            ax.add_patch(Rectangle((x0, y0), cell, cell, facecolor="white", edgecolor="#bdbdbd", linewidth=0.45))
+    rows = [[0, 1, 2], [7, 8, 3], [6, 5, 4]]
+    for r, row in enumerate(rows):
+        for c, idx in enumerate(row):
+            val = values[idx]
+            color = "#0072B2" if val == 1 else "#E69F00" if val == -1 else "#777777"
+            text = "+1" if val == 1 else "-1" if val == -1 else "0"
+            ax.text(cx - cell + c * cell, cy + cell - r * cell, text, ha="center", va="center", fontsize=6.2, color=color)
+
+
+def draw_gate_box(ax: plt.Axes, xy: tuple[float, float], text: str, *, color: str = "#9b6bd3", width: float = 0.145) -> None:
+    x, y = xy
+    ax.add_patch(
+        FancyBboxPatch(
+            (x, y),
+            width,
+            0.055,
+            boxstyle="round,pad=0.006,rounding_size=0.008",
+            facecolor="#f2ecfa",
+            edgecolor=color,
+            linewidth=0.8,
+            zorder=2,
+        )
+    )
+    ax.text(x + width / 2, y + 0.0275, text, ha="center", va="center", fontsize=6.7, color="#222222", zorder=3)
+
+
 def make_fig1_protocol() -> None:
-    fig, axes = plt.subplots(1, 3, figsize=(7.05, 1.95), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(7.25, 2.75))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_axis_off()
 
-    setup_board(axes[0])
-    for control, target in DIRECTED_PAIRS:
-        draw_arrow(axes[0], control, target)
-    axes[0].set_title("edge CRY")
-    add_panel_label(axes[0], "(a)")
+    rounded_panel(ax, (0.018, 0.16), 0.255, 0.73, facecolor="#f7f7f7", edgecolor="#8e8e8e")
+    rounded_panel(ax, (0.302, 0.16), 0.225, 0.73, facecolor="#f9f7ff", edgecolor="#9b6bd3")
+    rounded_panel(ax, (0.557, 0.16), 0.425, 0.73, facecolor="#f4ecfb", edgecolor="#9b6bd3")
 
-    ax = axes[1]
-    ax.set_title("subgroup tying")
-    add_panel_label(ax, "(b)")
-    ax.set_xlim(0.6, 8.55)
-    ax.set_ylim(35, 220)
-    orders = {"none": 1, "Z2_rot180": 2, "Z2_reflection": 2, "C4": 4, "D2_V4": 4, "D4": 8}
-    params = {"none": 204, "Z2_rot180": 108, "Z2_reflection": 126, "C4": 60, "D2_V4": 78, "D4": 54}
-    for subgroup in SUBGROUP_ORDER:
-        jitter = -0.12 if subgroup == "Z2_rot180" else 0.12 if subgroup == "Z2_reflection" else 0.0
-        jitter += -0.12 if subgroup == "C4" else 0.12 if subgroup == "D2_V4" else 0.0
-        ax.scatter(
-            orders[subgroup] + jitter,
-            params[subgroup],
-            s=28,
-            color=SUBGROUP_COLORS[subgroup],
-            zorder=3,
-        )
-        ax.text(
-            orders[subgroup] + jitter,
-            params[subgroup] + 7,
-            SUBGROUP_LABELS[subgroup],
-            ha="center",
-            fontsize=5.8,
-        )
-    ax.set_xlabel("group order")
-    ax.set_ylabel("parameters")
-    ax.set_xticks([1, 2, 4, 8])
-    grid(ax)
+    ax.text(0.145, 0.065, "Symmetry", ha="center", va="center", fontsize=11.0)
+    ax.text(0.415, 0.065, "Encoding", ha="center", va="center", fontsize=11.0)
+    ax.text(0.770, 0.065, "Equivariant gateset", ha="center", va="center", fontsize=11.0)
 
-    setup_board(axes[2])
-    for control, target in DIRECTED_PAIRS:
-        draw_arrow(axes[2], control, target, color="#888888", lw=0.55)
-    line_colors = ["#0072B2", "#009E73", "#E69F00", "#CC79A7"]
-    for idx, line in enumerate(WIN_LINE_TRIPLES):
-        draw_line(axes[2], line, line_colors[idx % len(line_colors)])
-    axes[2].set_title("edge + line gates")
-    add_panel_label(axes[2], "(c)")
+    board = np.array([1, 1, -1, 1, -1, 0, -1, 0, -1])
+    boards = [
+        (board, "game"),
+        (apply_transform_to_board(board, "rot90"), r"$90^\circ$"),
+        (apply_transform_to_board(board, "rot180"), r"$180^\circ$"),
+        (apply_transform_to_board(board, "reflect_vertical"), "flip"),
+    ]
+    positions = [(0.088, 0.705), (0.205, 0.705), (0.088, 0.405), (0.205, 0.405)]
+    for (b, label), pos in zip(boards, positions):
+        draw_ttt_board(ax, pos, 0.092, b)
+        ax.text(pos[0], pos[1] - 0.073, label, ha="center", va="center", fontsize=6.1)
+    ax.text(0.040, 0.555, "winner\nunchanged", ha="center", va="center", fontsize=6.2, rotation=90, color="#E69F00")
+    ax.add_patch(FancyArrowPatch((0.119, 0.705), (0.166, 0.705), arrowstyle="->", mutation_scale=9, lw=0.7, color="#333333"))
+    ax.add_patch(FancyArrowPatch((0.119, 0.405), (0.166, 0.405), arrowstyle="->", mutation_scale=9, lw=0.7, color="#333333"))
+    ax.text(0.145, 0.830, r"$D_4=\langle r,f\rangle$", ha="center", fontsize=7.5, color="#444444")
 
+    draw_ttt_board(ax, (0.350, 0.705), 0.105, board)
+    draw_data_grid(ax, (0.473, 0.705), 0.102, board.tolist())
+    ax.add_patch(FancyArrowPatch((0.388, 0.705), (0.421, 0.705), arrowstyle="->", mutation_scale=9, lw=0.7, color="#333333"))
+    ax.text(0.350, 0.595, "game", ha="center", fontsize=6.4)
+    ax.text(0.473, 0.595, r"data $g_i$", ha="center", fontsize=6.4)
+    draw_gate_box(ax, (0.330, 0.450), r"$x_i=\frac{2\pi}{3}g_i$", width=0.095)
+    draw_gate_box(ax, (0.438, 0.450), r"$R_X(x_i)$", width=0.070)
+    ax.text(0.429, 0.477, "=", ha="center", va="center", fontsize=9.0)
+    draw_ttt_board(ax, (0.415, 0.305), 0.150, None, indices=True)
+
+    ax.add_patch(FancyArrowPatch((0.527, 0.735), (0.587, 0.735), arrowstyle="->", mutation_scale=11, lw=1.0, color="#333333"))
+    ax.text(0.638, 0.815, "single-qubit gates", ha="center", fontsize=7.0)
+    ax.text(0.850, 0.815, "entangling gates", ha="center", fontsize=7.0)
+    draw_ttt_board(ax, (0.638, 0.640), 0.130, None, colors=True)
+    draw_gate_box(ax, (0.585, 0.430), r"$R_X(\theta_1)R_Y(\theta_2)$", color="#9b6bd3", width=0.143)
+    draw_ttt_board(ax, (0.850, 0.640), 0.145, None, edge_overlay=True)
+    draw_gate_box(ax, (0.810, 0.430), r"$CRY(\theta)$", color="#9b6bd3", width=0.083)
+    ax.text(0.748, 0.520, r"$H\leq D_4$: share by qubit and pair orbits", ha="center", fontsize=6.4, color="#5a3a8a")
+
+    ax.text(0.640, 0.360, "winning-line triples", ha="center", fontsize=7.0, color="#1b7f35")
+    ax.text(0.850, 0.360, "edge + line gates", ha="center", fontsize=7.0, color="#1b7f35")
+    draw_ttt_board(ax, (0.640, 0.270), 0.122, None, line_overlay=True)
+    draw_ttt_board(ax, (0.850, 0.270), 0.132, None, edge_overlay=True, line_overlay=True)
+    draw_gate_box(ax, (0.600, 0.178), r"$ZZZ(\theta)$", color="#2ca02c", width=0.073)
+    draw_gate_box(ax, (0.700, 0.178), r"$CC\,R_Z(\theta)$", color="#2ca02c", width=0.087)
+    draw_gate_box(ax, (0.823, 0.178), r"$+$ edge CRY", color="#2ca02c", width=0.085)
     save(fig, "fig1_protocol")
 
 

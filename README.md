@@ -37,6 +37,37 @@ The default simulator backend is `lightning.qubit` with adjoint gradients.
 Use `--pl-device default.qubit --diff-method backprop` to fall back to the
 pure Python simulator.
 
+## Short Paper Draft
+
+The IEEE-style short-paper draft is in `paper/`:
+
+- `paper/main.pdf` is the current compiled manuscript.
+- `paper/main.tex` is the LaTeX entry point.
+- `paper/txt/` contains the section text.
+- `paper/gfx/` contains tracked vector figures used by the manuscript.
+- `paper/make_figures.py` regenerates the manuscript-specific figures from the checked CSV results.
+
+Build the manuscript from the repository root:
+
+```bash
+cd paper
+make paper
+```
+
+Or run the steps explicitly:
+
+```bash
+/Users/markus/anaconda3/bin/python make_figures.py
+latexmk -pdf -interaction=nonstopmode main.tex
+```
+
+The main manuscript story is:
+
+1. Meyer-style full `D4` equivariance improves over no symmetry.
+2. Partial equivariance, especially `C4`, closely tracks full `D4` on this benchmark.
+3. Parameter-matched random sharing underperforms group-orbit sharing.
+4. The strongest current result is the oracle-inspired equivariant `edge_line_zzz_ccrz` ansatz, which adds winning-line interactions while preserving equivariance.
+
 ## Experiments
 
 Paper plan and experiment roadmap:

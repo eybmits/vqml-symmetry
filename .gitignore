@@ -28,3 +28,13 @@ results/figures/**/*.pdf
 results/figures/**/*.png
 results/logs/*.log
 results/logs/*.pid
+
+# LaTeX build byproducts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
