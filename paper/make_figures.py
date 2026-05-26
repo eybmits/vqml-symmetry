@@ -322,61 +322,64 @@ def draw_gate_box(ax: plt.Axes, xy: tuple[float, float], text: str, *, color: st
 
 
 def make_fig1_protocol() -> None:
-    fig, ax = plt.subplots(figsize=(7.25, 2.75))
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_axis_off()
+    fig = plt.figure(figsize=(7.2, 2.85))
+    gs = fig.add_gridspec(1, 3, width_ratios=[1.02, 1.02, 1.55], wspace=0.11)
+    axes = [fig.add_subplot(gs[0, idx]) for idx in range(3)]
+    for ax in axes:
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.set_axis_off()
 
-    rounded_panel(ax, (0.018, 0.16), 0.255, 0.73, facecolor="#f7f7f7", edgecolor="#8e8e8e")
-    rounded_panel(ax, (0.302, 0.16), 0.225, 0.73, facecolor="#f9f7ff", edgecolor="#9b6bd3")
-    rounded_panel(ax, (0.557, 0.16), 0.425, 0.73, facecolor="#f4ecfb", edgecolor="#9b6bd3")
-
-    ax.text(0.145, 0.065, "Symmetry", ha="center", va="center", fontsize=11.0)
-    ax.text(0.415, 0.065, "Encoding", ha="center", va="center", fontsize=11.0)
-    ax.text(0.770, 0.065, "Equivariant gateset", ha="center", va="center", fontsize=11.0)
-
+    # Panel 1: the task symmetry.
+    ax = axes[0]
+    rounded_panel(ax, (0.04, 0.18), 0.92, 0.74, facecolor="#f7f7f7", edgecolor="#8a8a8a", linewidth=0.9)
     board = np.array([1, 1, -1, 1, -1, 0, -1, 0, -1])
-    boards = [
-        (board, "game"),
-        (apply_transform_to_board(board, "rot90"), r"$90^\circ$"),
-        (apply_transform_to_board(board, "rot180"), r"$180^\circ$"),
-        (apply_transform_to_board(board, "reflect_vertical"), "flip"),
-    ]
-    positions = [(0.088, 0.705), (0.205, 0.705), (0.088, 0.405), (0.205, 0.405)]
-    for (b, label), pos in zip(boards, positions):
-        draw_ttt_board(ax, pos, 0.092, b)
-        ax.text(pos[0], pos[1] - 0.073, label, ha="center", va="center", fontsize=6.1)
-    ax.text(0.040, 0.555, "winner\nunchanged", ha="center", va="center", fontsize=6.2, rotation=90, color="#E69F00")
-    ax.add_patch(FancyArrowPatch((0.119, 0.705), (0.166, 0.705), arrowstyle="->", mutation_scale=9, lw=0.7, color="#333333"))
-    ax.add_patch(FancyArrowPatch((0.119, 0.405), (0.166, 0.405), arrowstyle="->", mutation_scale=9, lw=0.7, color="#333333"))
-    ax.text(0.145, 0.830, r"$D_4=\langle r,f\rangle$", ha="center", fontsize=7.5, color="#444444")
+    draw_ttt_board(ax, (0.30, 0.62), 0.22, board)
+    draw_ttt_board(ax, (0.70, 0.62), 0.22, apply_transform_to_board(board, "rot90"))
+    draw_ttt_board(ax, (0.70, 0.34), 0.22, apply_transform_to_board(board, "reflect_vertical"))
+    ax.add_patch(FancyArrowPatch((0.42, 0.62), (0.57, 0.62), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
+    ax.add_patch(FancyArrowPatch((0.42, 0.46), (0.57, 0.36), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
+    ax.text(0.30, 0.81, "game", ha="center", fontsize=7.0)
+    ax.text(0.70, 0.81, r"$90^\circ$ rotation", ha="center", fontsize=7.0)
+    ax.text(0.70, 0.20, "reflection", ha="center", fontsize=7.0)
+    ax.text(0.50, 0.895, r"$D_4=\langle r,f\rangle$", ha="center", va="center", fontsize=9.0, color="#444444")
+    ax.text(0.50, 0.095, "Symmetry", ha="center", va="center", fontsize=10.8)
+    ax.text(0.08, 0.49, "same label", ha="center", va="center", fontsize=7.0, color="#E69F00", rotation=90)
 
-    draw_ttt_board(ax, (0.350, 0.705), 0.105, board)
-    draw_data_grid(ax, (0.473, 0.705), 0.102, board.tolist())
-    ax.add_patch(FancyArrowPatch((0.388, 0.705), (0.421, 0.705), arrowstyle="->", mutation_scale=9, lw=0.7, color="#333333"))
-    ax.text(0.350, 0.595, "game", ha="center", fontsize=6.4)
-    ax.text(0.473, 0.595, r"data $g_i$", ha="center", fontsize=6.4)
-    draw_gate_box(ax, (0.330, 0.450), r"$x_i=\frac{2\pi}{3}g_i$", width=0.095)
-    draw_gate_box(ax, (0.438, 0.450), r"$R_X(x_i)$", width=0.070)
-    ax.text(0.429, 0.477, "=", ha="center", va="center", fontsize=9.0)
-    draw_ttt_board(ax, (0.415, 0.305), 0.150, None, indices=True)
+    # Panel 2: data encoding and parameter orbits.
+    ax = axes[1]
+    rounded_panel(ax, (0.04, 0.18), 0.92, 0.74, facecolor="#f9f7ff", edgecolor="#9b6bd3", linewidth=0.9)
+    draw_ttt_board(ax, (0.28, 0.68), 0.21, board)
+    draw_data_grid(ax, (0.70, 0.68), 0.20, board.tolist())
+    ax.add_patch(FancyArrowPatch((0.42, 0.68), (0.56, 0.68), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
+    ax.text(0.28, 0.84, "board", ha="center", fontsize=7.0)
+    ax.text(0.70, 0.84, r"data $g_i$", ha="center", fontsize=7.0)
+    draw_gate_box(ax, (0.18, 0.455), r"$x_i=\frac{2\pi}{3}g_i$", color="#9b6bd3", width=0.25)
+    draw_gate_box(ax, (0.57, 0.455), r"$R_X(x_i)$", color="#9b6bd3", width=0.20)
+    ax.text(0.50, 0.483, "=", ha="center", va="center", fontsize=10.0)
+    draw_ttt_board(ax, (0.50, 0.335), 0.185, None, colors=True)
+    ax.text(0.50, 0.205, "corner / edge / center orbits", ha="center", fontsize=6.4, color="#5a3a8a")
+    ax.text(0.50, 0.095, "Encoding", ha="center", va="center", fontsize=10.8)
 
-    ax.add_patch(FancyArrowPatch((0.527, 0.735), (0.587, 0.735), arrowstyle="->", mutation_scale=11, lw=1.0, color="#333333"))
-    ax.text(0.638, 0.815, "single-qubit gates", ha="center", fontsize=7.0)
-    ax.text(0.850, 0.815, "entangling gates", ha="center", fontsize=7.0)
-    draw_ttt_board(ax, (0.638, 0.640), 0.130, None, colors=True)
-    draw_gate_box(ax, (0.585, 0.430), r"$R_X(\theta_1)R_Y(\theta_2)$", color="#9b6bd3", width=0.143)
-    draw_ttt_board(ax, (0.850, 0.640), 0.145, None, edge_overlay=True)
-    draw_gate_box(ax, (0.810, 0.430), r"$CRY(\theta)$", color="#9b6bd3", width=0.083)
-    ax.text(0.748, 0.520, r"$H\leq D_4$: share by qubit and pair orbits", ha="center", fontsize=6.4, color="#5a3a8a")
+    # Panel 3: equivariant ansatz and task-aligned extension.
+    ax = axes[2]
+    rounded_panel(ax, (0.025, 0.18), 0.95, 0.74, facecolor="#f4ecfb", edgecolor="#9b6bd3", linewidth=0.9)
+    ax.text(0.275, 0.84, "edge ansatz", ha="center", fontsize=7.0, color="#5a3a8a")
+    ax.text(0.745, 0.84, "winning-line gates", ha="center", fontsize=7.0, color="#1b7f35")
+    draw_ttt_board(ax, (0.275, 0.61), 0.285, None, edge_overlay=True)
+    draw_ttt_board(ax, (0.745, 0.61), 0.285, None, edge_overlay=True, line_overlay=True)
 
-    ax.text(0.640, 0.360, "winning-line triples", ha="center", fontsize=7.0, color="#1b7f35")
-    ax.text(0.850, 0.360, "edge + line gates", ha="center", fontsize=7.0, color="#1b7f35")
-    draw_ttt_board(ax, (0.640, 0.270), 0.122, None, line_overlay=True)
-    draw_ttt_board(ax, (0.850, 0.270), 0.132, None, edge_overlay=True, line_overlay=True)
-    draw_gate_box(ax, (0.600, 0.178), r"$ZZZ(\theta)$", color="#2ca02c", width=0.073)
-    draw_gate_box(ax, (0.700, 0.178), r"$CC\,R_Z(\theta)$", color="#2ca02c", width=0.087)
-    draw_gate_box(ax, (0.823, 0.178), r"$+$ edge CRY", color="#2ca02c", width=0.085)
+    draw_gate_box(ax, (0.115, 0.365), r"$R_XR_Y$", color="#9b6bd3", width=0.125)
+    draw_gate_box(ax, (0.302, 0.365), r"$CRY$", color="#9b6bd3", width=0.105)
+    ax.text(0.275, 0.305, "orbit sharing", ha="center", fontsize=6.3, color="#5a3a8a")
+
+    draw_gate_box(ax, (0.600, 0.385), r"$ZZZ$", color="#2ca02c", width=0.100)
+    draw_gate_box(ax, (0.780, 0.385), r"$CCR_Z$", color="#2ca02c", width=0.120)
+    draw_gate_box(ax, (0.670, 0.305), r"$+$ edge CRY", color="#2ca02c", width=0.165)
+    ax.text(0.745, 0.255, "equivariant extension", ha="center", fontsize=6.3, color="#1b7f35")
+
+    ax.add_patch(FancyArrowPatch((0.445, 0.60), (0.575, 0.60), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
+    ax.text(0.50, 0.095, "Equivariant gateset", ha="center", va="center", fontsize=10.8)
     save(fig, "fig1_protocol")
 
 
