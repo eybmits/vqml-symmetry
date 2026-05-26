@@ -95,56 +95,58 @@
   panel/.style={rounded corners=7pt, line width=0.65pt},
   flow/.style={-{Stealth[length=4.6pt,width=4.6pt]}, line width=0.65pt, draw=black!75},
 ]
+  \path[use as bounding box] (-0.03,0.00) rectangle (15.62,5.72);
+
   % Panels
-  \draw[panel, fill=panelgray, draw=black!45] (0.10,0.76) rectangle (4.35,5.58);
-  \draw[panel, fill=panelviolet, draw=qpurple] (4.80,0.76) rectangle (9.05,5.58);
-  \draw[panel, fill=panelviolet, draw=qpurple] (9.50,0.76) rectangle (16.45,5.58);
+  \draw[panel, fill=panelgray, draw=black!45] (0.05,0.86) rectangle (4.15,5.56);
+  \draw[panel, fill=panelviolet, draw=qpurple] (4.42,0.86) rectangle (8.52,5.56);
+  \draw[panel, fill=panelviolet, draw=qpurple] (8.79,0.86) rectangle (15.57,5.56);
 
   % Panel labels
-  \node[font=\bfseries\small, text=black!55] at (0.40,5.34) {(a)};
-  \node[font=\bfseries\small, text=qpurpledark] at (5.10,5.34) {(b)};
-  \node[font=\bfseries\small, text=qpurpledark] at (9.80,5.34) {(c)};
+  \node[font=\bfseries\small, text=black!55] at (0.30,5.34) {(a)};
+  \node[font=\bfseries\small, text=qpurpledark] at (4.67,5.34) {(b)};
+  \node[font=\bfseries\small, text=qpurpledark] at (9.04,5.34) {(c)};
 
   % Symmetry panel
-  \node[font=\large, text=black!75] at (2.22,5.18) {$D_4=\langle r,f\rangle$};
-  \node[font=\small] at (1.16,4.84) {game};
-  \node[font=\small] at (3.20,4.84) {$90^\circ$ rotation};
-  \begin{scope}[shift={(1.16,3.82)}, scale=0.86]\BoardA\end{scope}
-  \begin{scope}[shift={(3.20,3.82)}, scale=0.86]\BoardRot\end{scope}
-  \begin{scope}[shift={(2.22,2.03)}, scale=0.86]\BoardRef\end{scope}
-  \draw[flow] (1.98,3.82) -- (2.36,3.82);
-  \draw[flow] (1.63,3.02) -- (1.91,2.72);
-  \node[font=\small] at (2.22,0.98) {reflection};
-  \node[font=\Large] at (2.22,0.23) {Symmetry};
+  \node[font=\large, text=black!75] at (2.10,5.16) {$D_4=\langle r,f\rangle$};
+  \node[font=\small] at (1.08,4.73) {game};
+  \node[font=\small] at (3.12,4.73) {$90^\circ$ rotation};
+  \begin{scope}[shift={(1.08,3.83)}, scale=0.90]\BoardA\end{scope}
+  \begin{scope}[shift={(3.12,3.83)}, scale=0.90]\BoardRot\end{scope}
+  \begin{scope}[shift={(2.10,2.02)}, scale=0.90]\BoardRef\end{scope}
+  \draw[flow] (1.92,3.83) -- (2.30,3.83);
+  \draw[flow] (1.60,3.00) -- (1.88,2.69);
+  \node[font=\small] at (2.10,0.99) {reflection};
+  \node[font=\Large] at (2.10,0.24) {Symmetry};
 
   % Encoding panel
-  \node[font=\small] at (5.86,5.00) {board};
-  \node[font=\small] at (7.94,5.00) {data $g_i$};
-  \begin{scope}[shift={(5.86,4.12)}, scale=0.76]\BoardA\end{scope}
-  \begin{scope}[shift={(7.94,4.12)}, scale=0.94]\DataGrid\end{scope}
-  \draw[flow] (6.58,4.12) -- (7.15,4.12);
-  \node[draw=qpurple, fill=white, rounded corners=2pt, line width=0.45pt, inner xsep=4pt, inner ysep=2.2pt, font=\small] at (6.25,2.80) {$x_i=\frac{2\pi}{3}g_i$};
-  \node[font=\large] at (7.02,2.80) {$=$};
-  \node[draw=qpurple, fill=white, rounded corners=2pt, line width=0.45pt, inner xsep=5pt, inner ysep=2.2pt, font=\small] at (7.72,2.80) {$R_X(x_i)$};
-  \begin{scope}[shift={(6.92,1.76)}, scale=0.76]\OrbitBoard\end{scope}
-  \node[font=\small, text=qpurpledark] at (6.92,1.06) {corner / edge / center orbits};
-  \node[font=\Large] at (6.92,0.23) {Encoding};
+  \node[font=\small] at (5.35,5.00) {board};
+  \node[font=\small] at (7.53,5.00) {data $g_i$};
+  \begin{scope}[shift={(5.35,4.12)}, scale=0.80]\BoardA\end{scope}
+  \begin{scope}[shift={(7.53,4.12)}, scale=0.92]\DataGrid\end{scope}
+  \draw[flow] (6.10,4.12) -- (6.78,4.12);
+  \node[draw=qpurple, fill=white, rounded corners=2pt, line width=0.45pt, inner xsep=4pt, inner ysep=2.2pt, font=\small] at (5.76,2.82) {$x_i=\frac{2\pi}{3}g_i$};
+  \node[font=\large] at (6.49,2.82) {$=$};
+  \node[draw=qpurple, fill=white, rounded corners=2pt, line width=0.45pt, inner xsep=5pt, inner ysep=2.2pt, font=\small] at (7.20,2.82) {$R_X(x_i)$};
+  \begin{scope}[shift={(6.47,1.76)}, scale=0.78]\OrbitBoard\end{scope}
+  \node[font=\small, text=qpurpledark] at (6.47,1.07) {corner / edge / center orbits};
+  \node[font=\Large] at (6.47,0.24) {Encoding};
 
   % Gateset panel
-  \coordinate (leftC) at (11.25,3.62);
-  \coordinate (rightC) at (14.65,3.62);
-  \node[font=\small, text=qpurpledark] at (11.25,4.98) {edge ansatz};
-  \node[font=\small, text=qgreen] at (14.65,4.98) {winning-line gates};
+  \coordinate (leftC) at (10.92,3.63);
+  \coordinate (rightC) at (13.94,3.63);
+  \node[font=\small, text=qpurpledark] at (10.92,4.98) {edge ansatz};
+  \node[font=\small, text=qgreen] at (13.94,4.98) {winning-line gates};
   \begin{scope}[shift={(leftC)}, scale=1.08]\EdgeOverlay\end{scope}
   \begin{scope}[shift={(rightC)}, scale=1.08]\LineOverlay\end{scope}
-  \draw[flow] (12.62,3.62) -- (13.26,3.62);
-  \GateChip{10.62}{2.04}{$R_XR_Y$}{qpurple}
-  \GateChip{11.88}{2.04}{$CRY$}{qpurple}
-  \node[font=\small, text=qpurpledark] at (11.25,1.48) {orbit-shared parameters};
-  \GateChip{14.05}{2.08}{$ZZZ$}{qgreen}
-  \GateChip{15.25}{2.08}{$CCR_Z$}{qgreen}
-  \GateChip{14.65}{1.48}{$+$ edge CRY}{qgreen}
-  \node[font=\small, text=qgreen] at (14.65,0.98) {equivariant extension};
-  \node[font=\Large] at (12.95,0.23) {Equivariant gateset};
+  \draw[flow] (12.10,3.63) -- (12.78,3.63);
+  \GateChip{10.36}{2.05}{$R_XR_Y$}{qpurple}
+  \GateChip{11.48}{2.05}{$CRY$}{qpurple}
+  \node[font=\small, text=qpurpledark] at (10.92,1.49) {orbit-shared parameters};
+  \GateChip{13.36}{2.09}{$ZZZ$}{qgreen}
+  \GateChip{14.52}{2.09}{$CCR_Z$}{qgreen}
+  \GateChip{13.94}{1.49}{$+$ edge CRY}{qgreen}
+  \node[font=\small, text=qgreen] at (13.94,0.99) {equivariant extension};
+  \node[font=\Large] at (12.18,0.24) {Equivariant gateset};
 \end{tikzpicture}
 \endgroup
