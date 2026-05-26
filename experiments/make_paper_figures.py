@@ -33,6 +33,7 @@ EXPECTED_ROWS = {
     "results_depth_sweep_all_groups_draft_L1234_p123.csv": 216,
     "results_d4_compression_sweep_L3p2.csv": 60,
     "results_oracle_inspired_robust_C4D4_L3p2_train450_600_750.csv": 240,
+    "results_rule_based_oracle.csv": 1,
 }
 
 SUBGROUP_ORDER = ["none", "Z2_rot180", "Z2_reflection", "C4", "D2_V4", "D4"]
@@ -239,6 +240,31 @@ def append_summary(
         for key in keys:
             entry[key] = row[key]
         rows.append(entry)
+
+
+def rule_oracle_accuracy(rule_df: pd.DataFrame) -> float:
+    if "accuracy" not in rule_df.columns or rule_df.empty:
+        raise ValueError("Rule-oracle results must contain a non-empty accuracy column")
+    return float(rule_df["accuracy"].iloc[0])
+
+
+def append_rule_oracle_summary(rows: list[dict[str, object]], figure: str, rule_df: pd.DataFrame) -> None:
+    row = rule_df.iloc[0]
+    rows.append(
+        {
+            "figure": figure,
+            "source": "results_rule_based_oracle.csv",
+            "metric": "accuracy",
+            "n": int(row.get("n_examples", 1)),
+            "mean": float(row["accuracy"]),
+            "std": 0.0,
+            "ci95": 0.0,
+            "params": float(row.get("num_trainable_parameters", 0)),
+            "circuit_family": "deterministic_rule_oracle",
+            "subgroup": "D4_invariant",
+            "train_size": np.nan,
+        }
+    )
 
 
 def plot_paired_metric(
@@ -587,7 +613,12 @@ def make_fig06_compression(df: pd.DataFrame, fig_dir: Path, rows: list[dict[str,
     return save_figure(fig, fig_dir, "fig06_beyond_d4_compression")
 
 
-def make_fig07_oracle(df: pd.DataFrame, fig_dir: Path, rows: list[dict[str, object]]) -> FigureOutput:
+def make_fig07_oracle(
+    df: pd.DataFrame,
+    rule_df: pd.DataFrame,
+    fig_dir: Path,
+    rows: list[dict[str, object]],
+) -> FigureOutput:
     selected = [
         ("edge", "D4"),
         ("edge", "C4"),
@@ -618,13 +649,32 @@ def make_fig07_oracle(df: pd.DataFrame, fig_dir: Path, rows: list[dict[str, obje
             label=label,
             alpha=1.0 if is_main else 0.9,
         )
+    oracle_acc = rule_oracle_accuracy(rule_df)
+    ax.axhline(
+        oracle_acc,
+        color="#D55E00",
+        linestyle=":",
+        linewidth=1.6,
+        label="_nolegend_",
+        zorder=1,
+    )
+    ax.text(
+        750,
+        oracle_acc - 0.015,
+        "deterministic rule oracle",
+        ha="right",
+        va="top",
+        color="#D55E00",
+        fontsize=8,
+    )
     ax.set_xlabel("training examples")
     ax.set_ylabel("test accuracy")
     ax.set_title("Oracle-inspired equivariant architectures")
     ax.set_xticks([450, 600, 750])
-    ax.set_ylim(0.64, 0.84)
+    ax.set_ylim(0.64, 1.02)
+    ax.set_yticks([0.65, 0.75, 0.85, 1.00])
     add_grid(ax)
-    ax.legend(ncol=2, frameon=False, loc="lower right")
+    ax.legend(ncol=3, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 0.72))
     append_summary(
         rows,
         figure="fig07",
@@ -632,6 +682,7 @@ def make_fig07_oracle(df: pd.DataFrame, fig_dir: Path, rows: list[dict[str, obje
         df=df,
         keys=["circuit_family", "subgroup", "train_size"],
     )
+    append_rule_oracle_summary(rows, "fig07", rule_df)
     return save_figure(fig, fig_dir, "fig07_oracle_inspired_accuracy")
 
 
@@ -899,6 +950,7 @@ def main() -> None:
         make_fig06_compression(csvs["results_d4_compression_sweep_L3p2.csv"], args.fig_dir, summary_rows),
         make_fig07_oracle(
             csvs["results_oracle_inspired_robust_C4D4_L3p2_train450_600_750.csv"],
+            csvs["results_rule_based_oracle.csv"],
             args.fig_dir,
             summary_rows,
         ),

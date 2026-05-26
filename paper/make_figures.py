@@ -106,6 +106,13 @@ def mean_ci(df: pd.DataFrame, keys: list[str], metric: str = "test_accuracy") ->
     return grouped
 
 
+def rule_oracle_accuracy() -> float:
+    df = pd.read_csv(CSV_DIR / "results_rule_based_oracle.csv")
+    if "accuracy" not in df.columns or df.empty:
+        raise ValueError("results_rule_based_oracle.csv must contain a non-empty accuracy column")
+    return float(df["accuracy"].iloc[0])
+
+
 def save(fig: plt.Figure, name: str) -> None:
     GFX_DIR.mkdir(parents=True, exist_ok=True)
     fig.savefig(GFX_DIR / f"{name}.pdf", bbox_inches="tight")
@@ -453,12 +460,24 @@ def make_fig2_main_evidence() -> None:
             color=color,
             label=label,
         )
+    oracle_acc = rule_oracle_accuracy()
+    ax.axhline(oracle_acc, color="#D55E00", lw=1.05, ls=":", zorder=1)
+    ax.text(
+        750,
+        oracle_acc - 0.014,
+        "rule oracle\n100%",
+        ha="right",
+        va="top",
+        fontsize=6.0,
+        color="#D55E00",
+    )
     ax.set_xticks([450, 600, 750])
-    ax.set_ylim(0.64, 0.84)
+    ax.set_ylim(0.64, 1.02)
+    ax.set_yticks([0.65, 0.75, 0.85, 1.00])
     ax.set_xlabel("training examples")
     ax.set_title("task-aligned gates")
     grid(ax)
-    ax.legend(frameon=False, loc="lower right", handlelength=1.8)
+    ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(0.02, 0.78), handlelength=1.8)
     add_panel_label(ax, "(c)")
 
     save(fig, "fig2_main_evidence")

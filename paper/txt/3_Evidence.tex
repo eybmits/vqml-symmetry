@@ -5,11 +5,11 @@ The subgroup sweep shows a more nuanced picture. Full $D_4$ is not beaten robust
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{gfx/fig2_main_evidence}
-\caption{Main empirical story. (a) Full $D_4$ equivariance improves test accuracy over no symmetry in the Meyer-style edge ansatz. (b) Across data regimes, $C_4$ closely follows $D_4$, while weaker or unconstrained sharing tends to lag. (c) The largest gain comes from keeping equivariance and adding task-aligned winning-line interactions. Error bars are 95\% confidence intervals over five seeds.}
+\caption{Main empirical story. (a) Full $D_4$ equivariance improves test accuracy over no symmetry in the Meyer-style edge ansatz. (b) Across data regimes, $C_4$ closely follows $D_4$, while weaker or unconstrained sharing tends to lag. (c) The largest gain comes from keeping equivariance and adding task-aligned winning-line interactions; the dotted line marks the deterministic rule oracle at 100\% accuracy as a non-trainable upper reference. Error bars are 95\% confidence intervals over five seeds.}
 \label{fig:main}
 \end{figure*}
 
-The strongest result is the oracle-inspired architecture. The Meyer-style edge/D4 model is around $0.69$ test accuracy in the robust sweep. Adding both winning-line interaction channels to the edge circuit increases performance to $0.795\pm0.016$ at 450 training examples and $0.805\pm0.019$ at 600 examples. The C4 version of the same architecture is also strong, reaching $0.778\pm0.013$ at 600 examples and $0.787\pm0.020$ at 750 examples. The improvement is therefore not obtained by breaking equivariance; it is obtained by using equivariance to tie a more task-aligned set of gates.
+The strongest result is the oracle-inspired architecture. The Meyer-style edge/D4 model is around $0.69$ test accuracy in the robust sweep. Adding both winning-line interaction channels to the edge circuit increases performance to $0.795\pm0.016$ at 450 training examples and $0.805\pm0.019$ at 600 examples. The C4 version of the same architecture is also strong, reaching $0.778\pm0.013$ at 600 examples and $0.787\pm0.020$ at 750 examples. The deterministic rule oracle reaches 100\% accuracy with zero trainable parameters, so it is not a competing variational model; it is included as an upper sanity reference showing that the residual error comes from the ansatz and optimization rather than ambiguous labels. The improvement is therefore not obtained by breaking equivariance; it is obtained by using equivariance to tie a more task-aligned set of gates.
 
 \begin{table}[t]
 \centering

@@ -400,6 +400,7 @@ def main() -> None:
         paper.make_fig06_compression(paper_csvs["results_d4_compression_sweep_L3p2.csv"], args.paper_fig_dir, paper_rows),
         paper.make_fig07_oracle(
             paper_csvs["results_oracle_inspired_robust_C4D4_L3p2_train450_600_750.csv"],
+            paper_csvs["results_rule_based_oracle.csv"],
             args.paper_fig_dir,
             paper_rows,
         ),
