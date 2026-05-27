@@ -1,0 +1,42 @@
+\documentclass{assets/seminarpaper}
+
+% +-----------------------------------------+ %
+% | ADD PACKAGES HERE IF YOU NEED THEM      | %
+% +-----------------------------------------+ %
+\usepackage[T1]{fontenc}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage{booktabs}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{float}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% +-----------------------------------------+ %
+% | FILL OUT PARAMETERS                     | %
+% +-----------------------------------------+ %
+\seminar{Seminar CurrAI}
+\title{When to Break Symmetry? Task-Aligned Equivariance in Variational Quantum Learning}
+\author{Markus Baumann}
+\supervisor{Jonas Stein}
+\abstract{%
+Diese Arbeit untersucht Symmetrie als induktiven Bias in Variational Quantum Learning. Ausgangspunkt ist Meyer et al., die zeigen, dass ein $D_4$-äquivariantes Tic-Tac-Toe-Modell besser generalisieren kann als ein unbeschränktes Modell. Die Arbeit rekonstruiert diese Idee, erweitert sie aber um zwei experimentelle Fragen: Erstens wird die volle Symmetrie nicht nur gegen keine Symmetrie, sondern gegen Untergruppen wie $C_4$, $D_2$ und $Z_2$ verglichen. Zweitens wird untersucht, ob die größte Verbesserung nicht durch mehr oder weniger Symmetrie, sondern durch eine besser zur Aufgabe passende äquivariante Gate-Struktur entsteht. Dazu werden die ursprünglichen gerichteten Edge-Interaktionen um trainierbare Winning-Line-Gates auf den acht Gewinnlinien des Spielfelds erweitert. Die Ergebnisse reproduzieren den Meyer-artigen Generalisierungseffekt: $D_4$ verbessert die Test Accuracy gegenüber keiner Symmetrie und reduziert den Generalization Gap. Partielle Symmetrie, insbesondere $C_4$, erreicht fast dieselbe Leistung wie $D_4$, schlägt es aber nicht robust. Der stärkste empirische Effekt kommt von task-aligned equivariant gates: ein $D_4$-äquivariantes Edge-plus-Line-Modell erreicht etwa $0.80$ Test Accuracy gegenüber etwa $0.69$ für den Meyer-artigen Edge-Ansatz. Parameter-matched random sharing zeigt, dass der Effekt nicht bloß durch weniger Parameter erklärt wird. Die Schlussfolgerung ist konservativ: Die Arbeit behauptet keinen Quantum Advantage, sondern zeigt an einem kontrollierten Benchmark, dass Äquivarianz nicht nur als harte Constraint, sondern als Architekturprinzip verstanden werden sollte.
+}
+
+\begin{document}
+
+\maketitle
+
+% +-----------------------------------------+ %
+% | ADD YOUR TEXT IN contents.tex           | %
+% +-----------------------------------------+ %
+\input{contents}
+\input{eigenstaendigkeit}
+
+% Literatur
+\bibliography{references}
+\bibliographystyle{plain}
+
+% Template notes are kept in the project as hinweise.tex, but are not included in the final paper.
+% \input{hinweise}
+\end{document}

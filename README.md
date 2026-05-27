@@ -68,6 +68,27 @@ The main manuscript story is:
 3. Parameter-matched random sharing underperforms group-orbit sharing.
 4. The strongest current result is the oracle-inspired equivariant `edge_line_zzz_ccrz` ansatz, which adds winning-line interactions while preserving equivariance.
 
+## Seminar Paper
+
+The updated LMU seminar paper is tracked in `docs/seminararbeit/`:
+
+- `docs/seminararbeit/main.pdf` is the compiled seminar paper.
+- `docs/seminararbeit/main.tex` is the LaTeX entry point.
+- `docs/seminararbeit/contents.tex` contains the rewritten main text.
+- `docs/seminararbeit/images/` contains the paper figures used in the seminar paper.
+
+Build it with:
+
+```bash
+cd docs/seminararbeit
+latexmk -pdf -interaction=nonstopmode main.tex
+```
+
+The final page contains the word and character count for the fachlicher
+Haupttext. The seminar paper uses the current result story: Meyer-style `D4`
+reproduction, subgroup equivariance, random-sharing controls, and
+task-aligned winning-line gates.
+
 ## Experiments
 
 Paper plan and experiment roadmap:
@@ -179,6 +200,10 @@ Figures are written to `results/figures/`:
 - `fig_parameter_count.pdf`
 - `fig_random_sharing_control.pdf`
 - `fig_approximate_symmetry.pdf`
+
+The current checked CSV and figure artifacts are committed as part of the
+repository so the paper plots can be regenerated and inspected immediately on a
+fresh checkout. Logs and PID files remain untracked.
 
 ## Data Split Note
 

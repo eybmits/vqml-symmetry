@@ -1,0 +1,61 @@
+\clearpage
+\section*{Hinweise}
+Nachfolgend ein paar Hinweise und Lessons Learned aus der Vergangenheit.
+
+\subsection*{Inhalt}
+\begin{itemize}
+    \item Logischen Zusammenhang zwischen den einzelnen Abschnitten herstellen
+    \item Offene Enden/reine Definitionssalate verleiten Betreuer zu Fragen. Vorsichtig sein, wenn das Wissen nicht über die reine Definition hinausgeht.
+    \item Achte auf eine gleichmäßige und dichte Darstellung des Inhalts. Der Platz sollte sinnvoll genutzt werden, keine inhaltsleeren oder zu lange/zu kurze Texte.
+\end{itemize}
+
+\subsection*{Form}
+\begin{itemize}
+    \item Schreibfehler und Kommasetzungsfehler sollten Dank moderner Tools der Vergangenheit angehören. Mehr als 1 Fehler pro Seite führen zur Abwertung, die sich an der Anzahl der Fehler orientiert. Es gibt keine „Folgefehler“ für konsequent falsche Rechtschreibung.
+    \item Bilder sollen in ausreichender Auflösung eingebunden werden (besser: Vektor-Grafik, noch besser: tikz).
+    \item Jede Section sollte ein Label haben {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\label{sec:name}|}.
+    \item Für den Titel der Arbeit und die Abschnittstitel \textit{titlecase} verwenden
+    \item Keine alleinstehenden Unterkapitel. Mind. 2 Unterkapitel pro Ebene verwenden.
+\end{itemize}
+
+\subsection*{Sprache}
+\begin{itemize}
+    \item Wortstellung beachten: Subjekt, Prädikat und Objekt. Im Zweifelsfall Korrektur lesen lassen.
+    \item Jeder Satz soll einen Zweck erfüllen und Informationen transportieren (keine Hohlphrasen!)
+    \item Kurze Sätze sind leichter verständlich als lange, verschachtelte Sätze. Naturwissenschaftliche Arbeiten sollen Informationen vermitteln.
+    \item Kommunikation soll intersubjektiv erfolgen. (Der Betreuer und jeder andere Leser, soll ansatzweise und in angemessener Zeit verstehen können, was ihr da schreibt.)
+    \item Fachbegriffe dürfen auf Englisch verwendet werden, müssen aber eingeführt werden. Beispiel: „Maschinelles Lernen (sogenanntes englisches Machine Learning (ML)) ist toll.“
+    \item Englische Fachbegriffe werden im Deutschen groß geschrieben!
+    \item Wissenschaftliche Texte werden im Deutsch im Passiv geschrieben.
+    \item Verwendet Begriffe einheitlich, das heißt keine verschiedenen Begriffe für ein und dieselbe Sache verwenden wie beispielsweise „State“, „Zustand“, „Status“ oder Ähnliches. Entscheidet euch für eine Variante. Es geht nicht darum möglichst kreativ sondern deutlich zu schreiben.
+    \item Akronyme sollen einmal im Hauptteil der Arbeit (nicht in Überschriften, nicht im Abstract) eingeführt und danach konsequent verwendet werden. Was geeignete Akronyme sind und was nicht, kann euren Quellen entnommen werden. Beispielsweise: „Machine Learning (ML) ist toll. Insbesondere hat ML den Vorteil, dass\ldots{}“. Das Latex-Package \textit{glossaries} kann automatisiert beim ersten Verwenden eines Fachbegriffs die Abkürzung einführen:
+    \begin{verbatim}
+    \newglossaryentry{LED}
+    {
+      name={LED},
+      description={light emitting diode},
+      first={\glsentrydesc{LED} (\glsentrytext{LED})},
+      plural={LEDs},
+      descriptionplural={light emitting diodes},
+      firstplural={\glsentrydescplural{LED} (\glsentryplural{LED})}
+    }
+    \end{verbatim}
+    Verwendung: {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\gls{LED}|} und im Plural {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\glspl{LED}|}.
+\end{itemize}
+
+\subsection*{Zitierweise}
+\begin{itemize}
+    \item Zitate von Websites sind nicht angebracht; verwendet nur Peer-Reviewed-Dokumente.
+    \item Zitate sollen mit der vordefinierten Zitierweise vorgenommen werden. Zitierstil des Templates nicht ändern!
+    \item Eine direkte Übersetzung muss auch zitiert werden.
+    \item Wenn Elemente (Bilder, Tabellen, Code) von Dritten (aus der Literatur) verwendet werden, muss die Quelle bei jeder Verwendung explizit zitiert werden.
+    \item Blog-Artikel können meist nicht zitiert werden. Ausnahmen bilden Grafiken und andere Elemente, hier muss eine manuell eine korrekte Zitation angelegt werden. Prüft die Korrektheit!
+    \item  Zitate mit Seitenverweis müssen auch als solche ausgeführt werden (z B [2, Seite 44] o.ä.)
+\end{itemize}
+
+\subsection*{Querverweise}
+\begin{itemize}
+    \item  Jedes Element (Abbildung, Tabelle, Diagramm, Code, etc.) muss zur wissenschaftlichen Auseinandersetzung mit dem Thema erforderlich sein.
+    \item Der Text muss sich mit dem Element auseinandersetzen (es mindestens einmal geeignet referenzieren) und es muss die Argumentation stützen. Es reicht nicht aus, dass das Element gut zum Text passt oder die Arbeit optisch aufwertet.
+    \item Befehl für Querverweise {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\cref{label}|}. Im Vergleich zum normalen {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\ref|} Befehl, wird mit {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\cref|} wird auch direkt der Verweis-Typ mit ausgegeben. Beispiel {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\cref|}: \cref{fig:karate}, {\lstset{basicstyle=\ttfamily\bfseries}\lstinline|\ref|}:~\ref{fig:karate}. Der Verweistyp passt sich automatisch dem referenzierten Inhalt an. Es können auch Sub-Figures referenziert werden: \cref{fig:karate1}, \cref{fig:karate2}.
+\end{itemize}

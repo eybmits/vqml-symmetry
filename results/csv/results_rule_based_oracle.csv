@@ -1,0 +1,2 @@
+model,dataset,d4_invariant,n_examples,accuracy,num_trainable_parameters,n_circle,accuracy_circle,n_draw,accuracy_draw,n_cross,accuracy_cross
+deterministic_rule_oracle,all_legal_states,True,5478,1.0,0,316,1.0,4536,1.0,626,1.0
