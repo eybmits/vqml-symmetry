@@ -146,6 +146,7 @@ def add_panel_label(ax: plt.Axes, label: str) -> None:
 
 
 def grid(ax: plt.Axes, axis: str = "y") -> None:
+    ax.set_axisbelow(True)
     ax.grid(True, axis=axis, alpha=0.25, linewidth=0.55, color="#B8B8B8")
 
 
@@ -586,29 +587,43 @@ def make_fig3_controls() -> None:
     summary = mean_ci(random_df, ["subgroup", "sharing_type"])
     groups = ["Z2_rot180", "Z2_reflection", "C4", "D2_V4", "D4"]
     x = np.arange(len(groups))
-    width = 0.30
-    for offset, sharing, color, label, hatch, edgecolor in [
-        (-width / 2, "random", "white", "random", "////", "#B5B5AE"),
-        (width / 2, "symmetry", "#1F1F1F", "group orbit", None, "#1F1F1F"),
-    ]:
-        means = []
-        errs = []
-        for group in groups:
-            row = summary[(summary["subgroup"] == group) & (summary["sharing_type"] == sharing)].iloc[0]
-            means.append(float(row["mean"]))
-            errs.append(float(row["ci95"]))
-        ax.bar(
-            x + offset,
-            means,
-            width=width,
-            yerr=errs,
-            color=color,
-            edgecolor=edgecolor,
-            hatch=hatch,
-            linewidth=1.1,
-            capsize=2.6,
-            error_kw={"elinewidth": 1.1, "capthick": 1.1, "ecolor": "#202020"},
-            label=label,
+    for idx, group in enumerate(groups):
+        random_row = summary[(summary["subgroup"] == group) & (summary["sharing_type"] == "random")].iloc[0]
+        orbit_row = summary[(summary["subgroup"] == group) & (summary["sharing_type"] == "symmetry")].iloc[0]
+        ax.plot(
+            [idx - 0.13, idx + 0.13],
+            [random_row["mean"], orbit_row["mean"]],
+            color="#C9C9C4",
+            linewidth=1.15,
+            zorder=1.0,
+        )
+        ax.errorbar(
+            idx - 0.13,
+            random_row["mean"],
+            yerr=random_row["ci95"],
+            fmt="o",
+            markersize=4.9,
+            markerfacecolor="white",
+            markeredgecolor="#A9A9A2",
+            markeredgewidth=1.4,
+            ecolor="#777777",
+            elinewidth=1.0,
+            capsize=2.2,
+            zorder=3.0,
+        )
+        ax.errorbar(
+            idx + 0.13,
+            orbit_row["mean"],
+            yerr=orbit_row["ci95"],
+            fmt="o",
+            markersize=4.9,
+            markerfacecolor="#1F1F1F",
+            markeredgecolor="#1F1F1F",
+            markeredgewidth=1.2,
+            ecolor="#1F1F1F",
+            elinewidth=1.0,
+            capsize=2.2,
+            zorder=4.0,
         )
     ax.set_xticks(x)
     ax.set_xticklabels([SUBGROUP_LABELS[g] for g in groups])
@@ -618,14 +633,38 @@ def make_fig3_controls() -> None:
     grid(ax)
     style_axes(ax)
     add_panel_label(ax, "a")
+    handles_a = [
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="none",
+            markerfacecolor="white",
+            markeredgecolor="#A9A9A2",
+            markeredgewidth=1.4,
+            markersize=7.0,
+            label="random",
+        ),
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="none",
+            markerfacecolor="#1F1F1F",
+            markeredgecolor="#1F1F1F",
+            markersize=7.0,
+            label="group orbit",
+        ),
+    ]
     legend_a = ax.legend(
+        handles=handles_a,
         loc="upper left",
         ncol=2,
         fontsize=9.5,
         frameon=False,
-        handlelength=1.4,
-        handletextpad=0.5,
-        columnspacing=1.1,
+        handlelength=1.0,
+        handletextpad=0.35,
+        columnspacing=1.0,
         labelspacing=0.32,
         borderaxespad=0.4,
     )
@@ -651,26 +690,78 @@ def make_fig3_controls() -> None:
         .sort_values(kind="mergesort")
     )
     families = [family for family in family_rank.index if family in family_candidates]
-    for i, subgroup in enumerate(["C4", "D4"]):
-        offset = -0.17 if subgroup == "C4" else 0.17
-        means = []
-        errs = []
-        for family in families:
-            row = summary[(summary["circuit_family"] == family) & (summary["subgroup"] == subgroup)].iloc[0]
-            means.append(float(row["mean"]))
-            errs.append(float(row["ci95"]))
-        ax.bar(
-            np.arange(len(families)) + offset,
-            means,
-            width=0.32,
-            yerr=errs,
-            capsize=1.9,
-            color="#7CA9B5" if subgroup == "C4" else "#C9473A",
-            edgecolor="#5C8791" if subgroup == "C4" else "#9E3229",
-            linewidth=1.0,
-            alpha=0.95,
-            label=SUBGROUP_LABELS[subgroup],
-            error_kw={"elinewidth": 1.05, "capthick": 1.05, "ecolor": "#202020"},
+    for idx, family in enumerate(families):
+        c4_row = summary[(summary["circuit_family"] == family) & (summary["subgroup"] == "C4")].iloc[0]
+        d4_row = summary[(summary["circuit_family"] == family) & (summary["subgroup"] == "D4")].iloc[0]
+        ax.plot(
+            [idx - 0.13, idx + 0.13],
+            [c4_row["mean"], d4_row["mean"]],
+            color="#D9D9D9",
+            linewidth=1.1,
+            zorder=1.0,
+        )
+        ax.errorbar(
+            idx - 0.13,
+            c4_row["mean"],
+            yerr=c4_row["ci95"],
+            fmt="o",
+            markersize=4.8,
+            markerfacecolor="#6F9EAA",
+            markeredgecolor="#547F88",
+            markeredgewidth=1.0,
+            ecolor="#202020",
+            elinewidth=1.0,
+            capsize=2.0,
+            zorder=3.0,
+        )
+        ax.errorbar(
+            idx + 0.13,
+            d4_row["mean"],
+            yerr=d4_row["ci95"],
+            fmt="o",
+            markersize=4.8,
+            markerfacecolor="#C9473A",
+            markeredgecolor="#9E3229",
+            markeredgewidth=1.0,
+            ecolor="#202020",
+            elinewidth=1.0,
+            capsize=2.0,
+            zorder=4.0,
+        )
+    if "edge" in families:
+        edge_idx = families.index("edge")
+        edge_d4_row = summary[(summary["circuit_family"] == "edge") & (summary["subgroup"] == "D4")].iloc[0]
+        edge_d4_x = edge_idx + 0.13
+        edge_d4_y = edge_d4_row["mean"]
+        ax.scatter(
+            [edge_d4_x],
+            [edge_d4_y],
+            s=132,
+            facecolor="none",
+            edgecolor="#000000",
+            linewidth=0.65,
+            zorder=5.0,
+        )
+        ax.annotate(
+            r"original edge/$\mathbf{D}_4$",
+            xy=(edge_d4_x, edge_d4_y),
+            xytext=(edge_d4_x + 0.25, edge_d4_y - 0.034),
+            arrowprops={
+                "arrowstyle": "->",
+                "lw": 0.55,
+                "color": "#000000",
+                "shrinkA": 3.5,
+                "shrinkB": 5.5,
+                "mutation_scale": 7.0,
+                "connectionstyle": "arc3,rad=0.0",
+            },
+            fontsize=9.0,
+            color="#000000",
+            fontweight="bold",
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.88, "pad": 0.28},
+            ha="left",
+            va="top",
+            zorder=8.0,
         )
     ax.set_xticks(np.arange(len(families)))
     ax.set_xticklabels([FAMILY_LABELS[f] for f in families], rotation=52, ha="right")
@@ -680,12 +771,37 @@ def make_fig3_controls() -> None:
     grid(ax)
     style_axes(ax)
     add_panel_label(ax, "b")
+    handles_b = [
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="none",
+            markerfacecolor="#6F9EAA",
+            markeredgecolor="#547F88",
+            markeredgewidth=1.0,
+            markersize=7.0,
+            label=SUBGROUP_LABELS["C4"],
+        ),
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="none",
+            markerfacecolor="#C9473A",
+            markeredgecolor="#9E3229",
+            markeredgewidth=1.0,
+            markersize=7.0,
+            label=SUBGROUP_LABELS["D4"],
+        ),
+    ]
     legend_b = ax.legend(
+        handles=handles_b,
         loc="upper left",
         ncol=1,
         fontsize=9.5,
         frameon=False,
-        handlelength=1.5,
+        handlelength=1.0,
         handletextpad=0.5,
         labelspacing=0.32,
         borderaxespad=0.5,
@@ -703,10 +819,11 @@ def make_fig3_controls() -> None:
             row["mean"],
             facecolor="white",
             edgecolor="#7A7A7A",
-            s=88,
+            s=78,
             marker="o",
-            linewidth=1.35,
+            linewidth=1.25,
             alpha=1.0,
+            zorder=4.2,
         )
     for family in ["edge_line_zzz", "edge_line_ccrz", "edge_line_zzz_ccrz"]:
         for subgroup in ["C4", "D4"]:
@@ -715,58 +832,70 @@ def make_fig3_controls() -> None:
                 row["params"],
                 row["mean"],
                 color="#C9473A",
-                s=104 if family == "edge_line_zzz_ccrz" else 74,
+                s=96 if family == "edge_line_zzz_ccrz" else 66,
                 marker="^",
                 edgecolor="white",
                 linewidth=0.6,
                 alpha=1.0 if family == "edge_line_zzz_ccrz" else 0.88,
+                zorder=4.4,
             )
     edge_d4 = psummary[psummary["subgroup"] == "D4"].iloc[0]
     edge_lines_d4 = osummary[
         (osummary["circuit_family"] == "edge_line_zzz_ccrz") & (osummary["subgroup"] == "D4")
     ].iloc[0]
-    # Soft yellow highlight behind the two annotated models.
-    for hl in (edge_lines_d4, edge_d4):
-        ax.scatter(
-            [hl["params"]],
-            [hl["mean"]],
-            s=300,
-            marker="o",
-            facecolor="#FFE066",
-            edgecolor="none",
-            alpha=0.45,
-            zorder=0.9,
-        )
-    label_box = {"facecolor": "white", "edgecolor": "none", "alpha": 0.92, "pad": 0.65}
+    label_box = {"facecolor": "white", "edgecolor": "none", "alpha": 0.90, "pad": 0.45}
+    ax.scatter(
+        [edge_d4["params"]],
+        [edge_d4["mean"]],
+        s=132,
+        marker="o",
+        facecolor="none",
+        edgecolor="#000000",
+        linewidth=0.65,
+        zorder=5.2,
+    )
+    ax.scatter(
+        [edge_lines_d4["params"]],
+        [edge_lines_d4["mean"]],
+        s=214,
+        marker="o",
+        facecolor="none",
+        edgecolor="#000000",
+        linewidth=0.65,
+        zorder=5.2,
+    )
     ax.annotate(
-        r"edge/$D_4$",
+        r"original edge/$\mathbf{D}_4$",
         xy=(edge_d4["params"], edge_d4["mean"]),
-        xytext=(72, 0.712),
+        xytext=(58, 0.652),
         arrowprops={
-            "arrowstyle": "-",
+            "arrowstyle": "->",
             "lw": 0.55,
             "color": "#000000",
-            "shrinkA": 2.5,
-            "shrinkB": 4.0,
-            "connectionstyle": "arc3,rad=0.0",
+            "shrinkA": 4.0,
+            "shrinkB": 8.0,
+            "mutation_scale": 7.0,
+            "connectionstyle": "arc3,rad=0.06",
         },
         fontsize=9.0,
         color="#000000",
+        fontweight="bold",
         bbox=label_box,
         ha="left",
-        va="center",
+        va="top",
         zorder=8,
     )
     ax.annotate(
-        r"edge+lines/$D_4$",
+        r"edge+lines/$\mathbf{D}_4$",
         xy=(edge_lines_d4["params"], edge_lines_d4["mean"]),
-        xytext=(112, 0.818),
+        xytext=(111, 0.818),
         arrowprops={
-            "arrowstyle": "-",
+            "arrowstyle": "->",
             "lw": 0.55,
             "color": "#000000",
             "shrinkA": 2.5,
-            "shrinkB": 10.0,
+            "shrinkB": 8.0,
+            "mutation_scale": 7.0,
             "connectionstyle": "arc3,rad=0.14",
         },
         fontsize=9.0,

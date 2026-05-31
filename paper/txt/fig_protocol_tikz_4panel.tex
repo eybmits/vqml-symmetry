@@ -34,7 +34,12 @@
   \OMark{0}{0}\XMark{0.58}{0}
   \OMark{-0.58}{-0.58}\OMark{0.58}{-0.58}
 }
+\newcommand{\WhiteBoardA}{%
+  \draw[fill=white, draw=black!30, line width=0.45pt, rounded corners=2.5pt] (-1.06,-1.06) rectangle (1.06,1.06);
+  \BoardA
+}
 \newcommand{\DataGrid}{%
+  \draw[fill=white, draw=black!18, line width=0.35pt] (-0.63,-0.63) rectangle (0.63,0.63);
   \foreach \x in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (\x,-0.63)--(\x,0.63);}
   \foreach \y in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (-0.63,\y)--(0.63,\y);}
   \node[text=qblue,font=\scriptsize] at (-0.42,0.42) {$+1$};
@@ -206,50 +211,50 @@
   \node[font=\small] at (15.85,0.46) {Winning-line gates (ours)};
 
   % ===== Panel (a): symmetry — rotations (rows) x flip (columns) =====
-  \node[font=\scriptsize, text=black!82, rotate=90] at (0.32,3.45) {Winner: \textcolor{qorange}{$\circ$}};
-  \foreach \yy/\ang/\lab in {5.12/0/{$0^\circ$}, 4.04/90/{$90^\circ$}, 2.96/180/{$180^\circ$}, 1.88/270/{$270^\circ$}} {
-    \node[font=\scriptsize, text=black!82] at (0.95,\yy) {\lab};
-    \begin{scope}[shift={(1.80,\yy)}, scale=0.44, rotate=\ang]\BoardA\end{scope}
-    \node[font=\tiny, text=black!72] at (2.50,\yy+0.34) {Flip};
-    \draw[flow, line width=0.7pt] (2.28,\yy) -- (2.72,\yy);
-    \begin{scope}[shift={(3.42,\yy)}, scale=0.44, rotate=\ang, xscale=-1]\BoardA\end{scope}
+  \node[font=\scriptsize, text=black!86, rotate=90] at (0.37,3.50) {Winner: \textcolor{qorange}{$\circ$}};
+  \foreach \yy/\ang/\lab in {5.26/0/{$0^\circ$}, 4.08/90/{$90^\circ$}, 2.90/180/{$180^\circ$}, 1.72/270/{$270^\circ$}} {
+    \node[font=\scriptsize, text=black!86] at (0.90,\yy) {\lab};
+    \begin{scope}[shift={(1.66,\yy)}, scale=0.52, rotate=\ang]\WhiteBoardA\end{scope}
+    \node[font=\tiny, text=black!86] at (2.53,\yy+0.28) {Flip};
+    \draw[flow, line width=0.65pt] (2.35,\yy) -- (2.72,\yy);
+    \begin{scope}[shift={(3.42,\yy)}, scale=0.52, rotate=\ang, xscale=-1]\WhiteBoardA\end{scope}
   }
 
   % ===== Panel (b): encoding =====
-  \node[font=\scriptsize, text=black!85] at (5.45,5.50) {Game};
-  \node[font=\scriptsize, text=black!85] at (7.30,5.50) {Data $g_i$};
-  \begin{scope}[shift={(5.45,4.74)}, scale=0.54]\BoardA\end{scope}
-  \begin{scope}[shift={(7.30,4.74)}, scale=0.82]\DataGrid\end{scope}
-  \draw[flow] (5.99,4.74) -- (6.78,4.74);
-  \node[draw=qteal!80!black, fill=white, rounded corners=2.5pt, line width=0.5pt, align=center, inner xsep=5pt, inner ysep=3pt, font=\scriptsize] at (6.40,3.58) {$x_i=\tfrac{2\pi}{3}g_i,\quad U=R_X(x_i)$};
-  \begin{scope}[shift={(6.40,2.02)}, scale=1.34]
+  \node[font=\scriptsize, text=black!85] at (5.40,5.68) {Game};
+  \node[font=\scriptsize, text=black!85] at (7.38,5.68) {Data $g_i$};
+  \begin{scope}[shift={(5.40,4.78)}, scale=0.66]\WhiteBoardA\end{scope}
+  \begin{scope}[shift={(7.38,4.78)}, scale=1.08]\DataGrid\end{scope}
+  \draw[flow] (6.14,4.78) -- (6.66,4.78);
+  \node[draw=qteal!80!black, fill=white, rounded corners=2.5pt, line width=0.55pt, align=center, inner xsep=6pt, inner ysep=4pt, font=\scriptsize] at (6.40,3.63) {$x_i=\tfrac{2\pi}{3}g_i,\quad U=R_X(x_i)$};
+  \begin{scope}[shift={(6.40,2.18)}, scale=1.40, transform shape]
     \DeclareBoardCoords
     \foreach \a/\b in {p0/p1,p1/p2,p2/p3,p3/p4,p4/p5,p5/p6,p6/p7,p7/p0} {\draw[black!45,line width=0.5pt] (\a)--(\b);}
     \foreach \a/\b in {p1/p8,p3/p8,p5/p8,p7/p8} {\draw[black!28,line width=0.5pt] (\a)--(\b);}
     \foreach \p/\i/\c in {p0/0/cornerfill,p1/1/sidefill,p2/2/cornerfill,p3/3/sidefill,p4/4/cornerfill,p5/5/sidefill,p6/6/cornerfill,p7/7/sidefill,p8/8/centerfill} {
-      \node[draw=black!52, fill=\c, rounded corners=1.6pt, inner sep=0.6pt, font=\tiny, minimum size=0.36cm] at (\p) {$x_{\i}$};
+      \node[draw=black!52, fill=\c, rounded corners=1.6pt, inner sep=0.7pt, font=\tiny, minimum size=0.38cm] at (\p) {$x_{\i}$};
     }
   \end{scope}
 
   % ===== Panel (c): equivariant gateset =====
-  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (8.88,1.12) rectangle (11.00,4.58);
-  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (11.16,1.12) rectangle (13.28,4.58);
-  \node[font=\scriptsize, text=black!85] at (9.94,5.22) {Single-qubit};
-  \node[font=\scriptsize, text=black!85] at (12.22,5.22) {Entangling};
-  \IconSingle{9.40}{4.18}
-  \node[anchor=west, font=\scriptsize, text=black!85] at (9.66,4.18) {$=R_YR_X$};
-  \IconCtrl{11.66}{4.16}
-  \node[anchor=west, font=\scriptsize, text=black!85] at (11.92,4.16) {$=CR_P$};
-  \begin{scope}[shift={(9.94,2.82)}, scale=1.06]\SingleQubitBoard\end{scope}
-  \begin{scope}[shift={(12.22,2.82)}, scale=1.06]\EntangleBoard\end{scope}
-  \node[font=\tiny, text=black!72, align=center, text width=2.0cm] at (9.94,1.40) {same colour: shared $R_X,R_Y$};
-  \node[font=\tiny, text=black!72, align=center, text width=2.0cm] at (12.22,1.40) {$CR_P$ on pairs, orbit-shared};
+  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (8.82,1.08) rectangle (11.08,5.40);
+  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (11.12,1.08) rectangle (13.34,5.40);
+  \node[font=\scriptsize, text=black!85] at (9.95,5.66) {Single-qubit};
+  \node[font=\scriptsize, text=black!85] at (12.23,5.66) {Entangling};
+  \IconSingle{9.40}{4.86}
+  \node[anchor=west, font=\scriptsize, text=black!85] at (9.66,4.86) {$=R_YR_X$};
+  \IconCtrl{11.67}{4.84}
+  \node[anchor=west, font=\scriptsize, text=black!85] at (11.93,4.84) {$=CR_P$};
+  \begin{scope}[shift={(9.95,3.18)}, scale=1.13, transform shape]\SingleQubitBoard\end{scope}
+  \begin{scope}[shift={(12.23,3.18)}, scale=1.13, transform shape]\EntangleBoard\end{scope}
+  \node[font=\tiny, text=black!72, align=center, text width=2.12cm] at (9.95,1.39) {same colour: shared $R_X,R_Y$};
+  \node[font=\tiny, text=black!72, align=center, text width=2.12cm] at (12.23,1.39) {$CR_P$ on pairs, orbit-shared};
 
   % ===== Panel (d): task-aligned winning-line gates (ours) =====
   \IconZZZ{14.34}{5.38}
   \node[anchor=west, font=\small, text=black!88] at (14.65,5.38) {$=ZZZ$};
-  \IconCCRZ{16.00}{5.38}
-  \node[anchor=west, font=\small, text=black!88] at (16.36,5.38) {$=CCR_Z$};
+  \IconCCRZ{16.24}{5.38}
+  \node[anchor=west, font=\small, text=black!88] at (16.40,5.38) {$=CCR_Z$};
   \begin{scope}[shift={(15.85,3.30)}, scale=1.50]\WinLineBoard\end{scope}
   \node[font=\scriptsize, text=black!80, align=center, text width=3.8cm] at (15.85,1.42) {one $ZZZ$ and $CCR_Z$ per winning triple (3 qubits); 8 triples, orbit-shared};
 \end{tikzpicture}

@@ -233,7 +233,7 @@ Der deutlichste empirische Gewinn entsteht durch die winning-line gates. Panel (
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{images/fig_controls.pdf}
-\caption{Controls und Ablationen aus dem finalen 10-Seed-Protokoll. Links: Parameter-matched random sharing schlägt group-orbit sharing nicht. Mitte: Ablation der Line-Gate-Familien bei 600 Trainingsbeispielen, aufsteigend nach mittlerer Leistung. Rechts: Accuracy ist nicht allein durch Parameterzahl erklärbar; task-aligned equivariant geometry verschiebt das Modell in einen anderen Leistungsbereich.}
+\caption{Controls und Ablationen aus dem finalen 10-Seed-Protokoll. Links: Parameter-matched random sharing schlägt group-orbit sharing nicht. Mitte: Ablation der Line-Gate-Familien bei 600 Trainingsbeispielen, aufsteigend nach mittlerer Leistung, mit dem markierten originalen Edge/$D_4$-Ansatz als Referenz. Rechts: Accuracy ist nicht allein durch Parameterzahl erklärbar; task-aligned equivariant geometry verschiebt das Modell in einen anderen Leistungsbereich.}
 \label{fig:controls}
 \end{figure}
 
@@ -249,9 +249,9 @@ Diese Beobachtung hilft, den wissenschaftlichen Claim sauber zu formulieren. Wir
 
 \subsection{Symmetrie als Designachse}\label{subsec:break}
 
-Der Titel \emph{Symmetry as a Design Axis in Variational Quantum Learning} fasst den konservativeren Claim der Experimente besser zusammen. Die Frage ist nicht nur, ob man volle $D_4$-Symmetrie bewusst brechen sollte. $C_4$ ist kompetitiv und in kleinen Datenregimen punktuell besser, aber es schlägt $D_4$ nicht robust. Deshalb wäre die harte Aussage \emph{man sollte volle Symmetrie brechen} wissenschaftlich zu stark.
+Die Experimente zeigen Symmetrie als Designachse statt als binäre Entscheidung. Die Frage ist nicht nur, ob man volle $D_4$-Symmetrie erzwingen oder bewusst abschwächen sollte. $C_4$ ist kompetitiv und in kleinen Datenregimen punktuell besser, aber es schlägt $D_4$ nicht robust. Die saubere Schlussfolgerung ist daher nicht, dass man Symmetrie brechen muss, sondern dass der Symmetriegrad eine sinnvolle Modellwahlachse ist.
 
-Eine bessere Formulierung ist: \emph{When to relax or redesign symmetry}. Partielle Symmetrie zeigt, dass der Symmetriegrad eine sinnvolle Modellwahlachse ist. Die winning-line-Ergebnisse zeigen aber, dass der stärkere Hebel darin liegt, die äquivariante Architektur selbst zu verbessern. Man muss $D_4$ nicht brechen, um $D_4$ zu schlagen; man kann innerhalb von $D_4$ bessere Gates platzieren.
+Die winning-line-Ergebnisse zeigen zugleich, dass der stärkere Hebel innerhalb des äquivarianten Designraums liegt. Man muss $D_4$ nicht brechen, um den Meyer-artigen $D_4$-Ansatz zu übertreffen; man kann bessere orbit-geteilte Gates auf die Motive setzen, die das Label bestimmen. Der finale Titel \emph{Symmetry as a Design Axis in Variational Quantum Learning} fasst genau diese konservativere Aussage zusammen.
 
 \subsection{Symmetrie ist nicht gleich Parameterreduktion}\label{subsec:notparams}
 
