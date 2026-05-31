@@ -1,4 +1,8 @@
-"""Generate compact manuscript figures from checked experiment CSV files."""
+"""Generate compact manuscript figures from checked experiment CSV files.
+
+Figure 1 is maintained as the standalone four-panel TikZ/PDF composite
+``fig1_4panel_standalone.pdf`` and is only verified here.
+"""
 
 from __future__ import annotations
 
@@ -17,6 +21,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.lines import Line2D
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 
 from src.groups_d4 import COORDS, DIRECTED_PAIRS, WIN_LINE_TRIPLES, apply_transform_to_board
@@ -24,23 +29,29 @@ from src.groups_d4 import COORDS, DIRECTED_PAIRS, WIN_LINE_TRIPLES, apply_transf
 
 CSV_DIR = ROOT / "results" / "csv"
 GFX_DIR = Path(__file__).resolve().parent / "gfx"
+TRAIN_SIZES = [30, 60, 120, 240, 450, 600]
+EDGE_RESULTS = CSV_DIR / "results_paper_consistent_edge_L3p2.csv"
+EDGE_LINES_RESULTS = CSV_DIR / "results_paper_consistent_edge_lines_L3p2.csv"
+ABLATION_RESULTS = CSV_DIR / "results_paper_consistent_ablation_L3p2_train600.csv"
+RANDOM_RESULTS = CSV_DIR / "results_paper_consistent_random_sharing_L3p2_train600.csv"
+FIG1_PROTOCOL = Path(__file__).resolve().parent / "fig1_4panel_standalone.pdf"
 
 SUBGROUP_ORDER = ["none", "Z2_rot180", "Z2_reflection", "C4", "D2_V4", "D4"]
 SUBGROUP_LABELS = {
     "none": "none",
-    "Z2_rot180": "Z2 rot",
-    "Z2_reflection": "Z2 refl",
-    "C4": "C4",
-    "D2_V4": "D2",
-    "D4": "D4",
+    "Z2_rot180": r"$Z_2 r$",
+    "Z2_reflection": r"$Z_2 f$",
+    "C4": r"$C_4$",
+    "D2_V4": r"$D_2$",
+    "D4": r"$D_4$",
 }
 SUBGROUP_COLORS = {
-    "none": "#8a8a8a",
-    "Z2_rot180": "#E69F00",
-    "Z2_reflection": "#56B4E9",
-    "C4": "#009E73",
-    "D2_V4": "#CC79A7",
-    "D4": "#0072B2",
+    "none": "#9B9B9B",
+    "Z2_rot180": "#7D9441",
+    "Z2_reflection": "#5AA6BF",
+    "C4": "#C9473A",
+    "D2_V4": "#337FAE",
+    "D4": "#1F1F1F",
 }
 FAMILY_COLORS = {
     "edge": "#666666",
@@ -54,27 +65,38 @@ FAMILY_COLORS = {
 }
 FAMILY_LABELS = {
     "edge": "edge",
-    "line_zzz": "line ZZZ",
-    "line_ccrz": "line CCRZ",
-    "line_zzz_ccrz": "line both",
+    "line_zzz": "ZZZ",
+    "line_ccrz": "CCRZ",
+    "line_zzz_ccrz": "ZZZ+CCRZ",
     "edge_line_zzz": "edge+ZZZ",
     "edge_line_ccrz": "edge+CCRZ",
-    "edge_line_zzz_ccrz": "edge+both",
-    "line_pair_crz": "pair CRZ",
+    "edge_line_zzz_ccrz": "edge+lines",
+    "line_pair_crz": "pair-CRZ",
 }
 
 
 def configure_style() -> None:
     plt.rcParams.update(
         {
-            "font.size": 7.0,
-            "axes.labelsize": 7.0,
-            "axes.titlesize": 7.8,
-            "legend.fontsize": 6.2,
-            "xtick.labelsize": 6.2,
-            "ytick.labelsize": 6.2,
+            "font.family": "serif",
+            "font.serif": ["Times New Roman", "Times", "Nimbus Roman", "DejaVu Serif"],
+            "mathtext.fontset": "cm",
+            "font.size": 10.0,
+            "axes.labelsize": 10.0,
+            "axes.titlesize": 10.0,
+            "legend.fontsize": 9.5,
+            "xtick.labelsize": 9.0,
+            "ytick.labelsize": 9.0,
             "axes.spines.top": False,
             "axes.spines.right": False,
+            "axes.linewidth": 1.15,
+            "axes.labelcolor": "#000000",
+            "text.color": "#000000",
+            "xtick.color": "#000000",
+            "ytick.color": "#000000",
+            "legend.labelcolor": "#000000",
+            "xtick.major.width": 1.0,
+            "ytick.major.width": 1.0,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
         }
@@ -115,16 +137,24 @@ def rule_oracle_accuracy() -> float:
 
 def save(fig: plt.Figure, name: str) -> None:
     GFX_DIR.mkdir(parents=True, exist_ok=True)
-    fig.savefig(GFX_DIR / f"{name}.pdf", bbox_inches="tight")
+    fig.savefig(GFX_DIR / f"{name}.pdf", bbox_inches="tight", pad_inches=0.012)
     plt.close(fig)
 
 
 def add_panel_label(ax: plt.Axes, label: str) -> None:
-    ax.text(-0.08, 1.04, label, transform=ax.transAxes, fontweight="bold", fontsize=8.5)
+    ax.text(-0.16, 1.12, label, transform=ax.transAxes, fontweight="bold", fontsize=11.0, color="#000000")
 
 
 def grid(ax: plt.Axes, axis: str = "y") -> None:
-    ax.grid(True, axis=axis, alpha=0.22, linewidth=0.55)
+    ax.grid(True, axis=axis, alpha=0.25, linewidth=0.55, color="#B8B8B8")
+
+
+def style_axes(ax: plt.Axes) -> None:
+    ax.tick_params(length=3.8, width=1.0, colors="#000000")
+    ax.spines["left"].set_color("#000000")
+    ax.spines["bottom"].set_color("#000000")
+    ax.spines["left"].set_linewidth(1.15)
+    ax.spines["bottom"].set_linewidth(1.15)
 
 
 def board_xy(index: int) -> tuple[float, float]:
@@ -328,176 +358,238 @@ def draw_gate_box(ax: plt.Axes, xy: tuple[float, float], text: str, *, color: st
     ax.text(x + width / 2, y + 0.0275, text, ha="center", va="center", fontsize=6.7, color="#222222", zorder=3)
 
 
-def make_fig1_protocol() -> None:
-    fig = plt.figure(figsize=(7.2, 2.85))
-    gs = fig.add_gridspec(1, 3, width_ratios=[1.02, 1.02, 1.55], wspace=0.11)
-    axes = [fig.add_subplot(gs[0, idx]) for idx in range(3)]
-    for ax in axes:
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
-        ax.set_axis_off()
-
-    # Panel 1: the task symmetry.
-    ax = axes[0]
-    rounded_panel(ax, (0.04, 0.18), 0.92, 0.74, facecolor="#f7f7f7", edgecolor="#8a8a8a", linewidth=0.9)
-    board = np.array([1, 1, -1, 1, -1, 0, -1, 0, -1])
-    draw_ttt_board(ax, (0.30, 0.62), 0.22, board)
-    draw_ttt_board(ax, (0.70, 0.62), 0.22, apply_transform_to_board(board, "rot90"))
-    draw_ttt_board(ax, (0.70, 0.34), 0.22, apply_transform_to_board(board, "reflect_vertical"))
-    ax.add_patch(FancyArrowPatch((0.42, 0.62), (0.57, 0.62), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
-    ax.add_patch(FancyArrowPatch((0.42, 0.46), (0.57, 0.36), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
-    ax.text(0.30, 0.81, "game", ha="center", fontsize=7.0)
-    ax.text(0.70, 0.81, r"$90^\circ$ rotation", ha="center", fontsize=7.0)
-    ax.text(0.70, 0.20, "reflection", ha="center", fontsize=7.0)
-    ax.text(0.50, 0.895, r"$D_4=\langle r,f\rangle$", ha="center", va="center", fontsize=9.0, color="#444444")
-    ax.text(0.50, 0.095, "Symmetry", ha="center", va="center", fontsize=10.8)
-    ax.text(0.08, 0.49, "same label", ha="center", va="center", fontsize=7.0, color="#E69F00", rotation=90)
-
-    # Panel 2: data encoding and parameter orbits.
-    ax = axes[1]
-    rounded_panel(ax, (0.04, 0.18), 0.92, 0.74, facecolor="#f9f7ff", edgecolor="#9b6bd3", linewidth=0.9)
-    draw_ttt_board(ax, (0.28, 0.68), 0.21, board)
-    draw_data_grid(ax, (0.70, 0.68), 0.20, board.tolist())
-    ax.add_patch(FancyArrowPatch((0.42, 0.68), (0.56, 0.68), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
-    ax.text(0.28, 0.84, "board", ha="center", fontsize=7.0)
-    ax.text(0.70, 0.84, r"data $g_i$", ha="center", fontsize=7.0)
-    draw_gate_box(ax, (0.18, 0.455), r"$x_i=\frac{2\pi}{3}g_i$", color="#9b6bd3", width=0.25)
-    draw_gate_box(ax, (0.57, 0.455), r"$R_X(x_i)$", color="#9b6bd3", width=0.20)
-    ax.text(0.50, 0.483, "=", ha="center", va="center", fontsize=10.0)
-    draw_ttt_board(ax, (0.50, 0.335), 0.185, None, colors=True)
-    ax.text(0.50, 0.205, "corner / edge / center orbits", ha="center", fontsize=6.4, color="#5a3a8a")
-    ax.text(0.50, 0.095, "Encoding", ha="center", va="center", fontsize=10.8)
-
-    # Panel 3: equivariant ansatz and task-aligned extension.
-    ax = axes[2]
-    rounded_panel(ax, (0.025, 0.18), 0.95, 0.74, facecolor="#f4ecfb", edgecolor="#9b6bd3", linewidth=0.9)
-    ax.text(0.275, 0.84, "edge ansatz", ha="center", fontsize=7.0, color="#5a3a8a")
-    ax.text(0.745, 0.84, "winning-line gates", ha="center", fontsize=7.0, color="#1b7f35")
-    draw_ttt_board(ax, (0.275, 0.61), 0.285, None, edge_overlay=True)
-    draw_ttt_board(ax, (0.745, 0.61), 0.285, None, edge_overlay=True, line_overlay=True)
-
-    draw_gate_box(ax, (0.115, 0.365), r"$R_XR_Y$", color="#9b6bd3", width=0.125)
-    draw_gate_box(ax, (0.302, 0.365), r"$CRY$", color="#9b6bd3", width=0.105)
-    ax.text(0.275, 0.305, "orbit sharing", ha="center", fontsize=6.3, color="#5a3a8a")
-
-    draw_gate_box(ax, (0.600, 0.385), r"$ZZZ$", color="#2ca02c", width=0.100)
-    draw_gate_box(ax, (0.780, 0.385), r"$CCR_Z$", color="#2ca02c", width=0.120)
-    draw_gate_box(ax, (0.670, 0.305), r"$+$ edge CRY", color="#2ca02c", width=0.165)
-    ax.text(0.745, 0.255, "equivariant extension", ha="center", fontsize=6.3, color="#1b7f35")
-
-    ax.add_patch(FancyArrowPatch((0.445, 0.60), (0.575, 0.60), arrowstyle="->", mutation_scale=12, lw=0.9, color="#333333"))
-    ax.text(0.50, 0.095, "Equivariant gateset", ha="center", va="center", fontsize=10.8)
-    save(fig, "fig1_protocol")
+def verify_fig1_protocol() -> None:
+    """Figure 1 is authored as the standalone four-panel TikZ/PDF composite."""
+    if not FIG1_PROTOCOL.exists() or FIG1_PROTOCOL.stat().st_size == 0:
+        raise RuntimeError(f"Missing canonical Figure 1 PDF: {FIG1_PROTOCOL}")
 
 
 def make_fig2_main_evidence() -> None:
-    repro = pd.read_csv(CSV_DIR / "results_reproduction.csv")
-    partial = pd.read_csv(CSV_DIR / "results_partial_data_sweep_full_L3p2.csv")
-    oracle = pd.read_csv(CSV_DIR / "results_oracle_inspired_robust_C4D4_L3p2_train450_600_750.csv")
+    edge = pd.read_csv(EDGE_RESULTS)
+    edge_lines = pd.read_csv(EDGE_LINES_RESULTS)
 
-    fig, axes = plt.subplots(1, 3, figsize=(7.05, 2.15), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(7.16, 2.62))
+    fig.subplots_adjust(left=0.07, right=0.985, top=0.93, bottom=0.205, wspace=0.30)
 
     ax = axes[0]
-    summary = mean_ci(repro, ["subgroup"])
+    e600 = edge[edge["train_size"] == 600]
     order = ["none", "D4"]
-    x = np.arange(len(order))
-    means = [float(summary.loc[summary["subgroup"] == g, "mean"].iloc[0]) for g in order]
-    errs = [float(summary.loc[summary["subgroup"] == g, "ci95"].iloc[0]) for g in order]
-    ax.bar(x, means, yerr=errs, color=[SUBGROUP_COLORS[g] for g in order], capsize=2.5, width=0.58)
-    ax.set_xticks(x)
-    ax.set_xticklabels(["none", "D4"])
-    ax.set_ylim(0.50, 0.75)
+    xbase = {"none": 0.0, "D4": 1.0}
+    fill_color = {"none": "#B6B6B2", "D4": "#C9473A"}
+    dot_color = {"none": "#4D4D4D", "D4": "#9E3229"}
+    vals = {g: e600[e600["subgroup"] == g]["test_accuracy"].to_numpy(dtype=float) for g in order}
+
+    # Half-violin (kernel density) on the outer side of each group.
+    try:
+        from scipy.stats import gaussian_kde
+
+        _kde_ok = True
+    except Exception:
+        _kde_ok = False
+    ygrid = np.linspace(0.565, 0.745, 240)
+    for g in order:
+        side = -1.0 if g == "none" else 1.0
+        base = xbase[g]
+        if _kde_ok and np.unique(vals[g]).size > 1:
+            dens = gaussian_kde(vals[g])(ygrid)
+            dens = dens / dens.max() * 0.30
+            ax.fill_betweenx(
+                ygrid,
+                base + side * 0.07,
+                base + side * (0.07 + dens),
+                color=fill_color[g],
+                alpha=0.20,
+                lw=0.9,
+                edgecolor=fill_color[g],
+                zorder=2,
+            )
+
+    # Paired per-seed connectors with rain dots: each seed trains both none and D4
+    # on the same split, so the links show that nearly every run improves.
+    none_by_seed = e600[e600["subgroup"] == "none"].set_index("seed")["test_accuracy"]
+    d4_by_seed = e600[e600["subgroup"] == "D4"].set_index("seed")["test_accuracy"]
+    paired_seeds = sorted(set(none_by_seed.index) & set(d4_by_seed.index))
+    jitter_rng = np.random.default_rng(1)
+    for seed in paired_seeds:
+        xn = xbase["none"] + 0.07 + jitter_rng.random() * 0.11
+        xd = xbase["D4"] - 0.07 - jitter_rng.random() * 0.11
+        y0 = float(none_by_seed[seed])
+        y1 = float(d4_by_seed[seed])
+        ax.plot([xn, xd], [y0, y1], color="#8C8C8C", lw=0.7, alpha=0.30, solid_capstyle="round", zorder=3)
+        ax.scatter([xn], [y0], s=17, color=dot_color["none"], edgecolor="white", linewidth=0.4, zorder=4)
+        ax.scatter([xd], [y1], s=17, color=dot_color["D4"], edgecolor="white", linewidth=0.4, zorder=4)
+
+    # Mean +/- 95% CI marker at each group centre.
+    for g in order:
+        m = float(np.mean(vals[g]))
+        ci = ci95(pd.Series(vals[g]))
+        base = xbase[g]
+        ax.plot([base, base], [m - ci, m + ci], color="#1F1F1F", lw=2.2, solid_capstyle="round", zorder=5)
+        ax.scatter([base], [m], s=40, color=fill_color[g], edgecolor="#1F1F1F", linewidth=1.0, zorder=6)
+
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["none", r"$D_4$"])
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(0.555, 0.755)
+    ax.set_yticks([0.60, 0.65, 0.70, 0.75])
     ax.set_ylabel("test accuracy")
-    ax.set_title("reproduction anchor")
+    ax.set_xlabel("")
     grid(ax)
-    add_panel_label(ax, "(a)")
+    style_axes(ax)
+    add_panel_label(ax, "a")
 
     ax = axes[1]
-    summary = mean_ci(partial, ["subgroup", "train_size"])
-    for subgroup in SUBGROUP_ORDER:
+    summary = mean_ci(edge, ["subgroup", "train_size"])
+    x_values = TRAIN_SIZES
+    x_pos = np.arange(len(x_values), dtype=float)
+    line_styles = {
+        "D4": {"marker": "o", "ls": "-", "lw": 2.5, "zorder": 5},
+        "C4": {"marker": "^", "ls": "-", "lw": 2.4, "zorder": 5},
+        "D2_V4": {"marker": "D", "ls": "-", "lw": 2.0, "zorder": 4},
+        "Z2_rot180": {"marker": "s", "ls": "-", "lw": 1.9, "zorder": 3},
+        "Z2_reflection": {"marker": "v", "ls": "-", "lw": 1.9, "zorder": 3},
+        "none": {"marker": "x", "ls": "--", "lw": 1.8, "zorder": 2},
+    }
+    for subgroup in ["D4", "C4", "D2_V4", "Z2_rot180", "Z2_reflection", "none"]:
         sub = summary[summary["subgroup"] == subgroup].sort_values("train_size")
-        ax.errorbar(
-            sub["train_size"],
-            sub["mean"],
-            yerr=sub["ci95"],
-            lw=1.05 if subgroup not in {"C4", "D4"} else 1.45,
-            marker="o",
-            markersize=2.8,
-            capsize=1.6,
+        xpos = [x_values.index(int(value)) for value in sub["train_size"]]
+        style = line_styles[subgroup]
+        mean = sub["mean"].to_numpy(dtype=float)
+        ci = sub["ci95"].to_numpy(dtype=float)
+        ax.fill_between(
+            xpos,
+            mean - ci,
+            mean + ci,
+            color=SUBGROUP_COLORS[subgroup],
+            alpha=0.11,
+            linewidth=0.0,
+            zorder=style["zorder"] - 1.5,
+        )
+        ax.plot(
+            xpos,
+            mean,
+            lw=style["lw"],
+            ls=style["ls"],
+            marker=style["marker"],
+            markersize=5.6,
+            markeredgecolor="white",
+            markeredgewidth=0.6,
             color=SUBGROUP_COLORS[subgroup],
             label=SUBGROUP_LABELS[subgroup],
+            zorder=style["zorder"],
         )
-    ax.set_xscale("log")
-    ax.set_xticks([30, 60, 120, 240, 450])
-    ax.set_xticklabels(["30", "60", "120", "240", "450"], rotation=30, ha="right")
-    ax.set_ylim(0.38, 0.73)
-    ax.set_xlabel("training examples")
-    ax.set_title("subgroup sweep")
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels([str(value) for value in x_values])
+    ax.set_xlim(-0.18, len(x_values) - 0.82)
+    ax.set_ylim(0.42, 0.71)
+    ax.set_yticks([0.45, 0.55, 0.65])
+    ax.set_xlabel("training examples", labelpad=3.0)
     grid(ax)
-    ax.legend(ncol=2, frameon=False, loc="lower right", columnspacing=0.8, handlelength=1.2)
-    add_panel_label(ax, "(b)")
+    style_axes(ax)
+    add_panel_label(ax, "b")
+    legend_b = ax.legend(
+        loc="lower right",
+        ncol=2,
+        fontsize=9.5,
+        frameon=False,
+        handlelength=1.6,
+        handletextpad=0.45,
+        columnspacing=1.0,
+        labelspacing=0.3,
+        borderaxespad=0.5,
+    )
+    legend_b.set_zorder(10)
 
     ax = axes[2]
-    summary = mean_ci(oracle, ["circuit_family", "subgroup", "train_size"])
+    combined = pd.concat([edge, edge_lines], ignore_index=True)
+    summary = mean_ci(combined, ["circuit_family", "subgroup", "train_size"])
     specs = [
-        ("edge", "D4", "edge/D4", "#666666", "-"),
-        ("edge", "C4", "edge/C4", "#666666", "--"),
-        ("edge_line_zzz_ccrz", "D4", "edge+both/D4", "#0072B2", "-"),
-        ("edge_line_zzz_ccrz", "C4", "edge+both/C4", "#0072B2", "--"),
+        ("edge", "D4", r"edge/$D_4$", "#6F6F6F", "-"),
+        ("edge", "C4", r"edge/$C_4$", "#8B8B8B", "--"),
+        ("edge_line_zzz_ccrz", "D4", r"edge+lines/$D_4$", "#1F1F1F", "-"),
+        ("edge_line_zzz_ccrz", "C4", r"edge+lines/$C_4$", "#C9473A", "--"),
     ]
+    x_values_c = TRAIN_SIZES
+    x_pos_c = np.arange(len(x_values_c), dtype=float)
     for family, subgroup, label, color, style in specs:
         sub = summary[(summary["circuit_family"] == family) & (summary["subgroup"] == subgroup)]
         sub = sub.sort_values("train_size")
-        ax.errorbar(
-            sub["train_size"],
-            sub["mean"],
-            yerr=sub["ci95"],
-            lw=1.35,
+        xpos = [x_values_c.index(int(value)) for value in sub["train_size"]]
+        mean = sub["mean"].to_numpy(dtype=float)
+        ci = sub["ci95"].to_numpy(dtype=float)
+        zbase = 4 if family == "edge_line_zzz_ccrz" else 3
+        ax.fill_between(
+            xpos,
+            mean - ci,
+            mean + ci,
+            color=color,
+            alpha=0.13,
+            linewidth=0.0,
+            zorder=zbase - 1.5,
+        )
+        ax.plot(
+            xpos,
+            mean,
+            lw=2.5,
             ls=style,
-            marker="o",
-            markersize=3.0,
-            capsize=1.8,
+            marker="o" if family == "edge_line_zzz_ccrz" else "s",
+            markersize=6.0,
+            markeredgecolor="white",
+            markeredgewidth=0.6,
             color=color,
             label=label,
+            zorder=zbase,
         )
-    oracle_acc = rule_oracle_accuracy()
-    ax.axhline(oracle_acc, color="#D55E00", lw=1.05, ls=":", zorder=1)
-    ax.text(
-        750,
-        oracle_acc - 0.014,
-        "rule oracle\n100%",
-        ha="right",
-        va="top",
-        fontsize=6.0,
-        color="#D55E00",
-    )
-    ax.set_xticks([450, 600, 750])
-    ax.set_ylim(0.64, 1.02)
-    ax.set_yticks([0.65, 0.75, 0.85, 1.00])
-    ax.set_xlabel("training examples")
-    ax.set_title("task-aligned gates")
+    ax.set_xticks(x_pos_c)
+    ax.set_xticklabels([str(value) for value in x_values_c])
+    ax.set_xlim(-0.18, len(x_values_c) - 0.18)
+    ax.set_ylim(0.50, 0.81)
+    ax.set_yticks([0.55, 0.65, 0.75])
+    ax.set_xlabel("training examples", labelpad=3.0)
     grid(ax)
-    ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(0.02, 0.78), handlelength=1.8)
-    add_panel_label(ax, "(c)")
+    style_axes(ax)
+    add_panel_label(ax, "c")
+
+    order_c = [r"edge+lines/$D_4$", r"edge+lines/$C_4$", r"edge/$D_4$", r"edge/$C_4$"]
+    handles_c, labels_c = ax.get_legend_handles_labels()
+    label_to_handle = dict(zip(labels_c, handles_c))
+    ordered_c = [(label_to_handle[name], name) for name in order_c if name in label_to_handle]
+    legend_c = ax.legend(
+        [handle for handle, _ in ordered_c],
+        [name for _, name in ordered_c],
+        loc="lower right",
+        ncol=1,
+        fontsize=8.4,
+        frameon=False,
+        handlelength=1.3,
+        handletextpad=0.4,
+        labelspacing=0.24,
+        borderaxespad=0.35,
+    )
+    legend_c.set_zorder(10)
+
+    for panel_ax in axes:
+        panel_ax.set_box_aspect(1.0)
 
     save(fig, "fig2_main_evidence")
 
 
 def make_fig3_controls() -> None:
-    random_df = pd.read_csv(CSV_DIR / "results_random_sharing_control_full_L3p2_train450.csv")
-    oracle = pd.read_csv(CSV_DIR / "results_oracle_inspired_robust_C4D4_L3p2_train450_600_750.csv")
-    partial = pd.read_csv(CSV_DIR / "results_partial_data_sweep_full_L3p2.csv")
+    random_df = pd.read_csv(RANDOM_RESULTS)
+    ablation = pd.read_csv(ABLATION_RESULTS)
+    edge = pd.read_csv(EDGE_RESULTS)
 
-    fig, axes = plt.subplots(1, 3, figsize=(7.05, 2.15), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(7.16, 2.95))
+    fig.subplots_adjust(left=0.07, right=0.99, top=0.94, bottom=0.30, wspace=0.30)
 
     ax = axes[0]
     summary = mean_ci(random_df, ["subgroup", "sharing_type"])
     groups = ["Z2_rot180", "Z2_reflection", "C4", "D2_V4", "D4"]
     x = np.arange(len(groups))
-    width = 0.34
-    for offset, sharing, color, label in [
-        (-width / 2, "random", "#bbbbbb", "random"),
-        (width / 2, "symmetry", "#0072B2", "group"),
+    width = 0.30
+    for offset, sharing, color, label, hatch, edgecolor in [
+        (-width / 2, "random", "white", "random", "////", "#B5B5AE"),
+        (width / 2, "symmetry", "#1F1F1F", "group orbit", None, "#1F1F1F"),
     ]:
         means = []
         errs = []
@@ -505,29 +597,60 @@ def make_fig3_controls() -> None:
             row = summary[(summary["subgroup"] == group) & (summary["sharing_type"] == sharing)].iloc[0]
             means.append(float(row["mean"]))
             errs.append(float(row["ci95"]))
-        ax.bar(x + offset, means, width=width, yerr=errs, color=color, capsize=1.8, label=label)
+        ax.bar(
+            x + offset,
+            means,
+            width=width,
+            yerr=errs,
+            color=color,
+            edgecolor=edgecolor,
+            hatch=hatch,
+            linewidth=1.1,
+            capsize=2.6,
+            error_kw={"elinewidth": 1.1, "capthick": 1.1, "ecolor": "#202020"},
+            label=label,
+        )
     ax.set_xticks(x)
-    ax.set_xticklabels([SUBGROUP_LABELS[g] for g in groups], rotation=32, ha="right")
-    ax.set_ylim(0.50, 0.73)
+    ax.set_xticklabels([SUBGROUP_LABELS[g] for g in groups])
+    ax.set_ylim(0.50, 0.795)
+    ax.set_yticks([0.50, 0.55, 0.60, 0.65, 0.70, 0.75])
     ax.set_ylabel("test accuracy")
-    ax.set_title("matched sharing control")
-    ax.legend(frameon=False, loc="upper left")
     grid(ax)
-    add_panel_label(ax, "(a)")
+    style_axes(ax)
+    add_panel_label(ax, "a")
+    legend_a = ax.legend(
+        loc="upper left",
+        ncol=2,
+        fontsize=9.5,
+        frameon=False,
+        handlelength=1.4,
+        handletextpad=0.5,
+        columnspacing=1.1,
+        labelspacing=0.32,
+        borderaxespad=0.4,
+    )
+    legend_a.set_zorder(10)
 
     ax = axes[1]
-    train600 = oracle[oracle["train_size"] == 600]
-    families = [
+    train600 = ablation[ablation["train_size"] == 600]
+    family_candidates = [
         "edge",
+        "line_pair_crz",
         "line_zzz",
         "line_ccrz",
         "line_zzz_ccrz",
         "edge_line_zzz",
         "edge_line_ccrz",
         "edge_line_zzz_ccrz",
-        "line_pair_crz",
     ]
     summary = mean_ci(train600, ["circuit_family", "subgroup"])
+    family_rank = (
+        summary[summary["circuit_family"].isin(family_candidates) & summary["subgroup"].isin(["C4", "D4"])]
+        .groupby("circuit_family")["mean"]
+        .mean()
+        .sort_values(kind="mergesort")
+    )
+    families = [family for family in family_rank.index if family in family_candidates]
     for i, subgroup in enumerate(["C4", "D4"]):
         offset = -0.17 if subgroup == "C4" else 0.17
         means = []
@@ -541,65 +664,159 @@ def make_fig3_controls() -> None:
             means,
             width=0.32,
             yerr=errs,
-            capsize=1.5,
-            color=SUBGROUP_COLORS[subgroup],
-            alpha=0.88,
-            label=subgroup,
+            capsize=1.9,
+            color="#7CA9B5" if subgroup == "C4" else "#C9473A",
+            edgecolor="#5C8791" if subgroup == "C4" else "#9E3229",
+            linewidth=1.0,
+            alpha=0.95,
+            label=SUBGROUP_LABELS[subgroup],
+            error_kw={"elinewidth": 1.05, "capthick": 1.05, "ecolor": "#202020"},
         )
     ax.set_xticks(np.arange(len(families)))
     ax.set_xticklabels([FAMILY_LABELS[f] for f in families], rotation=52, ha="right")
     ax.set_ylim(0.62, 0.84)
-    ax.set_title("oracle-inspired ablation")
-    ax.legend(frameon=False, loc="upper left")
+    ax.set_yticks([0.62, 0.65, 0.70, 0.75, 0.80, 0.84])
+    ax.set_ylabel("test accuracy")
     grid(ax)
-    add_panel_label(ax, "(b)")
+    style_axes(ax)
+    add_panel_label(ax, "b")
+    legend_b = ax.legend(
+        loc="upper left",
+        ncol=1,
+        fontsize=9.5,
+        frameon=False,
+        handlelength=1.5,
+        handletextpad=0.5,
+        labelspacing=0.32,
+        borderaxespad=0.5,
+    )
+    legend_b.set_zorder(10)
 
     ax = axes[2]
-    part450 = partial[partial["train_size"] == 450].copy()
-    psummary = mean_ci(part450, ["subgroup"])
-    osummary = mean_ci(oracle[oracle["train_size"] == 600], ["circuit_family", "subgroup"])
+    part600 = edge[edge["train_size"] == 600].copy()
+    psummary = mean_ci(part600, ["subgroup"])
+    osummary = mean_ci(ablation[ablation["train_size"] == 600], ["circuit_family", "subgroup"])
     for subgroup in SUBGROUP_ORDER:
         row = psummary[psummary["subgroup"] == subgroup].iloc[0]
         ax.scatter(
             row["params"],
             row["mean"],
-            color=SUBGROUP_COLORS[subgroup],
-            s=22,
+            facecolor="white",
+            edgecolor="#7A7A7A",
+            s=88,
             marker="o",
-            label=SUBGROUP_LABELS[subgroup] if subgroup in {"none", "C4", "D4"} else None,
-            alpha=0.9,
+            linewidth=1.35,
+            alpha=1.0,
         )
-    for family in ["line_zzz_ccrz", "edge_line_zzz", "edge_line_ccrz", "edge_line_zzz_ccrz"]:
+    for family in ["edge_line_zzz", "edge_line_ccrz", "edge_line_zzz_ccrz"]:
         for subgroup in ["C4", "D4"]:
             row = osummary[(osummary["circuit_family"] == family) & (osummary["subgroup"] == subgroup)].iloc[0]
             ax.scatter(
                 row["params"],
                 row["mean"],
-                color=FAMILY_COLORS[family],
-                s=34 if family == "edge_line_zzz_ccrz" else 24,
-                marker="^" if subgroup == "C4" else "s",
+                color="#C9473A",
+                s=104 if family == "edge_line_zzz_ccrz" else 74,
+                marker="^",
                 edgecolor="white",
-                linewidth=0.4,
-                alpha=0.95,
+                linewidth=0.6,
+                alpha=1.0 if family == "edge_line_zzz_ccrz" else 0.88,
             )
-    ax.annotate("edge/D4", xy=(54, 0.688), xytext=(74, 0.675), arrowprops={"arrowstyle": "->", "lw": 0.5}, fontsize=6)
-    ax.annotate("edge+both/D4", xy=(90, 0.805), xytext=(112, 0.807), arrowprops={"arrowstyle": "->", "lw": 0.5}, fontsize=6)
+    edge_d4 = psummary[psummary["subgroup"] == "D4"].iloc[0]
+    edge_lines_d4 = osummary[
+        (osummary["circuit_family"] == "edge_line_zzz_ccrz") & (osummary["subgroup"] == "D4")
+    ].iloc[0]
+    # Soft yellow highlight behind the two annotated models.
+    for hl in (edge_lines_d4, edge_d4):
+        ax.scatter(
+            [hl["params"]],
+            [hl["mean"]],
+            s=300,
+            marker="o",
+            facecolor="#FFE066",
+            edgecolor="none",
+            alpha=0.45,
+            zorder=0.9,
+        )
+    label_box = {"facecolor": "white", "edgecolor": "none", "alpha": 0.92, "pad": 0.65}
+    ax.annotate(
+        r"edge/$D_4$",
+        xy=(edge_d4["params"], edge_d4["mean"]),
+        xytext=(72, 0.712),
+        arrowprops={
+            "arrowstyle": "-",
+            "lw": 0.55,
+            "color": "#000000",
+            "shrinkA": 2.5,
+            "shrinkB": 4.0,
+            "connectionstyle": "arc3,rad=0.0",
+        },
+        fontsize=9.0,
+        color="#000000",
+        bbox=label_box,
+        ha="left",
+        va="center",
+        zorder=8,
+    )
+    ax.annotate(
+        r"edge+lines/$D_4$",
+        xy=(edge_lines_d4["params"], edge_lines_d4["mean"]),
+        xytext=(112, 0.818),
+        arrowprops={
+            "arrowstyle": "-",
+            "lw": 0.55,
+            "color": "#000000",
+            "shrinkA": 2.5,
+            "shrinkB": 10.0,
+            "connectionstyle": "arc3,rad=0.14",
+        },
+        fontsize=9.0,
+        color="#000000",
+        fontweight="bold",
+        bbox=label_box,
+        ha="left",
+        va="center",
+        zorder=8,
+    )
     ax.set_xlabel("parameters")
-    ax.set_title("not just parameter count")
-    ax.set_ylim(0.50, 0.84)
-    ax.set_xlim(40, 215)
+    ax.set_ylabel("test accuracy")
+    ax.set_ylim(0.55, 0.83)
+    ax.set_yticks([0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.83])
+    ax.set_xlim(40, 225)
+    ax.set_xticks([40, 100, 150, 215])
     grid(ax)
-    add_panel_label(ax, "(c)")
+    style_axes(ax)
+    add_panel_label(ax, "c")
+
+    handles_c = [
+        Line2D([0], [0], marker="o", color="none", markerfacecolor="white", markeredgecolor="#7A7A7A", markeredgewidth=1.35, markersize=8.5, label="edge / baseline"),
+        Line2D([0], [0], marker="^", color="none", markerfacecolor="#C9473A", markeredgecolor="white", markersize=8.5, label="edge+lines"),
+    ]
+    legend_c = ax.legend(
+        handles=handles_c,
+        loc="lower left",
+        ncol=1,
+        fontsize=9.5,
+        frameon=False,
+        handlelength=1.1,
+        handletextpad=0.5,
+        labelspacing=0.34,
+        borderaxespad=0.5,
+    )
+    legend_c.set_zorder(10)
+
+    for panel_ax in axes:
+        panel_ax.set_box_aspect(1.0)
 
     save(fig, "fig3_controls")
 
 
 def main() -> None:
     configure_style()
-    make_fig1_protocol()
+    verify_fig1_protocol()
     make_fig2_main_evidence()
     make_fig3_controls()
-    for name in ["fig1_protocol.pdf", "fig2_main_evidence.pdf", "fig3_controls.pdf"]:
+    print(FIG1_PROTOCOL)
+    for name in ["fig2_main_evidence.pdf", "fig3_controls.pdf"]:
         path = GFX_DIR / name
         if not path.exists() or path.stat().st_size == 0:
             raise RuntimeError(f"Missing figure: {path}")

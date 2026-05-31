@@ -1,0 +1,44 @@
+{
+  "epochs": 100,
+  "steps_per_epoch": 30,
+  "rule": "manual paper protocol choice after audit discussion: keep 100x30 for all reported runs",
+  "manual_override": true,
+  "override_reason": "The final consistent paper run was launched with EPOCHS=100 after deciding not to use the audit-selected 200-epoch budget.",
+  "comparisons": [
+    {
+      "circuit_family": "edge",
+      "subgroup": "C4",
+      "delta_test_accuracy": 0.020000000000000018,
+      "delta_generalization_gap": -0.009444444444444332,
+      "selects_200": true
+    },
+    {
+      "circuit_family": "edge",
+      "subgroup": "D4",
+      "delta_test_accuracy": 0.00666666666666671,
+      "delta_generalization_gap": 0.013888888888888834,
+      "selects_200": false
+    },
+    {
+      "circuit_family": "edge",
+      "subgroup": "none",
+      "delta_test_accuracy": 0.019444444444444486,
+      "delta_generalization_gap": 0.010555555555555526,
+      "selects_200": true
+    },
+    {
+      "circuit_family": "edge_line_zzz_ccrz",
+      "subgroup": "C4",
+      "delta_test_accuracy": 1.1102230246251565e-16,
+      "delta_generalization_gap": -0.013888888888888937,
+      "selects_200": false
+    },
+    {
+      "circuit_family": "edge_line_zzz_ccrz",
+      "subgroup": "D4",
+      "delta_test_accuracy": 0.023333333333333317,
+      "delta_generalization_gap": 0.01,
+      "selects_200": true
+    }
+  ]
+}

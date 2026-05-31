@@ -10,7 +10,7 @@ Diese Arbeit übernimmt diese Idee, verschiebt aber die Fragestellung. Meyer et 
 
 Wir untersuchen drei Ebenen. Erstens reproduzieren wir den Meyer-artigen Effekt auf dem Tic-Tac-Toe-Benchmark: Ein $D_4$-äquivariantes Modell generalisiert besser als ein Modell ohne Parameter-Sharing. Zweitens ersetzen wir die binäre Gegenüberstellung von \emph{none} und $D_4$ durch eine Familie von Untergruppenmodellen: $Z_2$-Rotation, $Z_2$-Spiegelung, $C_4$, $D_2$ und volles $D_4$. Dadurch wird partielle Äquivarianz als diskreter Regler zwischen Expressivität und induktivem Bias sichtbar. Drittens führen wir task-aligned equivariant gates ein: trainierbare Gates auf den acht Gewinnlinien des Tic-Tac-Toe-Felds. Diese Gates brechen die Symmetrie nicht, sondern respektieren sie über dasselbe Orbit-Sharing. Sie geben dem Schaltkreis aber direkten Zugriff auf die dreizelligen Motive, aus denen das Label berechnet wird.
 
-Die wichtigsten Ergebnisse sind konservativ, aber klar. Die Reproduktion bestätigt die Richtung von Meyer et al.: Bei Trainingsgröße 450 erreicht das unbeschränkte Edge-Modell $0.614\pm0.029$ Test Accuracy, während das $D_4$-äquivariante Edge-Modell $0.688\pm0.036$ erreicht. Der Generalization Gap sinkt von $0.094$ auf $0.023$. Die partielle Symmetrie $C_4$ erreicht fast dieselbe Leistung wie $D_4$ und liegt in einzelnen Low-Data-Regimen leicht vorn, aber nicht robust genug für den Claim, dass weniger Symmetrie grundsätzlich besser sei. Der stärkste Effekt entsteht durch die winning-line gates: Das beste $D_4$-äquivariante Edge-plus-Line-Modell erreicht etwa $0.80$ Test Accuracy, also deutlich mehr als der Meyer-artige Edge-Ansatz mit etwa $0.69$.
+Die wichtigsten Ergebnisse sind konservativ, aber klar. Die Reproduktion bestätigt die Richtung von Meyer et al.: Bei Trainingsgröße 600 erreicht das unbeschränkte Edge-Modell $0.627\pm0.013$ Test Accuracy, während das $D_4$-äquivariante Edge-Modell $0.687\pm0.020$ erreicht. Der Generalization Gap sinkt von $0.070$ auf $0.021$. Die partielle Symmetrie $C_4$ erreicht fast dieselbe Leistung wie $D_4$ und liegt in einzelnen Regimen leicht vorn, aber nicht robust genug für den Claim, dass weniger Symmetrie grundsätzlich besser sei. Der stärkste Effekt entsteht durch die winning-line gates: Das beste $D_4$-äquivariante Edge-plus-Line-Modell erreicht bei 600 Trainingsbeispielen $0.785\pm0.021$ Test Accuracy, also deutlich mehr als der Meyer-artige Edge-Ansatz mit $0.687\pm0.020$.
 
 Die Arbeit behauptet keinen Quantum Advantage. Tic-Tac-Toe ist klassisch trivial; ein deterministischer Regel-Oracle erreicht auf allen 5478 legalen Zuständen 100\% Genauigkeit mit null trainierbaren Parametern. Gerade deshalb ist der Benchmark nützlich: Er erlaubt eine kontrollierte Untersuchung, ob ein VQLM die bekannte Struktur sinnvoll nutzt. Die wissenschaftliche Aussage ist nicht, dass ein Quantenmodell Tic-Tac-Toe besonders gut löst. Die Aussage ist, dass Äquivarianz in VQLMs nicht nur eine Parameterreduktion ist, sondern ein Designprinzip dafür, welche trainierbaren Interaktionen überhaupt angeboten werden sollten.
 
@@ -92,12 +92,12 @@ Die dritte Hypothese ist die stärkste Erweiterung. Sie verschiebt den Fokus von
 
 \subsection{Designraum}\label{subsec:designraum}
 
-\Cref{fig:protocol} fasst den Designraum zusammen. Panel (a) zeigt die $D_4$-Symmetrie des Spielfelds. Panel (b) zeigt die Datenkodierung und die durch Untergruppen induzierten Orbits. Panel (c) zeigt den Unterschied zwischen dem Meyer-artigen Edge-Ansatz und unserer winning-line-Erweiterung. Wichtig ist: Die Erweiterung ist kein symmetry breaking. Die zusätzlichen Gates werden ebenfalls über Gruppenorbits geteilt und bleiben daher äquivariant.
+\Cref{fig:protocol} fasst den Designraum zusammen. Panel (a) zeigt die $D_4$-Symmetrie des Spielfelds. Panel (b) zeigt die Datenkodierung und die durch Untergruppen induzierten Orbits. Panel (c) zeigt den Meyer-artigen äquivarianten Gateset mit orbit-geteilten Single-Qubit-Gates und $CR_P$-Paaren. Panel (d) zeigt unsere winning-line-Erweiterung. Wichtig ist: Die Erweiterung ist kein symmetry breaking. Die zusätzlichen Gates werden ebenfalls über Gruppenorbits geteilt und bleiben daher äquivariant.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{images/fig_protocol.pdf}
-\caption{Designraum der Arbeit. Ausgehend von der $D_4$-Symmetrie des Tic-Tac-Toe-Bretts werden Daten auf neun Qubits kodiert. Untergruppen erzeugen unterschiedliche Parameter-Sharing-Orbits. Die eigene Erweiterung ergänzt den Meyer-artigen Edge-Ansatz um Gates auf den acht Gewinnlinien, ohne die Äquivarianz zu brechen.}
+\caption{Designraum der Arbeit. Tic-Tac-Toe-Labels sind invariant unter den acht Rotationen und Spiegelungen des Bretts. Die Brettwerte werden auf neun Qubits kodiert, und Untergruppen erzeugen unterschiedliche Parameter-Sharing-Orbits. Der Meyer-artige Edge-Ansatz nutzt orbit-geteilte Single-Qubit-Gates und $CR_P$-Paare; die eigene Erweiterung ergänzt orbit-geteilte $ZZZ$- und $CCRZ$-Gates auf den acht Gewinnlinien, ohne die Äquivarianz zu brechen.}
 \label{fig:protocol}
 \end{figure}
 
@@ -119,7 +119,7 @@ y_{\mathrm{circle}}=(+1,-1,-1),\quad
 y_{\mathrm{draw}}=(-1,+1,-1),\quad
 y_{\mathrm{cross}}=(-1,-1,+1).
 \]
-Trainings- und Testsets werden pro Seed balanciert und disjunkt gesampelt. Die Standardgröße für die Reproduktion ist 450 Trainingsbeispiele und 600 Testbeispiele.
+Trainings- und Testsets werden pro Seed balanciert gesampelt. Die finale Auswertung verwendet 600 Testbeispiele und die Trainingsgrößen $30,60,120,240,450,600$. Wo strikt disjunkte balancierte Splits bei den größten Trainingsgrößen nicht möglich sind, wird der im CSV dokumentierte Fallback-Split konsistent verwendet.
 
 \subsection{Schaltkreis}\label{subsec:circuit}
 
@@ -142,7 +142,7 @@ Die Vorhersage ist ein dreidimensionaler Erwartungswertvektor:
 \end{equation}
 wobei $C=\{0,2,4,6\}$ und $E=\{1,3,5,7\}$. Die vorhergesagte Klasse ist die Komponente mit dem größten Erwartungswert. Optimiert wird der Mean Squared Error zwischen $\hat y(x)$ und dem Labelvektor.
 
-Sofern nicht anders angegeben, verwenden die Experimente $L=3$ Reuploading-Layer, $p=2$ Wiederholungen des trainierbaren Blocks pro Layer, Batchgröße 15, 30 Minibatch-Schritte pro Epoche, 100 Epochen und Adam mit Lernrate $0.01$. Alle dargestellten Hauptergebnisse sind Mittelwerte über fünf Seeds mit 95\%-Konfidenzintervallen.
+Sofern nicht anders angegeben, verwenden die Experimente $L=3$ Reuploading-Layer, $p=2$ Wiederholungen des trainierbaren Blocks pro Layer, Batchgröße 15, 30 Minibatch-Schritte pro Epoche, 100 Epochen und Adam mit Lernrate $0.01$. Alle dargestellten Hauptergebnisse sind Mittelwerte über zehn Seeds mit 95\%-Konfidenzintervallen.
 
 \subsection{Untergruppen und Parameterzahlen}\label{subsec:groups}
 
@@ -183,12 +183,12 @@ Auch diese Parameter werden über $C_4$- oder $D_4$-Orbits geteilt. Die beste Fa
 
 \subsection{Reproduktion: volle Symmetrie generalisiert besser}\label{subsec:repro}
 
-\Cref{fig:main} zeigt die zentrale Evidenz. Die Reproduktion bestätigt die erwartete Richtung. Das unbeschränkte Edge-Modell erreicht bei 450 Trainingsbeispielen $0.614\pm0.029$ Test Accuracy. Das $D_4$-äquivariante Edge-Modell erreicht $0.688\pm0.036$. Gleichzeitig sinkt der Generalization Gap von $0.094$ auf $0.023$. Das freie Modell besitzt mit 204 Parametern deutlich mehr Freiheitsgrade als das $D_4$-Modell mit 54 Parametern, aber diese zusätzlichen Freiheitsgrade helfen auf dem Testset nicht.
+\Cref{fig:main} zeigt die zentrale Evidenz. Die Reproduktion bestätigt die erwartete Richtung. Das unbeschränkte Edge-Modell erreicht bei 600 Trainingsbeispielen $0.627\pm0.013$ Test Accuracy. Das $D_4$-äquivariante Edge-Modell erreicht $0.687\pm0.020$. Gleichzeitig sinkt der Generalization Gap von $0.070$ auf $0.021$. Das freie Modell besitzt mit 204 Parametern deutlich mehr Freiheitsgrade als das $D_4$-Modell mit 54 Parametern, aber diese zusätzlichen Freiheitsgrade helfen auf dem Testset nicht.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{images/fig_main_evidence.pdf}
-\caption{Hauptergebnisse. Links: Reproduktion des Meyer-artigen Effekts, $D_4$ schlägt keine Symmetrie. Mitte: Untergruppen-Sweep über Trainingsgrößen; $C_4$ folgt $D_4$ sehr eng. Rechts: Winning-Line-Gates verbessern die Accuracy deutlich, während der deterministische Regel-Oracle als 100\%-Referenz dient.}
+\caption{Hauptergebnisse aus dem finalen 10-Seed-Protokoll. Links: Reproduktion des Meyer-artigen Effekts, $D_4$ schlägt keine Symmetrie. Mitte: Untergruppen-Sweep über Trainingsgrößen $30$ bis $600$; $C_4$ folgt $D_4$ sehr eng. Rechts: Edge-Ansatz und Edge-plus-Line-Erweiterung über dieselbe Trainingsgrößenachse; die Winning-Line-Gates verbessern die Accuracy deutlich.}
 \label{fig:main}
 \end{figure}
 
@@ -196,65 +196,44 @@ Das ist genau das Muster eines sinnvollen induktiven Bias. Die Symmetrie reduzie
 
 \subsection{Partielle Äquivarianz: \texorpdfstring{$C_4$}{C4} ist konkurrenzfähig, aber kein robuster Sieger}\label{subsec:partial}
 
-Der Untergruppen-Sweep zeigt ein differenzierteres Bild als ein reines none-vs-$D_4$-Experiment. In \Cref{tab:partial} sind die wichtigsten Werte zusammengefasst. $C_4$ erreicht über alle Datenregime hinweg fast dieselbe mittlere Test Accuracy wie $D_4$: $0.6149$ gegenüber $0.6152$. Bei 30 Trainingsbeispielen liegt $C_4$ mit $0.552$ über $D_4$ mit $0.531$; bei 120 Beispielen liegen beide praktisch gleichauf; bei 450 Beispielen erreichen $C_4$ und $D_4$ $0.689$ und $0.688$.
+Der Untergruppen-Sweep zeigt ein differenzierteres Bild als ein reines none-vs-$D_4$-Experiment. In \Cref{tab:partial} sind die wichtigsten Werte zusammengefasst. $C_4$ erreicht über alle Datenregime hinweg fast dieselbe mittlere Test Accuracy wie $D_4$: $0.631$ gegenüber $0.632$. Bei 30 Trainingsbeispielen liegt $C_4$ mit $0.552$ über $D_4$ mit $0.532$; bei 120 Beispielen liegen beide nah beieinander; bei 600 Beispielen erreichen $C_4$ und $D_4$ $0.695$ und $0.687$.
 
 \begin{table}[t]
 \centering
-\caption{Partielle Äquivarianz im Edge-Ansatz. Werte sind mittlere Test Accuracy über fünf Seeds.}
+\caption{Partielle Äquivarianz im Edge-Ansatz. Werte sind mittlere Test Accuracy über zehn Seeds.}
 \label{tab:partial}
 \begin{tabular}{lcccc}
 \toprule
-Gruppe & Parameter & Test@30 & Test@450 & Mean Test\\
+Gruppe & Parameter & Test@30 & Test@600 & Mean Test\\
 \midrule
-none & 204 & 0.443 & 0.614 & 0.524\\
-$Z_2$ rot & 108 & 0.495 & 0.677 & 0.572\\
-$Z_2$ refl & 126 & 0.481 & 0.678 & 0.566\\
-$C_4$ & 60 & 0.552 & 0.689 & 0.615\\
-$D_2$ & 78 & 0.550 & 0.666 & 0.597\\
-$D_4$ & 54 & 0.531 & 0.688 & 0.615\\
+none & 204 & 0.444 & 0.627 & 0.537\\
+$Z_2$ rot & 108 & 0.495 & 0.667 & 0.585\\
+$Z_2$ refl & 126 & 0.481 & 0.671 & 0.578\\
+$C_4$ & 60 & 0.552 & 0.695 & 0.631\\
+$D_2$ & 78 & 0.550 & 0.678 & 0.611\\
+$D_4$ & 54 & 0.532 & 0.687 & 0.632\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\Cref{fig:lowdata} zeigt den Low-Data-Zoom für $C_4-D_4$. Die Interpretation sollte vorsichtig sein. Es gibt kleine Bereiche, in denen $C_4$ etwas besser ist. Das reicht nicht für die Aussage, dass $C_4$ allgemein besser sei. Es reicht aber für eine interessante praktische Aussage: Rotation-only Equivariance kann auf diesem Benchmark fast denselben Nutzen liefern wie volle $D_4$-Equivariance, obwohl Spiegelungsconstraints gelockert werden. Der Nutzen der vollen Gruppe ist also nicht als binäres Dogma zu verstehen.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.82\textwidth]{images/fig_lowdata_delta.pdf}
-\caption{Low-Data-Zoom: Differenz der Test Accuracy zwischen $C_4$ und $D_4$. Positive Werte bedeuten einen Vorteil für $C_4$. Die Vorteile sind klein und nicht robust genug für einen Dominanzclaim, zeigen aber, dass partielle Symmetrie eine sinnvolle Modellwahlachse ist.}
-\label{fig:lowdata}
-\end{figure}
+Panel (b) in \Cref{fig:main} zeigt diese Dynamik über die gesamte Trainingsgrößenachse. Die Interpretation sollte vorsichtig sein. Es gibt kleine Bereiche, in denen $C_4$ etwas besser ist. Das reicht nicht für die Aussage, dass $C_4$ allgemein besser sei. Es reicht aber für eine interessante praktische Aussage: Rotation-only Equivariance kann auf diesem Benchmark fast denselben Nutzen liefern wie volle $D_4$-Equivariance, obwohl Spiegelungsconstraints gelockert werden. Der Nutzen der vollen Gruppe ist also nicht als binäres Dogma zu verstehen.
 
 \subsection{Random-Sharing-Control: Nicht nur weniger Parameter}\label{subsec:random}
 
-Ein naheliegender Einwand lautet: Vielleicht hilft Symmetrie gar nicht als Struktur, sondern nur als Parameterreduktion. Dann wäre jedes zufällige Sharing mit derselben Parameterzahl ähnlich gut. Genau deshalb ist der Random-Sharing-Control wichtig. \Cref{fig:random} zeigt, dass dieser Einwand nicht ausreicht. Bei $D_4$ erreicht symmetry-aware sharing $0.688$, random sharing mit gleicher Parameterzahl aber nur $0.572$. Bei $C_4$ erreicht symmetry-aware sharing $0.689$, random sharing nur $0.551$.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.82\textwidth]{images/fig_random_control.pdf}
-\caption{Parameter-matched random sharing. Die zufällig geteilten Modelle haben ungefähr dieselbe Parameterzahl wie die jeweiligen Symmetriemodelle, respektieren aber keine Gruppenorbits. Die deutlich schlechtere Test Accuracy zeigt, dass der Effekt nicht bloß eine Folge kleinerer Modelle ist.}
-\label{fig:random}
-\end{figure}
+Ein naheliegender Einwand lautet: Vielleicht hilft Symmetrie gar nicht als Struktur, sondern nur als Parameterreduktion. Dann wäre jedes zufällige Sharing mit derselben Parameterzahl ähnlich gut. Genau deshalb ist der Random-Sharing-Control wichtig. Panel (a) in \Cref{fig:controls} zeigt, dass dieser Einwand nicht ausreicht. Bei $D_4$ erreicht symmetry-aware sharing $0.687$, random sharing mit gleicher Parameterzahl aber nur $0.572$. Bei $C_4$ erreicht symmetry-aware sharing $0.695$, random sharing nur $0.561$.
 
 Damit wird die zentrale Interpretation stärker. Die Verbesserung kommt nicht nur daher, dass Parameter entfernt werden. Sie kommt daher, dass Parameter entlang sinnvoller geometrischer Orbits geteilt werden. Das ist die gleiche Logik wie bei Faltungen: Ein CNN ist nicht nur kleiner als ein fully connected Netzwerk; seine Gewichtsteilung entspricht einer Strukturannahme über Bilder.
 
-\subsection{Task-Aligned Equivariant Gates: der stärkste Effekt}\label{subsec:oracle}
+\subsection{Task-Aligned Equivariant Gates: der stärkste Effekt}\label{subsec:linegate-results}
 
-Der deutlichste empirische Gewinn entsteht durch die winning-line gates. \Cref{fig:oracle} zeigt die robuste Auswertung für Trainingsgrößen 450, 600 und 750. Das Meyer-artige Edge/$D_4$-Modell liegt bei etwa $0.69$ bis $0.70$ Test Accuracy. Das beste Edge-plus-Line-Modell, \texttt{edge\_line\_zzz\_ccrz}/$D_4$, erreicht $0.795\pm0.016$ bei 450 Trainingsbeispielen und $0.805\pm0.019$ bei 600 Trainingsbeispielen. Bei 750 Beispielen fällt der Mittelwert auf $0.774$, bleibt aber deutlich über dem Edge-Baseline-Niveau.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\textwidth]{images/fig_oracle_accuracy.pdf}
-\caption{Oracle-inspirierte äquivariante Architekturen. Die gestrichelte Linie bei 1.0 ist der deterministische Regel-Oracle und dient nur als obere Referenz. Die beste trainierbare Architektur kombiniert den Edge-Ansatz mit beiden Winning-Line-Kanälen und bleibt $D_4$-äquivariant.}
-\label{fig:oracle}
-\end{figure}
+Der deutlichste empirische Gewinn entsteht durch die winning-line gates. Panel (c) in \Cref{fig:main} zeigt Edge und Edge-plus-Line über dieselbe Trainingsgrößenachse. Das Meyer-artige Edge/$D_4$-Modell erreicht bei 600 Trainingsbeispielen $0.687\pm0.020$ Test Accuracy. Das beste Edge-plus-Line-Modell, \texttt{edge\_line\_zzz\_ccrz}/$D_4$, erreicht $0.785\pm0.021$. Der $C_4$-Ableger derselben Architektur ist mit $0.771\pm0.019$ ebenfalls stark, liegt aber im finalen Endpunkt unter $D_4$.
 
 \Cref{fig:controls} zeigt die Ablationen. Line-Gates allein helfen teilweise, aber die beste Architektur kombiniert die ursprünglichen Edge-Interaktionen mit beiden Winning-Line-Kanälen. Das ist plausibel: Die Edge-Gates modellieren lokale Brettgeometrie und Zentrumskopplung, während die Line-Gates die tatsächlichen Gewinnmotive repräsentieren. Die Kombination gibt dem Modell sowohl lokale als auch regelnahe Struktur.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{images/fig_controls.pdf}
-\caption{Controls und Ablationen. Links: Random sharing schlägt symmetry-aware sharing nicht. Mitte: Oracle-inspirierte Ablation bei 600 Trainingsbeispielen. Rechts: Accuracy ist nicht allein durch Parameterzahl erklärbar; task-aligned equivariant geometry verschiebt das Modell in einen anderen Leistungsbereich.}
+\caption{Controls und Ablationen aus dem finalen 10-Seed-Protokoll. Links: Parameter-matched random sharing schlägt group-orbit sharing nicht. Mitte: Ablation der Line-Gate-Familien bei 600 Trainingsbeispielen, aufsteigend nach mittlerer Leistung. Rechts: Accuracy ist nicht allein durch Parameterzahl erklärbar; task-aligned equivariant geometry verschiebt das Modell in einen anderen Leistungsbereich.}
 \label{fig:controls}
 \end{figure}
 
@@ -262,7 +241,7 @@ Der Parametervergleich ist wichtig. Das beste $D_4$-Edge-plus-Line-Modell hat 90
 
 \subsection{Deterministischer Oracle als Sanity Check}\label{subsec:rule-oracle}
 
-Weil Tic-Tac-Toe regelbasiert lösbar ist, haben wir zusätzlich einen deterministischen Oracle implementiert. Dieser prüft die klassischen Gewinnbedingungen direkt und erreicht auf allen 5478 legalen Zuständen 100\% Accuracy bei null trainierbaren Parametern. Das ist kein konkurrierendes VQLM, sondern eine Sanity-Referenz. Es zeigt, dass die Labels eindeutig und die Aufgabe nicht intrinsisch schwierig sind. Der Abstand zwischen $0.80$ und $1.00$ ist daher kein Problem der Daten, sondern ein Problem der gewählten variationalen Architektur und Optimierung.
+Weil Tic-Tac-Toe regelbasiert lösbar ist, haben wir zusätzlich einen deterministischen Oracle implementiert. Dieser prüft die klassischen Gewinnbedingungen direkt und erreicht auf allen 5478 legalen Zuständen 100\% Accuracy bei null trainierbaren Parametern. Das ist kein konkurrierendes VQLM, sondern eine Sanity-Referenz. Es zeigt, dass die Labels eindeutig und die Aufgabe nicht intrinsisch schwierig sind. Der Abstand zwischen $0.785$ und $1.00$ ist daher kein Problem der Daten, sondern ein Problem der gewählten variationalen Architektur und Optimierung.
 
 Diese Beobachtung hilft, den wissenschaftlichen Claim sauber zu formulieren. Wir zeigen nicht, dass ein Quantenmodell Tic-Tac-Toe optimal löst. Wir zeigen, dass eine bessere äquivariante Architektur einen großen Teil des Abstands zwischen dem Meyer-artigen Baseline-Ansatz und dem trivialen Regel-Oracle schließt.
 
@@ -270,7 +249,7 @@ Diese Beobachtung hilft, den wissenschaftlichen Claim sauber zu formulieren. Wir
 
 \subsection{Was bedeutet ``When to Break Symmetry'' hier?}\label{subsec:break}
 
-Der ursprüngliche Arbeitstitel \emph{When to Break Symmetry} suggeriert, dass die beste Strategie möglicherweise darin besteht, volle $D_4$-Symmetrie bewusst zu brechen. Die aktuellen Resultate stützen diesen starken Claim nur eingeschränkt. $C_4$ ist kompetitiv und in kleinen Datenregimen punktuell besser, aber es schlägt $D_4$ nicht robust. Deshalb wäre die harte Aussage \emph{man sollte volle Symmetrie brechen} wissenschaftlich zu stark.
+Der Titel \emph{When to break symmetry in variational quantum learning} suggeriert, dass die beste Strategie möglicherweise darin besteht, volle $D_4$-Symmetrie bewusst zu brechen. Die aktuellen Resultate stützen diesen starken Claim nur eingeschränkt. $C_4$ ist kompetitiv und in kleinen Datenregimen punktuell besser, aber es schlägt $D_4$ nicht robust. Deshalb wäre die harte Aussage \emph{man sollte volle Symmetrie brechen} wissenschaftlich zu stark.
 
 Eine bessere Formulierung ist: \emph{When to relax or redesign symmetry}. Partielle Symmetrie zeigt, dass der Symmetriegrad eine sinnvolle Modellwahlachse ist. Die winning-line-Ergebnisse zeigen aber, dass der stärkere Hebel darin liegt, die äquivariante Architektur selbst zu verbessern. Man muss $D_4$ nicht brechen, um $D_4$ zu schlagen; man kann innerhalb von $D_4$ bessere Gates platzieren.
 
@@ -278,7 +257,7 @@ Eine bessere Formulierung ist: \emph{When to relax or redesign symmetry}. Partie
 
 Die Random-Sharing-Ergebnisse sind der wichtigste Kontrollpunkt der Arbeit. Ohne sie wäre der Claim schwach. Wenn random tying mit gleicher Parameterzahl denselben Effekt hätte, dann wäre Symmetrie nur eine dekorative Erklärung für Regularisierung. Die Daten zeigen das Gegenteil. Symmetry-aware sharing ist deutlich besser als random sharing. Das spricht dafür, dass die Gruppenstruktur selbst relevant ist.
 
-Gleichzeitig zeigen die Oracle-inspirierten Gates, dass Parameterzahl allein auch in die andere Richtung nicht erklärt. Das beste Modell hat mehr Parameter als Edge/$D_4$, aber weniger als edge/none. Es gewinnt nicht durch maximale Expressivität, sondern durch strukturierte Expressivität. Das ist die zentrale Lehre für Praktiker: Wenn eine Aufgabe bekannte Motive besitzt, sollte man nicht nur Parameter teilen, sondern auch Gates so wählen, dass diese Motive als Interaktionen verfügbar sind.
+Gleichzeitig zeigen die task-aligned Line-Gates, dass Parameterzahl allein auch in die andere Richtung nicht erklärt. Das beste Modell hat mehr Parameter als Edge/$D_4$, aber weniger als edge/none. Es gewinnt nicht durch maximale Expressivität, sondern durch strukturierte Expressivität. Das ist die zentrale Lehre für Praktiker: Wenn eine Aufgabe bekannte Motive besitzt, sollte man nicht nur Parameter teilen, sondern auch Gates so wählen, dass diese Motive als Interaktionen verfügbar sind.
 
 \subsection{Warum Winning-Line-Gates sinnvoll sind}\label{subsec:whyline}
 
@@ -288,7 +267,7 @@ Die Analogie zu klassischen Modellen ist hilfreich. Ein CNN ist nicht nur ein ML
 
 \subsection{Grenzen der Ergebnisse}\label{subsec:limits}
 
-Die Ergebnisse bleiben finite-seed Simulationen. Die wichtigsten Sweeps verwenden fünf Seeds. Für eine finale Publikation sollten die Headline-Vergleiche mit 10 bis 20 Seeds wiederholt werden. Außerdem ist die Architektur Meyer-artig, aber keine Byte-für-Byte-Reproduktion des Originalcodes. Die Richtung des Meyer-Effekts wird reproduziert, die absoluten Zahlen sollten jedoch als Ergebnis unserer Implementierung verstanden werden.
+Die Ergebnisse bleiben finite-seed Simulationen. Die wichtigsten Sweeps verwenden zehn Seeds und ein gemeinsames Trainingsprotokoll. Außerdem ist die Architektur Meyer-artig, aber keine Byte-für-Byte-Reproduktion des Originalcodes. Die Richtung des Meyer-Effekts wird reproduziert, die absoluten Zahlen sollten jedoch als Ergebnis unserer Implementierung verstanden werden.
 
 Eine weitere Grenze ist die Aufgabengröße. Tic-Tac-Toe ist klein und vollständig enumerierbar. Das ist für kontrollierte Experimente ein Vorteil, aber es bedeutet nicht automatisch, dass dieselbe Architekturidee auf größere Aufgaben skaliert. Der übertragbare Teil ist nicht das konkrete Winning-Line-Gate, sondern das Prinzip: Wenn eine symmetrische Aufgabe bekannte lokale oder relationale Motive besitzt, sollte ein äquivariantes VQLM diese Motive direkt als trainierbare Interaktionen anbieten.
 
@@ -308,7 +287,7 @@ Die aktuellen Resultate zeigen jedoch, dass vor dieser kontinuierlichen Frage be
 
 Diese Arbeit rekonstruiert Meyer et al. als Ausgangspunkt für eine breitere Sicht auf Symmetrie in Variational Quantum Learning. Die Reproduktion bestätigt qualitativ: volle $D_4$-Äquivarianz verbessert die Test Accuracy gegenüber keiner Symmetrie und reduziert den Generalization Gap. Die Untergruppenexperimente zeigen, dass partielle Äquivarianz eine sinnvolle Modellwahlachse ist; insbesondere $C_4$ erreicht fast dieselbe Leistung wie $D_4$, ohne robust besser zu sein. Der Random-Sharing-Control zeigt, dass der Effekt nicht bloß durch weniger Parameter erklärt werden kann.
 
-Der wichtigste neue Befund ist die task-aligned äquivariante Architektur. Durch zusätzliche Gates auf den acht Gewinnlinien steigt die Test Accuracy im besten $D_4$-Modell von etwa $0.69$ auf etwa $0.80$. Das Modell bleibt dabei äquivariant. Der stärkste Claim ist daher nicht, dass man Symmetrie brechen muss. Der stärkste Claim ist: Sobald Symmetrie eingebaut ist, sollte man den äquivarianten Designraum weiter nutzen, um Gates an die Struktur der Aufgabe anzupassen.
+Der wichtigste neue Befund ist die task-aligned äquivariante Architektur. Durch zusätzliche Gates auf den acht Gewinnlinien steigt die Test Accuracy im besten $D_4$-Modell bei 600 Trainingsbeispielen von $0.687$ auf $0.785$. Das Modell bleibt dabei äquivariant. Der stärkste Claim ist daher nicht, dass man Symmetrie brechen muss. Der stärkste Claim ist: Sobald Symmetrie eingebaut ist, sollte man den äquivarianten Designraum weiter nutzen, um Gates an die Struktur der Aufgabe anzupassen.
 
 Für zukünftige VQLM-Benchmarks ergibt sich daraus eine konkrete Empfehlung. Eine bekannte Symmetrie sollte nicht nur als Parameter-Sharing-Regel verwendet werden. Sie sollte als Sprache dienen, in der man task-aligned Gates konstruiert: lokale Motive, relationale Muster, konservierte Größen oder kombinatorische Substrukturen. In diesem Sinn erweitert die Arbeit Meyer et al. natürlich: Meyer et al. zeigen, dass Symmetrie hilft; diese Arbeit zeigt, dass die Wahl der symmetrieverträglichen Interaktionen mindestens ebenso wichtig sein kann.
 
@@ -316,13 +295,13 @@ Für zukünftige VQLM-Benchmarks ergibt sich daraus eine konkrete Empfehlung. Ei
 \section*{Formale Angaben}
 \addcontentsline{toc}{section}{Formale Angaben}
 
-\noindent\textcolor{red}{\Large Wortanzahl fachlicher Haupttext: \textbf{3294}}
+\noindent\textcolor{red}{\Large Wortanzahl fachlicher Haupttext: \textbf{3363}}
 
 \vspace{0.3cm}
-\noindent\textcolor{red}{\Large Zeichenanzahl ohne Leerzeichen: \textbf{22554}}
+\noindent\textcolor{red}{\Large Zeichenanzahl ohne Leerzeichen: \textbf{21350}}
 
 \vspace{0.3cm}
-\noindent\textcolor{red}{\Large Zeichenanzahl mit Leerzeichen: \textbf{26425}}
+\noindent\textcolor{red}{\Large Zeichenanzahl mit Leerzeichen: \textbf{24604}}
 
 \vspace{0.5cm}
-\noindent\emph{Hinweis:} Die Zählung bezieht sich auf den fachlichen Haupttext in \texttt{contents.tex} bis einschließlich Fazit, inklusive Überschriften und Bildunterschriften, aber ohne LaTeX-Kommandos, Literaturbefehle, Tabellenkörper und Gleichungen. Der automatische \texttt{texcount}-Block der Vorlage wurde ersetzt, weil \texttt{texcount} in der aktuellen lokalen TeX-Installation nicht verfügbar ist.
+\noindent\emph{Hinweis:} Die Wortzählung bezieht sich auf den fachlichen Haupttext in \texttt{contents.tex} bis einschließlich Fazit und wurde mit \texttt{texcount} bestimmt. Die Zeichenzählung ist eine bereinigte Näherung ohne LaTeX-Kommandos, Literaturbefehle, Tabellenkörper und Gleichungen.

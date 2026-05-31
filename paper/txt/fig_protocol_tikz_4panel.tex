@@ -1,0 +1,256 @@
+\begingroup
+\definecolor{qblue}{HTML}{0072B2}
+\definecolor{qorange}{HTML}{E69F00}
+\definecolor{qteal}{HTML}{0F9D9A}
+\definecolor{qgreen}{HTML}{159447}
+\definecolor{qviolet}{HTML}{7B4FD6}
+\definecolor{qplum}{HTML}{5D3A9B}
+\definecolor{qrose}{HTML}{D65F8C}
+\definecolor{qgold}{HTML}{F2B705}
+\definecolor{qcoral}{HTML}{D85C41}
+\definecolor{qindigo}{HTML}{3657A8}
+\definecolor{panelgray}{HTML}{F7F8FA}
+\definecolor{panelblue}{HTML}{F1F7FF}
+\definecolor{panelwarm}{HTML}{FFF7ED}
+\definecolor{cornerfill}{HTML}{CFEFE6}
+\definecolor{sidefill}{HTML}{FFE0CC}
+\definecolor{centerfill}{HTML}{FFF3A6}
+\definecolor{lineblue}{HTML}{2A75BB}
+\definecolor{lineorange}{HTML}{E6862E}
+\definecolor{linegreen}{HTML}{159447}
+\definecolor{linepurple}{HTML}{8656D8}
+
+\newcommand{\BoardLines}{%
+  \draw[line width=0.6pt, black!88] (-0.28,-0.90) -- (-0.28,0.90);
+  \draw[line width=0.6pt, black!88] (0.28,-0.90) -- (0.28,0.90);
+  \draw[line width=0.6pt, black!88] (-0.90,-0.28) -- (0.90,-0.28);
+  \draw[line width=0.6pt, black!88] (-0.90,0.28) -- (0.90,0.28);
+}
+\newcommand{\XMark}[2]{\node[inner sep=0pt, text=qblue, font=\bfseries\large] at (#1,#2) {$\times$};}
+\newcommand{\OMark}[2]{\node[inner sep=0pt, text=qorange, font=\bfseries\large] at (#1,#2) {$\circ$};}
+\newcommand{\BoardA}{%
+  \BoardLines
+  \XMark{-0.58}{0.58}\XMark{0}{0.58}\OMark{0.58}{0.58}
+  \OMark{0}{0}\XMark{0.58}{0}
+  \OMark{-0.58}{-0.58}\OMark{0.58}{-0.58}
+}
+\newcommand{\DataGrid}{%
+  \foreach \x in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (\x,-0.63)--(\x,0.63);}
+  \foreach \y in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (-0.63,\y)--(0.63,\y);}
+  \node[text=qblue,font=\scriptsize] at (-0.42,0.42) {$+1$};
+  \node[text=qblue,font=\scriptsize] at (0,0.42) {$+1$};
+  \node[text=qorange,font=\scriptsize] at (0.42,0.42) {$-1$};
+  \node[text=black!78,font=\scriptsize] at (-0.42,0) {$0$};
+  \node[text=qorange,font=\scriptsize] at (0,0) {$-1$};
+  \node[text=qblue,font=\scriptsize] at (0.42,0) {$+1$};
+  \node[text=qorange,font=\scriptsize] at (-0.42,-0.42) {$-1$};
+  \node[text=black!78,font=\scriptsize] at (0,-0.42) {$0$};
+  \node[text=qorange,font=\scriptsize] at (0.42,-0.42) {$-1$};
+}
+\newcommand{\OrbitBoard}{%
+  \BoardLines
+  \foreach \x/\y/\c in {-0.58/0.58/cornerfill,0/0.58/sidefill,0.58/0.58/cornerfill,-0.58/0/sidefill,0/0/centerfill,0.58/0/sidefill,-0.58/-0.58/cornerfill,0/-0.58/sidefill,0.58/-0.58/cornerfill} {
+    \node[draw=black!42, fill=\c, rounded corners=1.4pt, minimum width=0.40cm, minimum height=0.40cm, inner sep=0pt] at (\x,\y) {};
+  }
+}
+\newcommand{\DeclareBoardCoords}{%
+  \coordinate (p0) at (-0.58,0.58);
+  \coordinate (p1) at (0,0.58);
+  \coordinate (p2) at (0.58,0.58);
+  \coordinate (p7) at (-0.58,0);
+  \coordinate (p8) at (0,0);
+  \coordinate (p3) at (0.58,0);
+  \coordinate (p6) at (-0.58,-0.58);
+  \coordinate (p5) at (0,-0.58);
+  \coordinate (p4) at (0.58,-0.58);
+}
+\newcommand{\EdgeOverlay}{%
+  \BoardLines\DeclareBoardCoords
+  \foreach \a/\b in {p0/p1,p2/p1,p2/p3,p4/p3,p4/p5,p6/p5,p6/p7,p0/p7} {
+    \draw[-{Stealth[length=2.6pt,width=2.6pt]}, line width=0.6pt, draw=qindigo!80, opacity=0.9] ($(\a)!0.18!(\b)$) -- ($(\a)!0.82!(\b)$);
+  }
+  \foreach \a/\b in {p1/p8,p3/p8,p5/p8,p7/p8} {
+    \draw[-{Stealth[length=2.6pt,width=2.6pt]}, line width=0.6pt, draw=qteal!85!black, opacity=0.9] ($(\a)!0.18!(\b)$) -- ($(\a)!0.82!(\b)$);
+  }
+  \foreach \a/\b in {p8/p0,p8/p2,p8/p4,p8/p6} {
+    \draw[-{Stealth[length=2.6pt,width=2.6pt]}, line width=0.6pt, draw=qcoral!88!black, opacity=0.9] ($(\a)!0.18!(\b)$) -- ($(\a)!0.82!(\b)$);
+  }
+}
+\newcommand{\FaintEdgeArrows}{%
+  \foreach \a/\b in {p0/p1,p2/p1,p2/p3,p4/p3,p4/p5,p6/p5,p6/p7,p0/p7} {
+    \draw[-{Stealth[length=2.4pt,width=2.4pt]}, line width=0.5pt, draw=qindigo!75, opacity=0.45] ($(\a)!0.20!(\b)+(0.045,-0.045)$) -- ($(\a)!0.80!(\b)+(0.045,-0.045)$);
+  }
+  \foreach \a/\b in {p1/p8,p3/p8,p5/p8,p7/p8} {
+    \draw[-{Stealth[length=2.4pt,width=2.4pt]}, line width=0.5pt, draw=qteal!85!black, opacity=0.45] ($(\a)!0.20!(\b)+(0.045,-0.045)$) -- ($(\a)!0.80!(\b)+(0.045,-0.045)$);
+  }
+  \foreach \a/\b in {p8/p0,p8/p2,p8/p4,p8/p6} {
+    \draw[-{Stealth[length=2.4pt,width=2.4pt]}, line width=0.5pt, draw=qcoral!88!black, opacity=0.45] ($(\a)!0.20!(\b)+(0.045,-0.045)$) -- ($(\a)!0.80!(\b)+(0.045,-0.045)$);
+  }
+}
+\newcommand{\LineOverlay}{%
+  \begin{scope}[opacity=0.5]\EdgeOverlay\end{scope}
+  \BoardLines\DeclareBoardCoords
+  \draw[lineblue,line width=1.5pt] (p0)--(p1)--(p2);
+  \draw[lineblue,line width=1.5pt] (p6)--(p5)--(p4);
+  \draw[lineblue,line width=1.5pt] (p0)--(p7)--(p6);
+  \draw[lineblue,line width=1.5pt] (p2)--(p3)--(p4);
+  \draw[linegreen,line width=1.6pt] (p7)--(p8)--(p3);
+  \draw[linegreen,line width=1.6pt] (p1)--(p8)--(p5);
+  \draw[linepurple,line width=1.65pt] (p0)--(p8)--(p4);
+  \draw[linepurple,line width=1.65pt] (p2)--(p8)--(p6);
+}
+% board showing the 9 qubits and the 8 winning-line triples each gate acts on
+\newcommand{\WinLineBoard}{%
+  \DeclareBoardCoords
+  \draw[line width=0.5pt, black!45] (-0.28,-0.90)--(-0.28,0.90);
+  \draw[line width=0.5pt, black!45] (0.28,-0.90)--(0.28,0.90);
+  \draw[line width=0.5pt, black!45] (-0.90,-0.28)--(0.90,-0.28);
+  \draw[line width=0.5pt, black!45] (-0.90,0.28)--(0.90,0.28);
+  \begin{scope}[line cap=round]
+    \draw[lineblue,line width=1.7pt] (p0)--(p1)--(p2);
+    \draw[lineblue,line width=1.7pt] (p6)--(p5)--(p4);
+    \draw[lineblue,line width=1.7pt] (p0)--(p7)--(p6);
+    \draw[lineblue,line width=1.7pt] (p2)--(p3)--(p4);
+    \draw[linegreen,line width=1.8pt] (p7)--(p8)--(p3);
+    \draw[linegreen,line width=1.8pt] (p1)--(p8)--(p5);
+    \draw[linepurple,line width=1.85pt] (p0)--(p8)--(p4);
+    \draw[linepurple,line width=1.85pt] (p2)--(p8)--(p6);
+  \end{scope}
+  \foreach \p in {p0,p1,p2,p3,p4,p5,p6,p7,p8} {
+    \node[circle, draw=black!80, fill=white, line width=0.85pt, inner sep=0pt, minimum size=0.24cm] at (\p) {};
+  }
+}
+% single-qubit board: 9 qubits coloured by orbit (same colour = shared parameters)
+\newcommand{\SingleQubitBoard}{%
+  \DeclareBoardCoords
+  \draw[line width=0.5pt, black!45] (-0.28,-0.90)--(-0.28,0.90);
+  \draw[line width=0.5pt, black!45] (0.28,-0.90)--(0.28,0.90);
+  \draw[line width=0.5pt, black!45] (-0.90,-0.28)--(0.90,-0.28);
+  \draw[line width=0.5pt, black!45] (-0.90,0.28)--(0.90,0.28);
+  \foreach \p/\c in {p0/cornerfill,p1/sidefill,p2/cornerfill,p3/sidefill,p4/cornerfill,p5/sidefill,p6/cornerfill,p7/sidefill,p8/centerfill} {
+    \node[circle, draw=black!60, fill=\c, line width=0.8pt, minimum size=0.36cm, inner sep=0pt] at (\p) {};
+  }
+}
+% entangling board: 9 qubits with the directed CR_P edges between them
+\newcommand{\EntangleBoard}{%
+  \DeclareBoardCoords
+  \draw[line width=0.5pt, black!45] (-0.28,-0.90)--(-0.28,0.90);
+  \draw[line width=0.5pt, black!45] (0.28,-0.90)--(0.28,0.90);
+  \draw[line width=0.5pt, black!45] (-0.90,-0.28)--(0.90,-0.28);
+  \draw[line width=0.5pt, black!45] (-0.90,0.28)--(0.90,0.28);
+  \foreach \a/\b in {p0/p1,p2/p1,p2/p3,p4/p3,p4/p5,p6/p5,p6/p7,p0/p7} {
+    \draw[-{Stealth[length=3.0pt,width=3.0pt]}, line width=0.8pt, draw=qindigo!85] ($(\a)!0.27!(\b)$) -- ($(\a)!0.73!(\b)$);
+  }
+  \foreach \a/\b in {p1/p8,p3/p8,p5/p8,p7/p8} {
+    \draw[-{Stealth[length=3.0pt,width=3.0pt]}, line width=0.8pt, draw=qteal!85!black] ($(\a)!0.30!(\b)$) -- ($(\a)!0.70!(\b)$);
+  }
+  \foreach \a/\b in {p8/p0,p8/p2,p8/p4,p8/p6} {
+    \draw[-{Stealth[length=3.0pt,width=3.0pt]}, line width=0.8pt, draw=qcoral!88!black] ($(\a)!0.30!(\b)$) -- ($(\a)!0.70!(\b)$);
+  }
+  \foreach \p in {p0,p1,p2,p3,p4,p5,p6,p7,p8} {
+    \node[circle, draw=black!78, fill=white, line width=0.8pt, minimum size=0.22cm, inner sep=0pt] at (\p) {};
+  }
+}
+
+% ---- small drawn gate-glyph icons (centered at #1,#2) ----
+\newcommand{\IconSingle}[2]{%
+  \draw[black!70,line width=0.6pt] (#1-0.34,#2)--(#1+0.34,#2);
+  \node[draw=qplum!78, fill=white, rounded corners=1.6pt, line width=0.8pt, minimum width=0.34cm, minimum height=0.30cm, inner sep=0pt] at (#1,#2) {};
+}
+\newcommand{\IconCtrl}[2]{%
+  \draw[black!70,line width=0.6pt] (#1-0.30,#2+0.20)--(#1+0.30,#2+0.20);
+  \draw[black!70,line width=0.6pt] (#1-0.30,#2-0.20)--(#1+0.30,#2-0.20);
+  \draw[black!82,line width=0.75pt] (#1,#2+0.20)--(#1,#2-0.20);
+  \fill[black!88] (#1,#2+0.20) circle (0.052);
+  \node[draw=qplum!78, fill=white, rounded corners=1.2pt, line width=0.7pt, minimum width=0.30cm, minimum height=0.24cm, inner sep=0pt, font=\tiny] at (#1,#2-0.20) {$P$};
+}
+\newcommand{\IconZZZ}[2]{%
+  \draw[qgreen!82!black,line width=0.95pt] (#1,#2+0.34)--(#1,#2-0.34);
+  \foreach \dy in {0.34,0,-0.34} {\node[draw=qgreen!75!black, fill=white, rounded corners=1.3pt, line width=0.75pt, minimum width=0.32cm, minimum height=0.28cm, inner sep=0pt, font=\scriptsize] at (#1,#2+\dy) {$Z$};}
+}
+\newcommand{\IconCCRZ}[2]{%
+  \draw[qgreen!82!black,line width=0.95pt] (#1,#2+0.34)--(#1,#2-0.34);
+  \fill[black!88] (#1,#2+0.34) circle (0.062);
+  \fill[black!88] (#1,#2) circle (0.062);
+  \node[draw=qgreen!75!black, fill=white, rounded corners=1.3pt, line width=0.75pt, minimum width=0.42cm, minimum height=0.28cm, inner sep=0pt, font=\scriptsize] at (#1,#2-0.34) {$R_Z$};
+}
+
+\begin{tikzpicture}[
+  x=1cm,
+  y=1cm,
+  >={Stealth[length=4.0pt,width=4.0pt]},
+  panel/.style={rounded corners=6pt, line width=0.8pt},
+  subpanel/.style={rounded corners=5pt, line width=0.5pt},
+  flow/.style={-{Stealth[length=5.0pt,width=5.0pt]}, line width=0.9pt, draw=black!75},
+]
+  \path[use as bounding box] (-0.05,0.06) rectangle (17.95,6.42);
+
+  % ---- Panels ----
+  \draw[panel, fill=panelgray, draw=black!42]        (0.10,0.95) rectangle (4.10,5.95);
+  \draw[panel, fill=panelblue, draw=qteal!85]        (4.55,0.95) rectangle (8.25,5.95);
+  \draw[panel, fill=panelgray, draw=black!42]        (8.70,0.95) rectangle (13.40,5.95);
+  \draw[panel, fill=qgreen!7, draw=qgreen!60!black] (13.85,0.95) rectangle (17.85,5.95);
+
+  % pipeline arrows between stages
+  \draw[flow] (8.30,3.45) -- (8.66,3.45);
+  \draw[flow] (13.45,3.45) -- (13.81,3.45);
+
+  % Panel letters (outside, top-left) and captions (below)
+  \node[font=\bfseries\normalsize, text=black, anchor=south west] at (0.12,6.02) {a};
+  \node[font=\bfseries\normalsize, text=black, anchor=south west] at (4.57,6.02) {b};
+  \node[font=\bfseries\normalsize, text=black, anchor=south west] at (8.72,6.02) {c};
+  \node[font=\bfseries\normalsize, text=black, anchor=south west] at (13.87,6.02) {d};
+  \node[font=\small] at (2.10,0.46) {Symmetry};
+  \node[font=\small] at (6.40,0.46) {Encoding};
+  \node[font=\small] at (11.05,0.46) {Equivariant gateset};
+  \node[font=\small] at (15.85,0.46) {Winning-line gates (ours)};
+
+  % ===== Panel (a): symmetry — rotations (rows) x flip (columns) =====
+  \node[font=\scriptsize, text=black!82, rotate=90] at (0.32,3.45) {Winner: \textcolor{qorange}{$\circ$}};
+  \foreach \yy/\ang/\lab in {5.12/0/{$0^\circ$}, 4.04/90/{$90^\circ$}, 2.96/180/{$180^\circ$}, 1.88/270/{$270^\circ$}} {
+    \node[font=\scriptsize, text=black!82] at (0.95,\yy) {\lab};
+    \begin{scope}[shift={(1.80,\yy)}, scale=0.44, rotate=\ang]\BoardA\end{scope}
+    \node[font=\tiny, text=black!72] at (2.50,\yy+0.34) {Flip};
+    \draw[flow, line width=0.7pt] (2.28,\yy) -- (2.72,\yy);
+    \begin{scope}[shift={(3.42,\yy)}, scale=0.44, rotate=\ang, xscale=-1]\BoardA\end{scope}
+  }
+
+  % ===== Panel (b): encoding =====
+  \node[font=\scriptsize, text=black!85] at (5.45,5.50) {Game};
+  \node[font=\scriptsize, text=black!85] at (7.30,5.50) {Data $g_i$};
+  \begin{scope}[shift={(5.45,4.74)}, scale=0.54]\BoardA\end{scope}
+  \begin{scope}[shift={(7.30,4.74)}, scale=0.82]\DataGrid\end{scope}
+  \draw[flow] (5.99,4.74) -- (6.78,4.74);
+  \node[draw=qteal!80!black, fill=white, rounded corners=2.5pt, line width=0.5pt, align=center, inner xsep=5pt, inner ysep=3pt, font=\scriptsize] at (6.40,3.58) {$x_i=\tfrac{2\pi}{3}g_i,\quad U=R_X(x_i)$};
+  \begin{scope}[shift={(6.40,2.02)}, scale=1.34]
+    \DeclareBoardCoords
+    \foreach \a/\b in {p0/p1,p1/p2,p2/p3,p3/p4,p4/p5,p5/p6,p6/p7,p7/p0} {\draw[black!45,line width=0.5pt] (\a)--(\b);}
+    \foreach \a/\b in {p1/p8,p3/p8,p5/p8,p7/p8} {\draw[black!28,line width=0.5pt] (\a)--(\b);}
+    \foreach \p/\i/\c in {p0/0/cornerfill,p1/1/sidefill,p2/2/cornerfill,p3/3/sidefill,p4/4/cornerfill,p5/5/sidefill,p6/6/cornerfill,p7/7/sidefill,p8/8/centerfill} {
+      \node[draw=black!52, fill=\c, rounded corners=1.6pt, inner sep=0.6pt, font=\tiny, minimum size=0.36cm] at (\p) {$x_{\i}$};
+    }
+  \end{scope}
+
+  % ===== Panel (c): equivariant gateset =====
+  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (8.88,1.12) rectangle (11.00,4.58);
+  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (11.16,1.12) rectangle (13.28,4.58);
+  \node[font=\scriptsize, text=black!85] at (9.94,5.22) {Single-qubit};
+  \node[font=\scriptsize, text=black!85] at (12.22,5.22) {Entangling};
+  \IconSingle{9.40}{4.18}
+  \node[anchor=west, font=\scriptsize, text=black!85] at (9.66,4.18) {$=R_YR_X$};
+  \IconCtrl{11.66}{4.16}
+  \node[anchor=west, font=\scriptsize, text=black!85] at (11.92,4.16) {$=CR_P$};
+  \begin{scope}[shift={(9.94,2.82)}, scale=1.06]\SingleQubitBoard\end{scope}
+  \begin{scope}[shift={(12.22,2.82)}, scale=1.06]\EntangleBoard\end{scope}
+  \node[font=\tiny, text=black!72, align=center, text width=2.0cm] at (9.94,1.40) {same colour: shared $R_X,R_Y$};
+  \node[font=\tiny, text=black!72, align=center, text width=2.0cm] at (12.22,1.40) {$CR_P$ on pairs, orbit-shared};
+
+  % ===== Panel (d): task-aligned winning-line gates (ours) =====
+  \IconZZZ{14.34}{5.38}
+  \node[anchor=west, font=\small, text=black!88] at (14.65,5.38) {$=ZZZ$};
+  \IconCCRZ{16.00}{5.38}
+  \node[anchor=west, font=\small, text=black!88] at (16.36,5.38) {$=CCR_Z$};
+  \begin{scope}[shift={(15.85,3.30)}, scale=1.50]\WinLineBoard\end{scope}
+  \node[font=\scriptsize, text=black!80, align=center, text width=3.8cm] at (15.85,1.42) {one $ZZZ$ and $CCR_Z$ per winning triple (3 qubits); 8 triples, orbit-shared};
+\end{tikzpicture}
+\endgroup

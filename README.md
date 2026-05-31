@@ -46,6 +46,7 @@ The IEEE-style short-paper draft is in `paper/`:
 - `paper/txt/` contains the section text.
 - `paper/gfx/` contains tracked vector figures used by the manuscript.
 - `paper/make_figures.py` regenerates the manuscript-specific figures from the checked CSV results.
+- `scripts/run_consistent_paper_experiments.sh` runs the consistent 30--600 training-regime matrix, validates row counts, regenerates figures, and rebuilds the paper.
 
 Build the manuscript from the repository root:
 
@@ -66,7 +67,7 @@ The main manuscript story is:
 1. Meyer-style full `D4` equivariance improves over no symmetry.
 2. Partial equivariance, especially `C4`, closely tracks full `D4` on this benchmark.
 3. Parameter-matched random sharing underperforms group-orbit sharing.
-4. The strongest current result is the oracle-inspired equivariant `edge_line_zzz_ccrz` ansatz, which adds winning-line interactions while preserving equivariance.
+4. The strongest current result is the task-aligned equivariant `edge+lines` ansatz (`edge_line_zzz_ccrz`), which adds winning-line interactions while preserving equivariance.
 
 ## Seminar Paper
 
@@ -170,6 +171,12 @@ Winner-line 3-qubit ansatz comparison:
   --L 3 --p 2
 ```
 
+Consistent short-paper experiment matrix:
+
+```bash
+PYTHON=/Users/markus/anaconda3/bin/python EPOCHS=100 SHARDS=5 scripts/run_consistent_paper_experiments.sh
+```
+
 Main paper experiments use `--single-qubit-block paper` by default. The
 minimal `RY` block remains available via `--single-qubit-block ry` for quick
 ablations. Scripts also accept `--epochs`, `--steps-per-epoch`, `--batch-size`,
@@ -205,16 +212,14 @@ The current checked CSV and figure artifacts are committed as part of the
 repository so the paper plots can be regenerated and inspected immediately on a
 fresh checkout. Logs and PID files remain untracked.
 
-## Data Split Note
+## Data Sampling Note
 
-The unique legal board-state dataset contains 316 circle-win states, 626
-cross-win states, and 4536 draw-labeled states. Therefore an exactly disjoint
-balanced `450` train / `600` test split is impossible for unique board states:
-it would require 350 circle-win states. The splitter uses disjoint balanced
-splits whenever feasible and otherwise falls back to original-like independent
-balanced train/test sampling, logging `actual_disjoint`, `split_mode`, and
-`overlap_count` in each CSV row. Use `--strict-disjoint` to fail instead of
-falling back.
+The dataset is the exhaustive set of 5478 legal Tic-Tac-Toe board states. Paper
+experiments draw class-balanced train and test samples from this enumerated set
+with deterministic per-seed randomness, so each model comparison at a fixed
+train size uses the same data protocol and the same seed block. The checked CSVs
+record the seed, train size, class counts, and protocol metadata needed to
+reproduce the reported figures.
 
 ## Model
 
@@ -248,10 +253,12 @@ current one-qubit RX ternary embedding without changing the data encoding, but
 the winner-line triples are useful candidates for future trainable 3-qubit
 equivariant ansatz blocks.
 
-Trainable oracle-inspired variants are exposed through `--circuit-family`.
+Trainable task-aligned line-gate variants are exposed through `--circuit-family`.
 They keep the same RX data embedding, single-qubit paper block, invariant
-observables, and subgroup parameter sharing, but replace directed `CRY` edge
-entanglers with task-aligned 3-qubit motifs on Tic-Tac-Toe winning-line triples:
+observables, and subgroup parameter sharing. Some variants use only the
+winning-line motifs; the edge+lines variants keep the original directed `CRY`
+edge entanglers and add task-aligned 3-qubit motifs on Tic-Tac-Toe
+winning-line triples:
 
 - `line_zzz`: trainable `MultiRZ(theta)` interactions.
 - `line_ccrz`: trainable two-control phase rotations on each line.

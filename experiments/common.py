@@ -111,21 +111,23 @@ def run_configs(
         existing = pd.read_csv(output_path)
         rows = existing.to_dict("records")
         completed_keys = {_normalized_key(row) for row in rows}
-        print(f"Resuming from {output_path}: {len(rows)} existing rows.")
+        print(f"Resuming from {output_path}: {len(rows)} existing rows.", flush=True)
 
     for index, config in enumerate(configs, start=1):
         if resume and _config_key(config) in completed_keys:
             print(
                 f"[{index}/{len(configs)}] skip existing subgroup={config.subgroup} "
                 f"L={config.L} p={config.p} seed={config.seed} train={config.train_size} "
-                f"epsilon={config.epsilon}"
+                f"epsilon={config.epsilon}",
+                flush=True,
             )
             continue
         print(
             f"[{index}/{len(configs)}] subgroup={config.subgroup} "
             f"sharing={'random' if config.random_sharing else 'symmetry'} "
             f"L={config.L} p={config.p} seed={config.seed} train={config.train_size} "
-            f"epsilon={config.epsilon}"
+            f"epsilon={config.epsilon}",
+            flush=True,
         )
         _, row, _ = train_model(config)
         rows.append(row)

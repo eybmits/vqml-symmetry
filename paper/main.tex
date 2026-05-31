@@ -7,8 +7,9 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage[caption=false,font=footnotesize]{subfig}
-\usepackage[hidelinks]{hyperref}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
 \usepackage{cleveref}
+\usepackage{orcidlink}
 \usetikzlibrary{arrows.meta,calc,positioning}
 
 \renewcommand{\ttdefault}{cmtt}
@@ -16,15 +17,17 @@
 \renewcommand{\figureautorefname}{Fig.}
 \renewcommand{\figurename}{Fig.}
 \renewcommand{\tablename}{Tab.}
+\DeclareRobustCommand{\IEEEauthorrefmark}[1]{\smash{\textsuperscript{\footnotesize #1}}}
 
 \begin{document}
 
-\title{Task-Aligned Equivariant Gates for Variational Quantum Learning}
+\title{When to Break Symmetry in Variational Quantum Learning}
 
-\author{
-\IEEEauthorblockN{Author One, Author Two, and Author Three}
-\IEEEauthorblockA{LMU Munich\\
-Corresponding author: TODO}
+\author{%
+\IEEEauthorblockN{%
+Markus Baumann\IEEEauthorrefmark{1}\orcidlink{0009-0007-3575-1006}\thanks{Corresponding author: \href{mailto:markus.baumann@ifi.lmu.de}{markus.baumann@ifi.lmu.de}.}
+\ and Jonas Stein\IEEEauthorrefmark{1}\orcidlink{0000-0001-5727-9151}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}\textit{QAR-Lab, Department of Computer Science, LMU Munich, Munich, Germany}}
 }
 
 \maketitle
@@ -34,7 +37,7 @@ Corresponding author: TODO}
 \end{abstract}
 
 \begin{IEEEkeywords}
-variational quantum learning, equivariance, symmetry, inductive bias, quantum machine learning
+quantum machine learning, geometric quantum machine learning, equivariance, symmetry, inductive bias, variational quantum circuits, parameter sharing, generalization
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -45,21 +48,18 @@ variational quantum learning, equivariance, symmetry, inductive bias, quantum ma
 \label{sec:protocol}
 \input{txt/2_Protocol}
 
-\section{Evidence}
-\label{sec:evidence}
-\input{txt/3_Evidence}
+\section{Results}
+\label{sec:results}
+\input{txt/3_Results}
 
 \section{Discussion}
 \label{sec:discussion}
 \input{txt/4_Discussion}
 
-\section*{Reproducibility Appendix}
+\section*{Appendix A: Data Generation}
 \input{txt/5_Reproducibility}
 
-\section*{Author Contributions}
-TODO.
-
-\bibliographystyle{unsrt}
+\bibliographystyle{IEEEtran}
 \bibliography{references}
 
 \end{document}

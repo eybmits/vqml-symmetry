@@ -28,6 +28,10 @@ results/figures/**/*.pdf
 results/figures/**/*.png
 results/logs/*.log
 results/logs/*.pid
+results/logs/*.logpath
+
+# Temporary review/render outputs
+tmp/
 
 # LaTeX build byproducts
 paper/*.aux
@@ -38,3 +42,12 @@ paper/*.fls
 paper/*.log
 paper/*.out
 paper/*.synctex.gz
+docs/**/*.aux
+docs/**/*.bbl
+docs/**/*.blg
+docs/**/*.fdb_latexmk
+docs/**/*.fls
+docs/**/*.log
+docs/**/*.out
+docs/**/*.synctex.gz
+docs/**/*.toc
