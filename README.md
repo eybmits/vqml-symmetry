@@ -2,7 +2,7 @@
 
 Reproducible experiments for:
 
-**Partial Equivariance as a Tunable Inductive Bias in Variational Quantum Learning**
+**Symmetry as a Design Axis in Variational Quantum Learning**
 
 This project reproduces and extends the Tic-Tac-Toe experiment from Meyer et al.,
 “Exploiting symmetry in variational quantum machine learning”. It compares
