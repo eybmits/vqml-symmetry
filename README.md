@@ -18,19 +18,19 @@ The local Anaconda Python 3.11 environment already has the core dependencies.
 From the repository root:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 Run all sanity checks plus a tiny smoke training run:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m src.sanity_checks
+python3 -m src.sanity_checks
 ```
 
 Skip the smoke training if you only want structural checks:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m src.sanity_checks --skip-smoke
+python3 -m src.sanity_checks --skip-smoke
 ```
 
 The default simulator backend is `lightning.qubit` with adjoint gradients.
@@ -58,7 +58,7 @@ make paper
 Or run the steps explicitly:
 
 ```bash
-/Users/markus/anaconda3/bin/python make_figures.py
+python3 make_figures.py
 latexmk -pdf -interaction=nonstopmode main.tex
 ```
 
@@ -101,13 +101,13 @@ open docs/paper_plan.md
 Minimum paper-draft sweep over all six symmetry variants:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.paper_minimum_sweep
+python3 -m experiments.paper_minimum_sweep
 ```
 
 Generate the core paper table and plots from a partial-sweep CSV:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.paper_summary \
+python3 -m experiments.paper_summary \
   results/csv/results_paper_minimum.csv \
   --kind partial \
   --table-name table_paper_minimum
@@ -116,55 +116,55 @@ Generate the core paper table and plots from a partial-sweep CSV:
 Stage 1 reproduction, debug grid with five seeds:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.reproduce_original
+python3 -m experiments.reproduce_original
 ```
 
 Fast first-look comparison with minimal depth and fewer optimizer steps:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.quick_compare
+python3 -m experiments.quick_compare
 ```
 
 Full 20-seed reproduction over `L,p in {1,...,5}`:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.reproduce_original --final --full-grid
+python3 -m experiments.reproduce_original --final --full-grid
 ```
 
 Partial-equivariance train-size sweep:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.partial_equivariance_sweep
+python3 -m experiments.partial_equivariance_sweep
 ```
 
 The same data-regime sweep is also available under the requested alias:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.data_regime_sweep
+python3 -m experiments.data_regime_sweep
 ```
 
 Depth-vs-symmetry sweep:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.depth_sweep
+python3 -m experiments.depth_sweep
 ```
 
 Parameter-matched random-sharing control:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.random_sharing_control
+python3 -m experiments.random_sharing_control
 ```
 
 Deterministic rule-based oracle sanity baseline:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.rule_based_oracle --print-blueprint
+python3 -m experiments.rule_based_oracle --print-blueprint
 ```
 
 Winner-line 3-qubit ansatz comparison:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.line_ansatz_sweep \
+python3 -m experiments.line_ansatz_sweep \
   --circuit-families edge,line_zzz \
   --subgroups none,C4,D4 \
   --train-sizes 30,120,450 \
@@ -174,7 +174,7 @@ Winner-line 3-qubit ansatz comparison:
 Consistent short-paper experiment matrix:
 
 ```bash
-PYTHON=/Users/markus/anaconda3/bin/python EPOCHS=100 SHARDS=5 scripts/run_consistent_paper_experiments.sh
+PYTHON=python3 EPOCHS=100 SHARDS=5 scripts/run_consistent_paper_experiments.sh
 ```
 
 Main paper experiments use `--single-qubit-block paper` by default. The
@@ -184,29 +184,22 @@ ablations. Scripts also accept `--epochs`, `--steps-per-epoch`, `--batch-size`,
 
 ## Outputs
 
-CSV files are written to `results/csv/`:
+The reviewer-facing CSV files are written to `results/csv/`:
 
-- `results_reproduction.csv`
-- `results_partial_equivariance.csv`
-- `results_depth_sweep.csv`
-- `results_random_sharing_control.csv`
-- `results_paper_minimum.csv`
-- `results_approximate_symmetry.csv`
-- `results_rule_based_oracle.csv`
-- `results_line_ansatz_sweep.csv`
-- `table_paper_minimum.csv`
-- `table_paper_minimum.md`
-- `table_approximate_symmetry.csv`
-- `table_approximate_symmetry.md`
+- `results_paper_consistent_edge_L3p2.csv`
+- `results_paper_consistent_edge_lines_L3p2.csv`
+- `results_paper_consistent_ablation_L3p2_train600.csv`
+- `results_paper_consistent_random_sharing_L3p2_train600.csv`
+- `results_paper_training_budget_audit_L3p2_train600.csv`
+- `table_paper_consistent_summary.csv`
+- `paper_training_budget_decision_L3p2.json`
 
-Figures are written to `results/figures/`:
+Manuscript figures are written to `paper/gfx/` and the seminar copies are kept
+in `docs/seminararbeit/images/`:
 
-- `fig_reproduction_train_test_accuracy.pdf`
-- `fig_partial_equivariance_data_sweep.pdf`
-- `fig_depth_vs_symmetry.pdf`
-- `fig_parameter_count.pdf`
-- `fig_random_sharing_control.pdf`
-- `fig_approximate_symmetry.pdf`
+- `paper/fig1_4panel_standalone.pdf`
+- `paper/gfx/fig2_main_evidence.pdf`
+- `paper/gfx/fig3_controls.pdf`
 
 The current checked CSV and figure artifacts are committed as part of the
 repository so the paper plots can be regenerated and inspected immediately on a
@@ -284,7 +277,7 @@ Add controlled `ε`-corruption to emulate approximate symmetry:
 Run:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.approximate_symmetry_sweep \
+python3 -m experiments.approximate_symmetry_sweep \
   --eps-values 0.0,0.05,0.10,0.20,0.40 \
   --train-sizes 30,60,120,240,450 \
   --L 3 --p 2 \
@@ -295,7 +288,7 @@ Run:
 Summarize and plot:
 
 ```bash
-/Users/markus/anaconda3/bin/python -m experiments.paper_summary \
+python3 -m experiments.paper_summary \
   results/csv/results_approximate_symmetry.csv \
   --kind approximate \
   --table-name table_approximate_symmetry

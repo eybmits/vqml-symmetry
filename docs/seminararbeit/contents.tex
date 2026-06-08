@@ -183,12 +183,12 @@ Auch diese Parameter werden über $C_4$- oder $D_4$-Orbits geteilt. Die beste Fa
 
 \subsection{Reproduktion: volle Symmetrie generalisiert besser}\label{subsec:repro}
 
-\Cref{fig:main} zeigt die zentrale Evidenz. Die Reproduktion bestätigt die erwartete Richtung. Das unbeschränkte Edge-Modell erreicht bei 600 Trainingsbeispielen $0.627\pm0.013$ Test Accuracy. Das $D_4$-äquivariante Edge-Modell erreicht $0.687\pm0.020$. Gleichzeitig sinkt der Generalization Gap von $0.070$ auf $0.021$. Das freie Modell besitzt mit 204 Parametern deutlich mehr Freiheitsgrade als das $D_4$-Modell mit 54 Parametern, aber diese zusätzlichen Freiheitsgrade helfen auf dem Testset nicht.
+\Cref{fig:main} zeigt die zentrale Evidenz. Die Reproduktion bestätigt die erwartete Richtung. Das unbeschränkte Edge-Modell erreicht bei 600 Trainingsbeispielen $0.627\pm0.013$ Test Accuracy. Das $D_4$-äquivariante Edge-Modell erreicht $0.687\pm0.020$, und unsere edge+lines/$D_4$-Erweiterung steigt weiter auf $0.785\pm0.021$. Gleichzeitig sinkt der Generalization Gap von $0.070$ auf $0.021$ für den Meyer-artigen $D_4$-Vergleich. Das freie Modell besitzt mit 204 Parametern deutlich mehr Freiheitsgrade als das $D_4$-Modell mit 54 Parametern, aber diese zusätzlichen Freiheitsgrade helfen auf dem Testset nicht.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{images/fig_main_evidence.pdf}
-\caption{Hauptergebnisse aus dem finalen 10-Seed-Protokoll. Links: Reproduktion des Meyer-artigen Effekts, $D_4$ schlägt keine Symmetrie. Mitte: Untergruppen-Sweep über Trainingsgrößen $30$ bis $600$; $C_4$ folgt $D_4$ sehr eng. Rechts: Edge-Ansatz und Edge-plus-Line-Erweiterung über dieselbe Trainingsgrößenachse; die Winning-Line-Gates verbessern die Accuracy deutlich.}
+\caption{Hauptergebnisse aus dem finalen 10-Seed-Protokoll. Links: 600er Endpunkt mit keiner Symmetrie, Meyer-artigem edge/$D_4$ und unserer edge+lines/$D_4$-Erweiterung. Mitte: Untergruppen-Sweep über Trainingsgrößen $30$ bis $600$; $C_4$ folgt $D_4$ sehr eng. Rechts: Edge-Ansatz und Edge-plus-Line-Erweiterung über dieselbe Trainingsgrößenachse; die Winning-Line-Gates verbessern die Accuracy deutlich.}
 \label{fig:main}
 \end{figure}
 

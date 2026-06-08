@@ -30,9 +30,9 @@
 \newcommand{\OMark}[2]{\node[inner sep=0pt, text=qorange, font=\bfseries\large] at (#1,#2) {$\circ$};}
 \newcommand{\BoardA}{%
   \BoardLines
-  \XMark{-0.58}{0.58}\XMark{0}{0.58}\OMark{0.58}{0.58}
-  \OMark{0}{0}\XMark{0.58}{0}
-  \OMark{-0.58}{-0.58}\OMark{0.58}{-0.58}
+  \OMark{-0.58}{0.58}\XMark{0}{0.58}\XMark{0.58}{0.58}
+  \OMark{-0.58}{0}\XMark{0}{0}
+  \OMark{-0.58}{-0.58}\XMark{0.58}{-0.58}
 }
 \newcommand{\WhiteBoardA}{%
   \draw[fill=white, draw=black!30, line width=0.45pt, rounded corners=2.5pt] (-1.06,-1.06) rectangle (1.06,1.06);
@@ -42,15 +42,15 @@
   \draw[fill=white, draw=black!18, line width=0.35pt] (-0.63,-0.63) rectangle (0.63,0.63);
   \foreach \x in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (\x,-0.63)--(\x,0.63);}
   \foreach \y in {-0.63,-0.21,0.21,0.63} {\draw[black!25,line width=0.35pt] (-0.63,\y)--(0.63,\y);}
-  \node[text=qblue,font=\scriptsize] at (-0.42,0.42) {$+1$};
+  \node[text=qorange,font=\scriptsize] at (-0.42,0.42) {$-1$};
   \node[text=qblue,font=\scriptsize] at (0,0.42) {$+1$};
-  \node[text=qorange,font=\scriptsize] at (0.42,0.42) {$-1$};
-  \node[text=black!78,font=\scriptsize] at (-0.42,0) {$0$};
-  \node[text=qorange,font=\scriptsize] at (0,0) {$-1$};
-  \node[text=qblue,font=\scriptsize] at (0.42,0) {$+1$};
+  \node[text=qblue,font=\scriptsize] at (0.42,0.42) {$+1$};
+  \node[text=qorange,font=\scriptsize] at (-0.42,0) {$-1$};
+  \node[text=qblue,font=\scriptsize] at (0,0) {$+1$};
+  \node[text=black!78,font=\scriptsize] at (0.42,0) {$0$};
   \node[text=qorange,font=\scriptsize] at (-0.42,-0.42) {$-1$};
   \node[text=black!78,font=\scriptsize] at (0,-0.42) {$0$};
-  \node[text=qorange,font=\scriptsize] at (0.42,-0.42) {$-1$};
+  \node[text=qblue,font=\scriptsize] at (0.42,-0.42) {$+1$};
 }
 \newcommand{\OrbitBoard}{%
   \BoardLines
@@ -197,6 +197,7 @@
   \draw[panel, fill=qgreen!7, draw=qgreen!60!black] (13.85,0.95) rectangle (17.85,5.95);
 
   % pipeline arrows between stages
+  \draw[flow] (4.15,3.45) -- (4.51,3.45);
   \draw[flow] (8.30,3.45) -- (8.66,3.45);
   \draw[flow] (13.45,3.45) -- (13.81,3.45);
 
@@ -205,10 +206,10 @@
   \node[font=\bfseries\normalsize, text=black, anchor=south west] at (4.57,6.02) {b};
   \node[font=\bfseries\normalsize, text=black, anchor=south west] at (8.72,6.02) {c};
   \node[font=\bfseries\normalsize, text=black, anchor=south west] at (13.87,6.02) {d};
-  \node[font=\small] at (2.10,0.46) {Symmetry};
-  \node[font=\small] at (6.40,0.46) {Encoding};
-  \node[font=\small] at (11.05,0.46) {Equivariant gateset};
-  \node[font=\small] at (15.85,0.46) {Winning-line gates (ours)};
+  \node[font=\small] at (2.10,0.46) {Known task symmetry};
+  \node[font=\small] at (6.40,0.46) {Shared encoding};
+  \node[font=\small] at (11.05,0.46) {Meyer-style edge ansatz};
+  \node[font=\small] at (15.85,0.46) {Our contribution};
 
   % ===== Panel (a): symmetry — rotations (rows) x flip (columns) =====
   \node[font=\scriptsize, text=black!86, rotate=90] at (0.37,3.50) {Winner: \textcolor{qorange}{$\circ$}};
@@ -237,10 +238,10 @@
   \end{scope}
 
   % ===== Panel (c): equivariant gateset =====
-  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (8.82,1.08) rectangle (11.08,5.40);
-  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (11.12,1.08) rectangle (13.34,5.40);
-  \node[font=\scriptsize, text=black!85] at (9.95,5.66) {Single-qubit};
-  \node[font=\scriptsize, text=black!85] at (12.23,5.66) {Entangling};
+  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (8.82,1.08) rectangle (11.08,5.76);
+  \draw[subpanel, draw=qplum!32, fill=qviolet!5] (11.12,1.08) rectangle (13.34,5.76);
+  \node[font=\scriptsize, text=black!85] at (9.95,5.56) {Single-qubit};
+  \node[font=\scriptsize, text=black!85] at (12.23,5.56) {Entangling};
   \IconSingle{9.40}{4.86}
   \node[anchor=west, font=\scriptsize, text=black!85] at (9.66,4.86) {$=R_YR_X$};
   \IconCtrl{11.67}{4.84}
