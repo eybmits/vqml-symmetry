@@ -10,7 +10,6 @@ RUN_AUDIT="${RUN_AUDIT:-0}"
 cd "${ROOT}"
 
 "${PYTHON}" -m experiments.consistent_paper_experiments --stage prepare-epochs --epochs "${EPOCHS}"
-"${PYTHON}" -m experiments.consistent_paper_experiments --stage seed-existing
 
 if [[ "${RUN_AUDIT}" == "1" ]]; then
   for ((i = 0; i < SHARDS; i++)); do
@@ -30,4 +29,4 @@ done
 
 "${PYTHON}" -m experiments.consistent_paper_experiments --stage validate --epochs "${EPOCHS}"
 "${PYTHON}" paper/make_figures.py
-(cd paper && latexmk -pdf -interaction=nonstopmode main.tex)
+(cd paper && make paper)

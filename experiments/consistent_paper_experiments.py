@@ -10,7 +10,7 @@ import pandas as pd
 
 from experiments.common import run_configs
 from src.groups_d4 import subgroup_names
-from src.utils import CSV_DIR, ExperimentConfig, config_to_dict, ensure_results_dirs
+from src.utils import CSV_DIR, ExperimentConfig, config_to_dict
 
 
 TRAIN_SIZES = [30, 60, 120, 240, 450, 600]
@@ -168,74 +168,6 @@ def _write_seeded(path: Path, df: pd.DataFrame, *, overwrite: bool) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(path, index=False)
     print(f"Seeded {path} with {len(df)} rows.")
-
-
-def _compatible(df: pd.DataFrame, *, epochs: int = 100) -> pd.DataFrame:
-    filtered = df.copy()
-    checks = {
-        "L": 3,
-        "p": 2,
-        "epochs": epochs,
-        "steps_per_epoch": 30,
-        "batch_size": 15,
-        "lr": 0.01,
-        "test_size": 600,
-        "single_qubit_block": "paper",
-        "pl_device": "lightning.qubit",
-        "diff_method": "adjoint",
-    }
-    for column, value in checks.items():
-        if column in filtered.columns:
-            filtered = filtered[filtered[column] == value]
-    return filtered
-
-
-def seed_existing(*, overwrite: bool = False) -> None:
-    """Populate new consistent CSVs with compatible historical rows."""
-    ensure_results_dirs()
-    partial_path = CSV_DIR / "results_partial_data_sweep_full_L3p2.csv"
-    oracle_path = CSV_DIR / "results_oracle_inspired_robust_C4D4_L3p2_train450_600_750.csv"
-
-    partial = _compatible(pd.read_csv(partial_path))
-    partial["circuit_family"] = "edge"
-    partial = partial[
-        partial["subgroup"].isin(EDGE_SUBGROUPS)
-        & partial["train_size"].isin(TRAIN_SIZES)
-        & partial["seed"].isin(HEADLINE_SEEDS)
-    ]
-
-    oracle = _compatible(pd.read_csv(oracle_path))
-    oracle_no_750 = oracle[oracle["train_size"].isin(TRAIN_SIZES)]
-
-    edge_from_oracle = oracle_no_750[
-        (oracle_no_750["circuit_family"] == "edge")
-        & oracle_no_750["subgroup"].isin(["C4", "D4"])
-        & oracle_no_750["seed"].isin(HEADLINE_SEEDS)
-    ]
-    _write_seeded(EDGE_CSV, _dedupe([partial, edge_from_oracle]), overwrite=overwrite)
-
-    edge_lines = oracle_no_750[
-        (oracle_no_750["circuit_family"] == EDGE_LINES_FAMILY)
-        & oracle_no_750["subgroup"].isin(LINE_SUBGROUPS)
-        & oracle_no_750["seed"].isin(HEADLINE_SEEDS)
-    ]
-    _write_seeded(EDGE_LINES_CSV, _dedupe([edge_lines]), overwrite=overwrite)
-
-    ablation = oracle_no_750[
-        (oracle_no_750["train_size"] == 600)
-        & oracle_no_750["circuit_family"].isin(ABLATION_FAMILIES)
-        & oracle_no_750["subgroup"].isin(LINE_SUBGROUPS)
-        & oracle_no_750["seed"].isin(CONTROL_SEEDS)
-    ]
-    _write_seeded(ABLATION_CSV, _dedupe([ablation]), overwrite=overwrite)
-
-    audit = oracle_no_750[
-        (oracle_no_750["train_size"] == 600)
-        & oracle_no_750["circuit_family"].isin(["edge", EDGE_LINES_FAMILY])
-        & oracle_no_750["subgroup"].isin(LINE_SUBGROUPS)
-        & oracle_no_750["seed"].isin(AUDIT_SEEDS)
-    ]
-    _write_seeded(AUDIT_CSV, _dedupe([audit]), overwrite=overwrite)
 
 
 def run_audit(
@@ -472,7 +404,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--stage",
         choices=[
-            "seed-existing",
             "audit",
             "choose-budget",
             "prepare-epochs",
@@ -488,7 +419,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--epochs", type=int, choices=[100, 200], default=None)
     parser.add_argument("--no-resume", action="store_true")
-    parser.add_argument("--overwrite-seeded", action="store_true")
     parser.add_argument("--shard-index", type=int, default=None)
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--seeds", default="", help="Optional comma-separated seed override for local debugging only.")
@@ -501,8 +431,6 @@ def main() -> None:
     if args.seeds:
         raise ValueError("This paper runner fixes seed policy; do not override seeds for final runs.")
 
-    if args.stage in {"seed-existing", "all"}:
-        seed_existing(overwrite=args.overwrite_seeded)
     if args.stage in {"audit", "all"}:
         run_audit(
             resume=resume,

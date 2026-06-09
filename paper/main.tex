@@ -1,5 +1,6 @@
 \documentclass[10pt,conference]{IEEEtran}
 \IEEEoverridecommandlockouts
+\raggedbottom
 
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{booktabs}
@@ -17,6 +18,8 @@
 \renewcommand{\figureautorefname}{Fig.}
 \renewcommand{\figurename}{Fig.}
 \renewcommand{\tablename}{Tab.}
+\crefname{figure}{Fig.}{Figs.}
+\Crefname{figure}{Fig.}{Figs.}
 \DeclareRobustCommand{\IEEEauthorrefmark}[1]{\smash{\textsuperscript{\footnotesize #1}}}
 
 \begin{document}
@@ -25,8 +28,8 @@
 
 \author{%
 \IEEEauthorblockN{%
-Markus Baumann\IEEEauthorrefmark{1}\orcidlink{0009-0007-3575-1006}\thanks{Corresponding author: \href{mailto:markus.baumann@ifi.lmu.de}{markus.baumann@ifi.lmu.de}.}
-\ and Jonas Stein\IEEEauthorrefmark{1}\orcidlink{0000-0001-5727-9151}}
+Markus Baumann\IEEEauthorrefmark{1}\orcidlink{0009-0007-3575-1006}\thanks{Corresponding author: \href{mailto:markus.baumann@ifi.lmu.de}{markus.baumann@ifi.lmu.de}.}, Claudia Linnhoff-Popien\IEEEauthorrefmark{1}\orcidlink{0000-0001-6284-9286}
+}
 \IEEEauthorblockA{\IEEEauthorrefmark{1}\textit{QAR-Lab, Department of Computer Science, LMU Munich, Munich, Germany}}
 }
 
@@ -37,12 +40,19 @@ Markus Baumann\IEEEauthorrefmark{1}\orcidlink{0009-0007-3575-1006}\thanks{Corres
 \end{abstract}
 
 \begin{IEEEkeywords}
-quantum machine learning, geometric quantum machine learning, equivariance, symmetry, inductive bias, variational quantum circuits, parameter sharing, generalization
+quantum machine learning, equivariance, symmetry, inductive bias, variational quantum circuits, parameter sharing, generalization
 \end{IEEEkeywords}
 
 \section{Introduction}
 \label{sec:introduction}
 \input{txt/1_Introduction}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=.94\textwidth]{gfx/fig2_main_evidence}
+\caption{\normalsize Main empirical evidence. (a) Full $D_4$ equivariance improves the original edge ansatz over no sharing. (b) The subgroup sweep across training sizes shows that $C_4$ tracks $D_4$ closely. (c) Adding winning-line interactions to the equivariant edge ansatz improves test accuracy while preserving the imposed symmetry.}
+\label{fig:main}
+\end{figure*}
 
 \section{Protocol}
 \label{sec:protocol}
@@ -55,6 +65,9 @@ quantum machine learning, geometric quantum machine learning, equivariance, symm
 \section{Discussion}
 \label{sec:discussion}
 \input{txt/4_Discussion}
+
+\section*{Acknowledgments}
+The author thanks Jonas Stein\orcidlink{0000-0001-5727-9151} for helpful discussions and feedback.
 
 \section*{Appendix}
 \input{txt/5_Reproducibility}

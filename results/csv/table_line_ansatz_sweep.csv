@@ -1,2 +1,0 @@
-circuit_family,subgroup,train_size,n,train_accuracy,test_accuracy,generalization_gap,num_parameters
-line_zzz,D4,30,1,0.3333333333333333,0.38333333333333336,-0.050000000000000044,9.0

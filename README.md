@@ -1,190 +1,49 @@
 # qc_symmetry
 
-Reproducible experiments for:
+Reproducibility package for the short paper:
 
 **Symmetry as a Design Axis in Variational Quantum Learning**
 
-This project reproduces and extends the Tic-Tac-Toe experiment from Meyer et al.,
-“Exploiting symmetry in variational quantum machine learning”. It compares
-unconstrained variational quantum classifiers with subgroup-equivariant models
-under partial and full subgroups of the Tic-Tac-Toe board symmetry group `D4`.
-
-The goal is a controlled benchmark of inductive bias and expressivity. The code
-does not claim quantum advantage.
+The repository contains the final checked results, figure-generation code, and
+LaTeX source needed to reproduce the manuscript figures, summary table, and
+`paper/main.pdf`. The benchmark is Tic-Tac-Toe board classification with exact
+labels and known `D4` board symmetries. The goal is to study symmetry-aware
+ansatz design in a controlled setting, not to claim quantum advantage.
 
 ## Setup
 
-The local Anaconda Python 3.11 environment already has the core dependencies.
-From the repository root:
+Use Python 3.11 or a compatible recent Python 3 environment:
 
 ```bash
 python3 -m pip install -r requirements.txt
 ```
 
-Run all sanity checks plus a tiny smoke training run:
+The default simulation path uses PennyLane with `lightning.qubit` and adjoint
+gradients.
+
+## Reproduce the paper from checked artifacts
+
+The primary reviewer path validates the committed CSV/JSON artifacts,
+regenerates the paper figures and summary table, and rebuilds the manuscript:
 
 ```bash
-python3 -m src.sanity_checks
+scripts/reproduce_paper_from_artifacts.sh
 ```
 
-Skip the smoke training if you only want structural checks:
+This runs:
 
 ```bash
 python3 -m src.sanity_checks --skip-smoke
+python3 -m experiments.consistent_paper_experiments --stage validate --epochs 100
+python3 paper/make_figures.py
+cd paper && make paper
 ```
 
-The default simulator backend is `lightning.qubit` with adjoint gradients.
-Use `--pl-device default.qubit --diff-method backprop` to fall back to the
-pure Python simulator.
+The expected final manuscript is `paper/main.pdf`.
 
-## Short Paper Draft
+## Final evidence artifacts
 
-The IEEE-style short-paper draft is in `paper/`:
-
-- `paper/main.pdf` is the current compiled manuscript.
-- `paper/main.tex` is the LaTeX entry point.
-- `paper/txt/` contains the section text.
-- `paper/gfx/` contains tracked vector figures used by the manuscript.
-- `paper/make_figures.py` regenerates the manuscript-specific figures from the checked CSV results.
-- `scripts/run_consistent_paper_experiments.sh` runs the consistent 30--600 training-regime matrix, validates row counts, regenerates figures, and rebuilds the paper.
-
-Build the manuscript from the repository root:
-
-```bash
-cd paper
-make paper
-```
-
-Or run the steps explicitly:
-
-```bash
-python3 make_figures.py
-latexmk -pdf -interaction=nonstopmode main.tex
-```
-
-The main manuscript story is:
-
-1. Meyer-style full `D4` equivariance improves over no symmetry.
-2. Partial equivariance, especially `C4`, closely tracks full `D4` on this benchmark.
-3. Parameter-matched random sharing underperforms group-orbit sharing.
-4. The strongest current result is the task-aligned equivariant `edge+lines` ansatz (`edge_line_zzz_ccrz`), which adds winning-line interactions while preserving equivariance.
-
-## Seminar Paper
-
-The updated LMU seminar paper is tracked in `docs/seminararbeit/`:
-
-- `docs/seminararbeit/main.pdf` is the compiled seminar paper.
-- `docs/seminararbeit/main.tex` is the LaTeX entry point.
-- `docs/seminararbeit/contents.tex` contains the rewritten main text.
-- `docs/seminararbeit/images/` contains the paper figures used in the seminar paper.
-
-Build it with:
-
-```bash
-cd docs/seminararbeit
-latexmk -pdf -interaction=nonstopmode main.tex
-```
-
-The final page contains the word and character count for the fachlicher
-Haupttext. The seminar paper uses the current result story: Meyer-style `D4`
-reproduction, subgroup equivariance, random-sharing controls, and
-task-aligned winning-line gates.
-
-## Experiments
-
-Paper plan and experiment roadmap:
-
-```bash
-open docs/paper_plan.md
-```
-
-Minimum paper-draft sweep over all six symmetry variants:
-
-```bash
-python3 -m experiments.paper_minimum_sweep
-```
-
-Generate the core paper table and plots from a partial-sweep CSV:
-
-```bash
-python3 -m experiments.paper_summary \
-  results/csv/results_paper_minimum.csv \
-  --kind partial \
-  --table-name table_paper_minimum
-```
-
-Stage 1 reproduction, debug grid with five seeds:
-
-```bash
-python3 -m experiments.reproduce_original
-```
-
-Fast first-look comparison with minimal depth and fewer optimizer steps:
-
-```bash
-python3 -m experiments.quick_compare
-```
-
-Full 20-seed reproduction over `L,p in {1,...,5}`:
-
-```bash
-python3 -m experiments.reproduce_original --final --full-grid
-```
-
-Partial-equivariance train-size sweep:
-
-```bash
-python3 -m experiments.partial_equivariance_sweep
-```
-
-The same data-regime sweep is also available under the requested alias:
-
-```bash
-python3 -m experiments.data_regime_sweep
-```
-
-Depth-vs-symmetry sweep:
-
-```bash
-python3 -m experiments.depth_sweep
-```
-
-Parameter-matched random-sharing control:
-
-```bash
-python3 -m experiments.random_sharing_control
-```
-
-Deterministic rule-based oracle sanity baseline:
-
-```bash
-python3 -m experiments.rule_based_oracle --print-blueprint
-```
-
-Winner-line 3-qubit ansatz comparison:
-
-```bash
-python3 -m experiments.line_ansatz_sweep \
-  --circuit-families edge,line_zzz \
-  --subgroups none,C4,D4 \
-  --train-sizes 30,120,450 \
-  --L 3 --p 2
-```
-
-Consistent short-paper experiment matrix:
-
-```bash
-PYTHON=python3 EPOCHS=100 SHARDS=5 scripts/run_consistent_paper_experiments.sh
-```
-
-Main paper experiments use `--single-qubit-block paper` by default. The
-minimal `RY` block remains available via `--single-qubit-block ry` for quick
-ablations. Scripts also accept `--epochs`, `--steps-per-epoch`, `--batch-size`,
-`--lr`, `--seeds`, `--final`, `--test-size`, and `--no-plots`.
-
-## Outputs
-
-The reviewer-facing CSV files are written to `results/csv/`:
+The final paper evidence lives in `results/csv/`:
 
 - `results_paper_consistent_edge_L3p2.csv`
 - `results_paper_consistent_edge_lines_L3p2.csv`
@@ -194,128 +53,56 @@ The reviewer-facing CSV files are written to `results/csv/`:
 - `table_paper_consistent_summary.csv`
 - `paper_training_budget_decision_L3p2.json`
 
-Manuscript figures are written to `paper/gfx/` and the seminar copies are kept
-in `docs/seminararbeit/images/`:
+Validation checks the shared optimizer protocol and expected row counts:
+
+- edge subgroup sweep: `6` subgroups x `6` train sizes x `10` seeds = `360`
+- edge+lines sweep: `2` subgroups x `6` train sizes x `10` seeds = `120`
+- ablation sweep: `8` families x `2` subgroups x `10` seeds = `160`
+- random-sharing control: `110` rows at train size `600`
+
+The final paper figures are:
 
 - `paper/fig1_4panel_standalone.pdf`
 - `paper/gfx/fig2_main_evidence.pdf`
 - `paper/gfx/fig3_controls.pdf`
 
-The current checked CSV and figure artifacts are committed as part of the
-repository so the paper plots can be regenerated and inspected immediately on a
-fresh checkout. Logs and PID files remain untracked.
+## Optional full experiment rerun
 
-## Data Sampling Note
-
-The dataset is the exhaustive set of 5478 legal Tic-Tac-Toe board states. Paper
-experiments draw class-balanced train and test samples from this enumerated set
-with deterministic per-seed randomness, so each model comparison at a fixed
-train size uses the same data protocol and the same seed block. The checked CSVs
-record the seed, train size, class counts, and protocol metadata needed to
-reproduce the reported figures.
-
-## Model
-
-Each model uses 9 qubits, RX data encoding with angle `2*pi/3*x_i`, and
-data-reuploading layers. A layer applies the data encoding followed by `p`
-trainable blocks. The paper-style block uses subgroup-tied `RX` and `RY`
-single-qubit gates plus directed `CRY` gates. The lower-parameter `RY`-only
-block is kept as an ablation.
-
-The invariant output vector is:
-
-- circle win: average `Z` over corners
-- draw: `Z` over center
-- cross win: average `Z` over edges
-
-Loss is mean squared vector error against labels in `{-1,+1}^3`.
-
-## Exact Rule Oracle
-
-The task also has a deterministic symbolic solution: check the 8 winning
-lines for three crosses or three circles and otherwise output draw. The module
-`src.rule_based` implements this exact oracle with zero trainable parameters
-and verifies 100% accuracy on all legal generated boards. It is not a competing
-learning model; it is an oracle sanity check that makes clear that the paper is
-about inductive bias and generalization, not quantum advantage.
-
-The same module includes a reversible-circuit blueprint using an orthogonal
-two-bit encoding per board cell, with 3-control winner-line checks via
-`MultiControlledX`. This exact blueprint cannot be implemented on top of the
-current one-qubit RX ternary embedding without changing the data encoding, but
-the winner-line triples are useful candidates for future trainable 3-qubit
-equivariant ansatz blocks.
-
-Trainable task-aligned line-gate variants are exposed through `--circuit-family`.
-They keep the same RX data embedding, single-qubit paper block, invariant
-observables, and subgroup parameter sharing. Some variants use only the
-winning-line motifs; the edge+lines variants keep the original directed `CRY`
-edge entanglers and add task-aligned 3-qubit motifs on Tic-Tac-Toe
-winning-line triples:
-
-- `line_zzz`: trainable `MultiRZ(theta)` interactions.
-- `line_ccrz`: trainable two-control phase rotations on each line.
-- `line_zzz_ccrz`: combines both line interactions.
-- `edge_line_zzz`: original edge `CRY` entanglers plus `line_zzz`.
-- `edge_line_ccrz`: original edge `CRY` entanglers plus `line_ccrz`.
-- `edge_line_zzz_ccrz`: original edge `CRY` entanglers plus both line motifs.
-- `line_pair_crz`: controlled phase rotations on directed pairs inside each winning line.
-
-The controlled-phase variants are closer to the logical line-checking oracle
-while remaining exactly subgroup-invariant because the diagonal line operations
-commute.
-
-### Approximate symmetry sweep (novel extension)
-
-Add controlled `ε`-corruption to emulate approximate symmetry:
-
-- generate all legal states as usual,
-- group states by full `D4` orbits,
-- select a fraction `ε` of those orbits using a seed,
-- swap circle and cross labels on selected orbits (draw labels unchanged).
-
-Run:
+The committed artifacts are sufficient for review and exact figure
+reproduction. To rerun the final experiment matrix from scratch, use:
 
 ```bash
-python3 -m experiments.approximate_symmetry_sweep \
-  --eps-values 0.0,0.05,0.10,0.20,0.40 \
-  --train-sizes 30,60,120,240,450 \
-  --L 3 --p 2 \
-  --output results/csv/results_approximate_symmetry.csv \
-  --seeds 0,1,2,3,4
+EPOCHS=100 SHARDS=5 scripts/run_consistent_paper_experiments.sh
 ```
 
-Summarize and plot:
+Set `RUN_AUDIT=1` to rerun the training-budget audit before the final matrix.
+The rerun script writes the same final CSV names, validates them, regenerates
+figures, and rebuilds the manuscript.
+
+## Paper build
+
+To rebuild only the manuscript from existing generated figures:
 
 ```bash
-python3 -m experiments.paper_summary \
-  results/csv/results_approximate_symmetry.csv \
-  --kind approximate \
-  --table-name table_approximate_symmetry
+cd paper
+make paper
 ```
 
-## Parameter Counts
+To regenerate the result figures first:
 
-Parameters per trainable block for the edge-CRY family:
+```bash
+python3 paper/make_figures.py
+cd paper && make paper
+```
 
-| subgroup | `RY` block | paper block |
-|---|---:|---:|
-| `none` | 25 | 34 |
-| `Z2_rot180` | 13 | 18 |
-| `Z2_reflection` | 15 | 21 |
-| `C4` | 7 | 10 |
-| `D2_V4` | 9 | 13 |
-| `D4` | 6 | 9 |
+## Model and protocol
 
-For the winner-line and hybrid families with the paper single-qubit block:
+Each legal board is encoded on nine qubits with `RX(2*pi*g_i/3)`. All final
+runs use `L=3`, `p=2`, the paper single-qubit block, Adam with learning rate
+`0.01`, batch size `15`, `30` minibatch updates per epoch, `100` epochs, and
+test size `600`.
 
-| subgroup | `line_zzz` / `line_ccrz` / `line_pair_crz` | `line_zzz_ccrz` | `edge_line_zzz` / `edge_line_ccrz` | `edge_line_zzz_ccrz` |
-|---|---:|---:|---:|---:|
-| `none` | 26 | 34 | 42 | 50 |
-| `Z2_rot180` | 16 | 22 | 24 | 30 |
-| `Z2_reflection` | 18 | 24 | 27 | 33 |
-| `C4` | 9 | 12 | 13 | 16 |
-| `D2_V4` | 13 | 18 | 18 | 23 |
-| `D4` | 9 | 12 | 12 | 15 |
-
-Total trainable parameters are `L * p * parameters_per_block`.
+The baseline `edge` ansatz uses orbit-shared single-qubit gates and directed
+`CRY` edge interactions. The main `edge+lines` ansatz keeps the edge circuit and
+adds orbit-shared `ZZZ` and `CCRZ` interactions on the Tic-Tac-Toe winning
+triples.

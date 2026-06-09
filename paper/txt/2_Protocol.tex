@@ -1,24 +1,85 @@
-Each legal, reachable board is a list of nine values $g_i\in\{-1,0,+1\}$, one per field, for circle, empty, and cross. Every board falls into one of three classes, circle win, draw, or cross win, written as target vectors $(+1,-1,-1)$, $(-1,+1,-1)$, and $(-1,-1,+1)$. Following the Meyer benchmark, unfinished games count as draws, and train and test splits are class-balanced so accuracy cannot be inflated by a dominant label. We enumerate all 5478 legal boards rather than sampling them, with the full procedure summarized in the Appendix. The label is invariant under the eight symmetries of the square, the four rotations and their reflections, which form the dihedral group $D_4$. \Cref{fig:protocol}(a) shows this directly: rotating or flipping a board never changes who has won.
+Each legal, reachable Tic-Tac-Toe board is represented by
+nine values $g_i\in\{-1,0,+1\}$ for circle, empty, and cross.
+The three labels are circle win, draw, and cross win, encoded
+as $(+1,-1,-1)$, $(-1,+1,-1)$, and $(-1,-1,+1)$. As in
+Meyer et al.~\cite{meyer2023symmetry}, unfinished games are
+counted as draws. Since the full set contains only 5478 legal,
+reachable boards, we enumerate it exactly and draw
+class-balanced train and test splits from this set. The labels
+are invariant under the eight rotations and reflections of the
+board, forming the dihedral group $D_4$; this symmetry is
+illustrated in \Cref{fig:protocol}(a).
 
-To feed a board into the circuit, as in \Cref{fig:protocol}(b), we place one qubit on each field and turn each value into a rotation angle $x_i=2\pi g_i/3$ applied with a single-qubit $R_X$ gate, so circle, empty, and cross land at three evenly spaced angles:
+We use one qubit per field, as shown in \Cref{fig:protocol}(b).
+Each value $g_i$ is mapped to the angle $x_i=2\pi g_i/3$ and
+encoded by an $R_X$ rotation,
 \[
 U(g)=\bigotimes_{i=0}^{8} R_X\!\left(\frac{2\pi}{3}g_i\right).
 \]
-Numbering the fields cyclically around the rim with the center last, as drawn in the panel, makes the board symmetry explicit. The four corners $\{0,2,4,6\}$, the four sides $\{1,3,5,7\}$, and the center $\{8\}$ are the three $D_4$ orbits: the symmetries shuffle positions within each set, but never mix one set with another.
+The fields are numbered cyclically around the rim, with the
+center last. This makes the three $D_4$ position orbits explicit:
+corners $\{0,2,4,6\}$, sides $\{1,3,5,7\}$, and center $\{8\}$.
 
-The circuit is a stack of identical layers. Each layer re-encodes the board with $U(g)$, a data re-uploading step that lets the circuit express nonlinear functions~\cite{perezsalinas2020data}, and then applies a trainable block. Unless stated otherwise, we use $L=3$ layers with $p=2$ repetitions of the block per layer. The block is the original edge ansatz shown in \Cref{fig:protocol}(c): a single-qubit $R_YR_X$ rotation on every qubit, followed by controlled $CR_P$ entanglers on neighbouring fields and center connections.
+We separate the imposed symmetry from the choice of gates.
+Let $H\subseteq D_4$ be the subgroup that we enforce. For
+$h\in H$, let $V_h$ act on the board and let $P_h$ be the
+corresponding qubit permutation. The encoding is equivariant:
+transforming the board before encoding is equivalent to
+encoding first and then permuting the qubits,
+\[
+U(V_h g)=P_h U(g) P_h^\dagger .
+\]
+A trainable block $W_H(\theta)$ preserves this symmetry if
+\[
+P_h W_H(\theta) P_h^\dagger = W_H(\theta)
+\qquad \text{for all } h\in H .
+\]
+In practice, we enforce this by sharing parameters across gates
+whose supports lie in the same $H$-orbit. For directed gates,
+the order of the support is kept fixed, so control and target
+roles are not accidentally exchanged. Thus the symmetry fixes
+the sharing pattern, but not the gate family itself.
 
-Symmetry enters through parameter sharing. Gates within a sharing orbit use one trainable parameter, indicated by colour in \Cref{fig:protocol}(c); for full $D_4$, corners share one single-qubit rotation, sides another, the center keeps its own, and $CR_P$ entanglers are tied across directed-pair orbits. A symmetry-transformed board therefore permutes qubits while reusing the same parameters. The readout is fixed across subgroup choices: three scores pool Pauli-$Z$ expectations over the full-$D_4$ board-type sets, corners $\{0,2,4,6\}$, center $\{8\}$, and sides $\{1,3,5,7\}$. Thus subgroups change parameter sharing, not output dimension.
+The circuit uses repeated data re-uploading layers. Each layer
+applies the encoding $U(g)$ followed by $p$ repetitions of a
+trainable block. Unless stated otherwise, we use $L=3$ layers
+and $p=2$ repetitions, keeping depth fixed across all sweeps.
 
-Because the orbits are defined by whichever symmetries we choose to enforce, we can dial the symmetry up or down without touching the wiring. For a subgroup $H\leq D_4$, parameters are tied across the orbits induced by $H$, leaving the circuit topology fixed and changing only the sharing pattern. Comparing no sharing, the two $Z_2$ subgroups, $C_4$, $D_2$, and full $D_4$ gives $204$, $108$, $126$, $60$, $78$, and $54$ trainable parameters for the edge ansatz at $L=3,p=2$, respectively; in this family, more symmetry means fewer free parameters.
+Our baseline is the edge ansatz of Meyer et al.,
+shown in \Cref{fig:protocol}(c). It applies local $R_YR_X$
+rotations and directed controlled-$R_Y$ entanglers on neighbouring
+rim fields and selected center connections. Symmetry enters only
+through parameter sharing: gates in the same $H$-orbit share the
+same parameter or parameter tuple.
 
-The edge ansatz only couples neighbouring fields, yet a win is decided by a full three-cell line. We therefore add gates on the eight winning triples in \Cref{fig:protocol}(d). For a line $\ell=\{i,j,k\}$, the $ZZZ$ channel applies $\exp[-i\theta Z_iZ_jZ_k/2]$, and the symmetric $CCR_Z$ channel applies $\mathrm{CCR}_Z^{ij\rightarrow k}\mathrm{CCR}_Z^{ik\rightarrow j}\mathrm{CCR}_Z^{jk\rightarrow i}$ with the same angle. Permuting the triple only relabels these factors, so the channel is compatible with line orbits. Our edge+lines model keeps the edge ansatz and adds both channels, shared over line orbits of the chosen subgroup. At $L=3,p=2$, edge/$D_4$ has $54$ parameters and edge+lines/$D_4$ has $90$, still below the $204$ of the unshared edge baseline.
+The readout averages Pauli-$Z$ expectations over the three
+position orbits,
+\[
+r_O(g)=\frac{1}{|O|}\sum_{i\in O}\langle Z_i\rangle_g ,
+\]
+for corners, sides, and center. These three values are used as
+class scores. Since the readout orbits are invariant under all
+subgroups considered here, the readout is compatible with every
+symmetry sweep.
 
-All reported runs use mean-squared error, Adam with learning rate $0.01$~\cite{kingma2015adam}, batch size 15, 30 minibatch updates per epoch, 100 epochs, fixed seed blocks, PennyLane simulation~\cite{bergholm2018pennylane}, and PyTorch optimization~\cite{paszke2019pytorch}. Exploratory runs outside this protocol are not used for any headline claim.
+This gives our first design axis: the amount of symmetry imposed.
+We keep encoding, edge wiring, gate family, depth, and readout
+fixed, and vary only the subgroup $H$. With $r$ denoting a
+$90^\circ$ rotation and $f$ a reflection, we compare
+$\{e\}$, $\langle r^2\rangle$, $\langle f\rangle$,
+$\langle r\rangle=C_4$, $\langle r^2,f\rangle=D_2$, and
+$\langle r,f\rangle=D_4$. For the edge ansatz at $L=3,p=2$,
+these variants have $204$, $108$, $126$, $60$, $78$, and $54$
+trainable parameters, respectively.
 
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=.94\textwidth]{gfx/fig2_main_evidence}
-\caption{\normalsize Main results. (a) At 600 examples, no sharing is below the Meyer-style edge/$D_4$ model, and our edge+lines/$D_4$ model is higher still. (b) $C_4$ closely follows $D_4$ across train sizes. (c) Edge+lines gives the largest gain while preserving equivariance. Error bars are 95\% confidence intervals over seeds.}
-\label{fig:main}
-\end{figure*}
+The second design axis is the interaction structure. The edge
+ansatz couples neighbouring fields, but Tic-Tac-Toe labels are
+decided by complete three-cell winning lines. We therefore add
+orbit-shared gates on the eight winning triples: three rows,
+three columns, and two diagonals, as shown in
+\Cref{fig:protocol}(d). Each triple receives one $ZZZ$ rotation
+and one $\mathrm{CCR}_Z$ interaction. The resulting edge+lines
+model keeps the original edge ansatz but adds trainable
+interactions directly on the label-relevant motifs. At
+$L=3,p=2$, the full-$D_4$ edge model has $54$ parameters, while
+the full-$D_4$ edge+lines model has $90$.

@@ -1,6 +1,0 @@
-kind,train_size,epsilon,best_subgroup,best_test_accuracy,d4_test_accuracy,best_minus_d4,subgroup,first_epsilon_beats_d4,max_advantage,epsilon_of_max_advantage
-best_at_epsilon,120,0.0,C4,0.4974747474747475,0.49747474747474746,0.0,,,,
-best_at_epsilon,120,0.1,D4,0.5631313131313131,0.5631313131313131,0.0,,,,
-best_at_epsilon,120,0.2,D4,0.48484848484848486,0.48484848484848486,0.0,,,,
-crossover,120,,,,,,C4,,0.0,0.0
-crossover,120,,,,,,none,,-0.027777777777777735,0.0

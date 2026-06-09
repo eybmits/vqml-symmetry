@@ -1,14 +1,57 @@
-\Cref{fig:main} shows the main empirical story. In panel (a), the unshared-parameter edge ansatz carries many more parameters yet generalizes worse than the $D_4$-equivariant edge model, and our edge+lines/$D_4$ extension is higher still. At 600 training examples, edge/none reaches about $0.63$, edge/$D_4$ about $0.69$, and edge+lines/$D_4$ about $0.79$ test accuracy. This reproduces the central lesson of Meyer et al. and shows the additional gain from task-aligned equivariant interactions.
-
-Panel (b) makes the picture less binary. Full $D_4$ is the conservative default, but $C_4$ tracks it closely across the data grid: it is slightly ahead at 30 examples, and from 120 through 600 examples the two stay essentially together while weaker sharing or no sharing lags. We read this cautiously. It does not establish that partial symmetry is generally better; it shows that symmetry strength is a tunable bias, with rotation-only equivariance preserving most of the benefit while relaxing reflection constraints. The random-sharing control in \cref{fig:controls}(a) is the guardrail: it fixes parameter count but scrambles the group-orbit structure, and performs substantially worse than orbit-based sharing at every subgroup. The useful prior is the board geometry, not just the smaller circuit.
-
-The strongest effect, in \cref{fig:main}(c), comes from enriching the symmetry rather than weakening it. The original edge/$D_4$ model sits near $0.69$; adding both winning-line channels to the same equivariant circuit lifts the best $D_4$ model to roughly $0.80$, with the $C_4$ variant close behind. This is the central result: the gain comes not from abandoning symmetry, but from giving the equivariant ansatz direct access to the motifs that decide the label.
-
-\Cref{fig:controls} rules out two simpler explanations. The gain is not arbitrary parameter reduction, since matched-size random sharing falls short of orbit sharing in panel (a). It is not simply more parameters either: edge+lines/$D_4$ has 90 parameters, more than edge/$D_4$ at 54 but far below the 204 of the unshared baseline. Panel (c) makes the point geometric: accuracy does not follow parameter count, and edge+lines models occupy a higher band at modest size. The ablation in panel (b) confirms the composition: line-only circuits help, but the strongest model combines local edge structure with both winning-line channels.
-
 \begin{figure*}[t]
 \centering
 \includegraphics[width=.94\textwidth]{gfx/fig3_controls}
 \caption{\normalsize Controls and ablations. (a) Parameter-matched random sharing underperforms group-orbit sharing. (b) Ablations are anchored by the labelled original edge/$D_4$ ansatz; the strongest model combines edge interactions with both line channels. (c) Accuracy is not explained by parameter count alone.}
 \label{fig:controls}
 \end{figure*}
+
+This section evaluates the two design axes introduced above:
+the strength of imposed symmetry and the choice of trainable
+interactions. We first compare no sharing, partial subgroup
+sharing, and full $D_4$ sharing with the edge circuit fixed.
+We then add winning-line interactions and use controls to
+separate symmetry-aware sharing from mere parameter reduction.
+All runs use mean-squared error, Adam with learning rate
+$0.01$~\cite{kingma2015adam}, batch size 15, 30 minibatch
+updates per epoch, 100 epochs, fixed seed blocks, PennyLane
+simulation~\cite{bergholm2018pennylane}, and PyTorch
+optimization~\cite{paszke2019pytorch}.
+
+Across these experiments, three trends emerge, summarized in
+\Cref{fig:main}. First, the unconstrained edge ansatz has more
+parameters but generalizes worse than the $D_4$-equivariant
+edge model. At 600 training examples, edge/none reaches about
+$0.63$ test accuracy, while edge/$D_4$ reaches about $0.69$
+with a smaller train-test gap. This supports the basic
+equivariance effect: the correct board symmetry improves
+generalization by shaping the hypothesis class.
+
+Second, the symmetry effect is not strictly all-or-nothing.
+Full $D_4$ remains the natural symmetry choice, but $C_4$
+rotation sharing tracks it closely across the data grid and is
+slightly ahead at the smallest training size. We interpret this
+as evidence that symmetry strength is a tunable architectural
+bias: partial symmetry can preserve most of the benefit while
+leaving the circuit less constrained. The random-sharing
+control in \Cref{fig:controls}(a) confirms that the gain is not
+caused by parameter reduction alone; parameter-matched sharing
+without group-orbit structure performs worse.
+
+The largest improvement comes from changing the interaction
+structure. Adding winning-line gates to the equivariant edge
+circuit, as shown in \Cref{fig:main}(c), raises the best $D_4$
+model from about $0.69$ to roughly $0.80$ test accuracy, with
+the $C_4$ variant close behind. The edge ansatz can only
+represent rows, columns, and diagonals indirectly, whereas the
+line gates act directly on the motifs that determine the label.
+This is the central result: symmetry helps, but task-aligned
+equivariant interactions help more.
+
+The controls in \Cref{fig:controls} rule out simpler
+explanations. The effect is not arbitrary parameter reduction,
+because random sharing underperforms orbit sharing. It is also
+not just parameter count: edge+lines/$D_4$ has 90 parameters,
+far fewer than the 204-parameter unshared edge baseline, yet
+performs better. The ablations show that line channels help on
+their own, but the strongest model combines edge interactions
+with both winning-line channels.
