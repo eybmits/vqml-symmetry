@@ -64,35 +64,24 @@ design space in which one must still choose the sharing strength and the motifs
 on which trainable quantum interactions are placed.
 
 Tic-Tac-Toe is a clean laboratory for this question. The task is finite,
-exactly enumerable, and structurally transparent: each board has nine fields
-and the label is determined by explicit three-cell winning lines. The relevant
-symmetry is the dihedral group \(D_4\), containing the eight rotations and
-reflections of the square. Acting on a \(3\times3\) board, \(D_4\) permutes the
-nine fields while preserving the corner, side, and center orbits. Since these
-transformations do not change whether crosses win, circles win, or the game is
-a draw, the classification task is \(D_4\)-invariant.
+exactly enumerable, and structurally transparent: the relevant board
+symmetries, labels, and decisive three-cell motifs are all known in advance.
+This lets us isolate ansatz-design choices rather than infer them from a
+large, opaque benchmark.
 
-Each board value \(g_i\in\{-1,0,+1\}\) is encoded on one qubit through a
-Pauli-\(X\) rotation with angle \(x_i=2\pi g_i/3\). Under a board symmetry, the
-encoded qubits are permuted like the board fields, so equivariance can be
-imposed by sharing parameters across symmetry orbits of gates.
+We separate two choices that are often entangled. The first is how much of the
+available board symmetry should be enforced: full equivariance is natural, but
+smaller subgroups may preserve most of the useful bias while leaving the
+circuit more flexible. The second is which symmetry-respecting interactions
+should be made trainable. The Meyer-style baseline couples local board
+neighbourhoods, whereas the label is decided by complete winning lines. Our
+extension therefore asks whether placing trainable interactions directly on
+those motifs improves the equivariant ansatz.
 
-We separate two design choices that are usually entangled. The first is how
-much symmetry to impose: full \(D_4\)-equivariance is natural, but smaller
-subgroups may preserve most of the useful bias while leaving the circuit more
-flexible. The second is where trainable interactions are placed. The
-canonical \(D_4\)-equivariant Tic-Tac-Toe ansatz of Meyer et al. uses
-orbit-shared single-qubit rotations and directed controlled rotations on
-neighboring or center-connected fields~\cite{meyer2023symmetry}. This respects
-the board symmetry, but the label is defined by complete rows, columns, and
-diagonals. We therefore add task-aligned, orbit-shared \(ZZZ\) and symmetric
-controlled-controlled-\(R_Z\) interactions on these winning triples.
-
-Our numerical results support this design-oriented view. Enforcing board
-symmetry improves generalization over an unshared edge ansatz, and suitable
-subgroups recover much of the performance of full \(D_4\)-equivariance. The
-largest improvement, however, comes from adding winning-line interactions to
-the equivariant circuit. Thus, symmetry is not merely a constraint that makes a
-model smaller. It is a language for organizing circuit design, but the
+Our results support this design-oriented view. Enforcing symmetry improves the
+edge baseline, and suitable subgroup sharing retains most of that benefit. The
+largest gain, however, comes from enriching the equivariant circuit with
+task-aligned interactions. Thus, symmetry is not merely a constraint that makes
+a model smaller. It is a language for organizing circuit design, but the
 effectiveness of the model still depends on placing trainable degrees of
 freedom where the structure of the task actually lives.
