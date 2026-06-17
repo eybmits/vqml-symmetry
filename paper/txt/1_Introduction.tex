@@ -1,31 +1,37 @@
-Symmetry provides a precise form of prior knowledge about a learning task.
-Consider a target map
-\(y:\mathcal X \to \mathcal Y\) and a symmetry group \(S\) acting on the
-input space through transformations \(V_s:\mathcal X \to \mathcal X\).
-The task is invariant under \(S\) if
+A central challenge in variational quantum machine learning is not merely to
+build expressive quantum circuits, but to build the right expressive circuits.
+Layered parameterized circuits with data re-uploading
+~\cite{benedetti2019parameterized,perezsalinas2020data} can be highly flexible,
+but flexibility alone is not a design principle. Without architectural
+guidance, a model may spend parameters and data on distinctions irrelevant to
+the task, while failing to allocate capacity to the structures that determine
+the label. The practical question is therefore not only how much expressivity a
+quantum model has, but where this expressivity is placed.
+
+Symmetry is one of the few sources of prior knowledge that can be stated
+exactly. Consider a target map \(y:\mathcal X \to \mathcal Y\) and a group
+\(S\) acting on the input space through transformations
+\(V_s:\mathcal X \to \mathcal X\). The task is invariant under \(S\) if
 \[
     y(V_s[x]) = y(x)
     \qquad \text{for all } x \in \mathcal X,\; s \in S .
 \]
-In words, a symmetry identifies transformations of the input that should not
-change the correct prediction. A reflected cat image still depicts a cat; a
-rotated or mirrored Tic-Tac-Toe board still has the same winner. A model that
-already respects this structure need not spend data, parameters, and
-optimization effort learning separate rules for symmetry-related inputs.
+In words, a symmetry specifies transformations of the input that must not
+change the correct prediction. A translated image still depicts the same
+object, a permuted graph still represents the same graph, and a rotated
+Tic-Tac-Toe board still has the same winner. A model that respects this
+structure by construction need not rediscover it from data.
 
-This idea is central to geometric deep learning: architectures are designed
-around the transformations under which a task should be invariant or
-equivariant. Convolutional networks are the classical example, reusing filters
-across translated image patches~\cite{cohen2016group}. In quantum machine learning, the analogous
-program is often described as geometric quantum machine learning (GQML):
-known group actions are represented on the Hilbert space and used to constrain
-quantum models by construction~\cite{larocca2022group,nguyen2024theory}. Related work has developed
-group-invariant quantum models, general equivariant quantum neural networks,
+This observation is central to geometric deep learning: classical
+architectures such as convolutional neural networks organize trainable degrees
+of freedom around task symmetries~\cite{cohen2016group}. In quantum machine
+learning, geometric quantum machine learning represents known transformations
+on the Hilbert space and constrains circuits accordingly
+~\cite{larocca2022group,nguyen2024theory}. Related work has developed
+group-invariant models, equivariant quantum neural networks,
 permutation-equivariant architectures, graph-equivariant circuits, and
 symmetry-informed variational ansatze
-~\cite{larocca2022group,nguyen2024theory,
-skolik2023equivariant,sauvage2024building}.
-
+~\cite{larocca2022group,nguyen2024theory,skolik2023equivariant,sauvage2024building}.
 
 \begin{figure*}[t]
 \centering
@@ -39,66 +45,54 @@ Panel layout adapted from Meyer et al.~\cite{meyer2023symmetry}.}
 \label{fig:protocol}
 \end{figure*}
 
-
-
-
-Variational quantum learning models (VQLMs) are a natural setting for this
-idea. They are parameterized quantum circuits trained as statistical models
-~\cite{benedetti2019parameterized}, made expressive
-through data re-uploading~\cite{perezsalinas2020data}, but
-this expressivity is useful only when it is shaped by the structure of the
-task. Meyer et al.~\cite{meyer2023symmetry} give a concrete blueprint for
-doing so. If the data embedding satisfies
+Meyer et al.~\cite{meyer2023symmetry} gave a concrete blueprint for this
+program. If a data embedding \(U(x)\) satisfies
 \[
     U(V_s[x]) = U_s U(x) U_s^\dagger ,
 \]
-then the data symmetry is represented unitarily on the Hilbert space. Choosing
-trainable blocks that commute with this representation, and combining them
-with an invariant initial state and invariant readout, yields a model whose
-prediction is invariant by architecture rather than by optimization.
+then the data symmetry is represented by a unitary action \(U_s\). Trainable
+blocks that commute with this representation, together with compatible state
+preparation and readout, yield a model whose prediction is invariant by
+architecture rather than by optimization.
 
-We build directly on this construction, but do not treat symmetry as a
-complete ansatz specification. A known task symmetry has several architectural
-consequences: it can determine which inputs are equivalent, which gates should
-share parameters, which observables should be averaged, which subgroups may
-be sufficient, and which task motifs should receive trainable interactions.
-Our central question is therefore diagnostic: which of these symmetry-induced
-structures need to be hard-coded into the circuit, and which can be learned
-from data once part of the equivariant bias is already present?
+However, symmetry alone does not specify an ansatz. It tells us which inputs
+should be identified, which parameters may be shared, and which observables
+should be aggregated, but not where trainable interactions should live. Two
+circuits can respect the same group action and still match the task very
+differently. We therefore treat symmetry not as a switch, but as a constrained
+design space in which one must still choose the sharing strength and the motifs
+on which trainable quantum interactions are placed.
 
-Tic-Tac-Toe provides a deliberately transparent benchmark for this question.
-Tic-Tac-Toe is \(D_4\)-invariant, finite, and structurally transparent:
-all legal, reachable boards can be enumerated, and the label-relevant motifs
-are exactly the three-cell winning lines.
+Tic-Tac-Toe is a clean laboratory for this question. The task is finite,
+exactly enumerable, and structurally transparent: each board has nine fields
+and the label is determined by explicit three-cell winning lines. The relevant
+symmetry is the dihedral group \(D_4\), containing the eight rotations and
+reflections of the square. Acting on a \(3\times3\) board, \(D_4\) permutes the
+nine fields while preserving the corner, side, and center orbits. Since these
+transformations do not change whether crosses win, circles win, or the game is
+a draw, the classification task is \(D_4\)-invariant.
 
-Our starting point is the \(D_4\)-equivariant Tic-Tac-Toe ansatz of
-Meyer et al.~\cite{meyer2023symmetry}. In that model, each board field is
-encoded on one qubit by a Pauli-\(X\) rotation with angle
-\(x_i=2\pi g_i/3\), and the board symmetries act as permutations of the
-qubits. The trainable circuit respects this geometry by sharing parameters
-over symmetry orbits: single-qubit rotations are tied across corners, sides,
-and the center, and directed controlled-$R_Y$ rotations are tied across
-symmetry-related pairs. This edge-based ansatz already shows the central
-benefit of equivariance: enforcing the correct board symmetry improves
-generalization over an unconstrained circuit.
+Each board value \(g_i\in\{-1,0,+1\}\) is encoded on one qubit through a
+Pauli-\(X\) rotation with angle \(x_i=2\pi g_i/3\). Under a board symmetry, the
+encoded qubits are permuted like the board fields, so equivariance can be
+imposed by sharing parameters across symmetry orbits of gates.
 
-We use this ansatz as a baseline and separate two design choices that are
-usually entangled. First, we vary how much of the board symmetry is enforced,
-from full \(D_4\) equivariance down to smaller subgroups. This tests whether
-all symmetry relations have to be imposed explicitly, or whether weaker
-sharing can preserve most of the inductive bias while leaving the circuit more
-flexible. Second, we vary which symmetry-respecting interactions the circuit
-is given to learn. The original edge ansatz uses directed controlled-$R_Y$ gates to couple
-neighbouring fields, but a Tic-Tac-Toe outcome is decided by complete three-cell lines. We therefore add
-trainable gates directly on the rows, columns, and diagonals that determine
-the label, while still sharing their parameters across symmetry orbits.
+We separate two design choices that are usually entangled. The first is how
+much symmetry to impose: full \(D_4\)-equivariance is natural, but smaller
+subgroups may preserve most of the useful bias while leaving the circuit more
+flexible. The second is where trainable interactions are placed. The
+canonical \(D_4\)-equivariant Tic-Tac-Toe ansatz of Meyer et al. uses
+orbit-shared single-qubit rotations and directed controlled rotations on
+neighboring or center-connected fields~\cite{meyer2023symmetry}. This respects
+the board symmetry, but the label is defined by complete rows, columns, and
+diagonals. We therefore add task-aligned, orbit-shared \(ZZZ\) and symmetric
+controlled-controlled-\(R_Z\) interactions on these winning triples.
 
-Our results support a refined view of symmetry in variational quantum
-learning. Enforcing the full board symmetry is beneficial relative to an
-unconstrained circuit, but relaxing it to suitable subgroups preserves most of
-that benefit in this benchmark. The larger improvement comes from the second
-axis: placing equivariant trainable gates on the label-relevant winning-line
-motifs. Thus, symmetry should not be treated as a single switch to turn on or
-off. It defines a constrained design space, and the remaining architectural
-question is where inside that space the trainable degrees of freedom should
-live.
+Our numerical results support this design-oriented view. Enforcing board
+symmetry improves generalization over an unshared edge ansatz, and suitable
+subgroups recover much of the performance of full \(D_4\)-equivariance. The
+largest improvement, however, comes from adding winning-line interactions to
+the equivariant circuit. Thus, symmetry is not merely a constraint that makes a
+model smaller. It is a language for organizing circuit design, but the
+effectiveness of the model still depends on placing trainable degrees of
+freedom where the structure of the task actually lives.
