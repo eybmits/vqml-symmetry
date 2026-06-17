@@ -4,12 +4,12 @@ Reproducibility package for the short paper:
 
 **Symmetry as a Design Axis in Variational Quantum Learning**
 
-The repository contains the final checked results, figure-generation code, and
-LaTeX source needed to reproduce the manuscript figures, summary table, and
-paper PDF from source. Generated PDFs are intentionally not tracked. The
-benchmark is Tic-Tac-Toe board classification with exact labels and known `D4`
-board symmetries. The goal is to study symmetry-aware ansatz design in a
-controlled setting, not to claim quantum advantage.
+The repository contains the final checked results, figure-generation code,
+LaTeX source, generated manuscript PDF, and generated figure PDFs needed to
+inspect and reproduce the paper package. The benchmark is Tic-Tac-Toe board
+classification with exact labels and known `D4` board symmetries. The goal is
+to study symmetry-aware ansatz design in a controlled setting, not to claim
+quantum advantage.
 
 ## Setup
 
@@ -40,7 +40,7 @@ python3 paper/make_figures.py
 cd paper && make paper
 ```
 
-The expected generated manuscript is `paper/main.pdf`.
+The expected manuscript is `paper/main.pdf`.
 
 ## Final evidence artifacts
 
@@ -61,7 +61,7 @@ Validation checks the shared optimizer protocol and expected row counts:
 - ablation sweep: `8` families x `2` subgroups x `10` seeds = `160`
 - random-sharing control: `110` rows at train size `600`
 
-The figure-generation step writes:
+The generated paper figures are:
 
 - `paper/fig1_4panel_standalone.pdf`
 - `paper/gfx/fig2_main_evidence.pdf`
