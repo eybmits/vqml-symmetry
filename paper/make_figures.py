@@ -1,12 +1,13 @@
 """Generate compact manuscript figures from checked experiment CSV files.
 
-Figure 1 is maintained as the standalone four-panel TikZ/PDF composite
-``fig1_4panel_standalone.pdf`` and is only verified here.
+Figure 1 is maintained as a standalone four-panel TikZ source and is built
+from ``fig1_4panel_standalone.tex`` when the generated PDF is missing.
 """
 
 from __future__ import annotations
 
 import math
+import subprocess
 import sys
 from pathlib import Path
 
@@ -28,6 +29,7 @@ from src.groups_d4 import COORDS, DIRECTED_PAIRS, WIN_LINE_TRIPLES, apply_transf
 
 
 CSV_DIR = ROOT / "results" / "csv"
+PAPER_DIR = Path(__file__).resolve().parent
 GFX_DIR = Path(__file__).resolve().parent / "gfx"
 TRAIN_SIZES = [30, 60, 120, 240, 450, 600]
 EDGE_RESULTS = CSV_DIR / "results_paper_consistent_edge_L3p2.csv"
@@ -35,6 +37,7 @@ EDGE_LINES_RESULTS = CSV_DIR / "results_paper_consistent_edge_lines_L3p2.csv"
 ABLATION_RESULTS = CSV_DIR / "results_paper_consistent_ablation_L3p2_train600.csv"
 RANDOM_RESULTS = CSV_DIR / "results_paper_consistent_random_sharing_L3p2_train600.csv"
 FIG1_PROTOCOL = Path(__file__).resolve().parent / "fig1_4panel_standalone.pdf"
+FIG1_SOURCE = Path(__file__).resolve().parent / "fig1_4panel_standalone.tex"
 
 SUBGROUP_ORDER = ["none", "Z2_rot180", "Z2_reflection", "C4", "D2_V4", "D4"]
 SUBGROUP_LABELS = {
@@ -358,8 +361,14 @@ def draw_gate_box(ax: plt.Axes, xy: tuple[float, float], text: str, *, color: st
     ax.text(x + width / 2, y + 0.0275, text, ha="center", va="center", fontsize=6.7, color="#222222", zorder=3)
 
 
-def verify_fig1_protocol() -> None:
-    """Figure 1 is authored as the standalone four-panel TikZ/PDF composite."""
+def ensure_fig1_protocol() -> None:
+    """Build Figure 1 from its standalone TikZ source if needed."""
+    if not FIG1_PROTOCOL.exists() or FIG1_PROTOCOL.stat().st_size == 0:
+        subprocess.run(
+            ["latexmk", "-pdf", "-interaction=nonstopmode", FIG1_SOURCE.name],
+            cwd=PAPER_DIR,
+            check=True,
+        )
     if not FIG1_PROTOCOL.exists() or FIG1_PROTOCOL.stat().st_size == 0:
         raise RuntimeError(f"Missing canonical Figure 1 PDF: {FIG1_PROTOCOL}")
 
@@ -1261,7 +1270,7 @@ def make_fig3_controls(
 
 def main() -> None:
     configure_style()
-    verify_fig1_protocol()
+    ensure_fig1_protocol()
     make_fig2_main_evidence(micro=True, output_name="fig2_main_evidence")
     make_fig3_controls(micro=True, output_name="fig3_controls")
     print(FIG1_PROTOCOL)

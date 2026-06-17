@@ -6,9 +6,10 @@ Reproducibility package for the short paper:
 
 The repository contains the final checked results, figure-generation code, and
 LaTeX source needed to reproduce the manuscript figures, summary table, and
-`paper/main.pdf`. The benchmark is Tic-Tac-Toe board classification with exact
-labels and known `D4` board symmetries. The goal is to study symmetry-aware
-ansatz design in a controlled setting, not to claim quantum advantage.
+paper PDF from source. Generated PDFs are intentionally not tracked. The
+benchmark is Tic-Tac-Toe board classification with exact labels and known `D4`
+board symmetries. The goal is to study symmetry-aware ansatz design in a
+controlled setting, not to claim quantum advantage.
 
 ## Setup
 
@@ -39,7 +40,7 @@ python3 paper/make_figures.py
 cd paper && make paper
 ```
 
-The expected final manuscript is `paper/main.pdf`.
+The expected generated manuscript is `paper/main.pdf`.
 
 ## Final evidence artifacts
 
@@ -60,7 +61,7 @@ Validation checks the shared optimizer protocol and expected row counts:
 - ablation sweep: `8` families x `2` subgroups x `10` seeds = `160`
 - random-sharing control: `110` rows at train size `600`
 
-The final paper figures are:
+The figure-generation step writes:
 
 - `paper/fig1_4panel_standalone.pdf`
 - `paper/gfx/fig2_main_evidence.pdf`
@@ -68,7 +69,7 @@ The final paper figures are:
 
 ## Optional full experiment rerun
 
-The committed artifacts are sufficient for review and exact figure
+The committed CSV/JSON artifacts are sufficient for review and exact figure
 reproduction. To rerun the final experiment matrix from scratch, use:
 
 ```bash
@@ -81,18 +82,19 @@ figures, and rebuilds the manuscript.
 
 ## Paper build
 
-To rebuild only the manuscript from existing generated figures:
-
-```bash
-cd paper
-make paper
-```
-
-To regenerate the result figures first:
+From a clean clone, regenerate the figures before building the manuscript:
 
 ```bash
 python3 paper/make_figures.py
 cd paper && make paper
+```
+
+If the generated figure PDFs already exist locally, the manuscript alone can be
+rebuilt with:
+
+```bash
+cd paper
+make paper
 ```
 
 ## Model and protocol
