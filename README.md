@@ -11,6 +11,16 @@ classification with exact labels and known `D4` board symmetries. The goal is
 to study symmetry-aware ansatz design in a controlled setting, not to claim
 quantum advantage.
 
+The checked-in manuscript is the anonymous review version.
+
+## Repository layout
+
+- `paper/`: manuscript source, generated anonymous PDF, and figure-generation code.
+- `results/csv/`: final checked CSV/JSON artifacts used by the figures and tables.
+- `src/`: Tic-Tac-Toe data, symmetry groups, circuits, training, and checks.
+- `experiments/`: final experiment matrix and artifact validation.
+- `scripts/`: one-command reproduction and optional full rerun entry points.
+
 ## Setup
 
 Use Python 3.11 or a compatible recent Python 3 environment:
