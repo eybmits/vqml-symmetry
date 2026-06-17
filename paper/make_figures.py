@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.lines import Line2D
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch, Rectangle
+from matplotlib.ticker import AutoMinorLocator, NullLocator
 
 from src.groups_d4 import COORDS, DIRECTED_PAIRS, WIN_LINE_TRIPLES, apply_transform_to_board
 
@@ -90,16 +91,24 @@ def configure_style() -> None:
             "legend.fontsize": 9.5,
             "xtick.labelsize": 9.0,
             "ytick.labelsize": 9.0,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
+            "axes.spines.top": True,
+            "axes.spines.right": True,
             "axes.linewidth": 1.15,
             "axes.labelcolor": "#000000",
             "text.color": "#000000",
             "xtick.color": "#000000",
             "ytick.color": "#000000",
             "legend.labelcolor": "#000000",
+            "xtick.direction": "in",
+            "ytick.direction": "in",
+            "xtick.top": True,
+            "ytick.right": True,
+            "xtick.minor.visible": True,
+            "ytick.minor.visible": True,
             "xtick.major.width": 1.0,
             "ytick.major.width": 1.0,
+            "grid.linestyle": "--",
+            "grid.color": "#D6D6D6",
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
         }
@@ -133,6 +142,14 @@ def mean_ci(df: pd.DataFrame, keys: list[str], metric: str = "test_accuracy") ->
 
 def save(fig: plt.Figure, name: str) -> None:
     GFX_DIR.mkdir(parents=True, exist_ok=True)
+    for ax in fig.axes:
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.set_frame_on(True)
+            legend.get_frame().set_facecolor("white")
+            legend.get_frame().set_edgecolor("#D8D8D8")
+            legend.get_frame().set_linewidth(0.55)
+            legend.get_frame().set_alpha(0.92)
     fig.savefig(GFX_DIR / f"{name}.pdf", bbox_inches="tight", pad_inches=0.012)
     plt.close(fig)
 
@@ -147,17 +164,69 @@ def add_panel_label(
     ax.text(x, y, label, transform=ax.transAxes, fontweight="bold", fontsize=fontsize, color="#000000")
 
 
+def _numeric_x_axis(ax: plt.Axes) -> bool:
+    labels = [tick.get_text().strip() for tick in ax.get_xticklabels()]
+    labels = [label for label in labels if label]
+    if not labels:
+        return False
+    for label in labels:
+        plain = label.replace("$", "").replace("\\", "").replace("{", "").replace("}", "")
+        plain = plain.replace("−", "-").replace("-", "").replace(".", "")
+        if not plain.isdigit():
+            return False
+    return True
+
+
 def grid(ax: plt.Axes, axis: str = "y", linewidth: float = 0.55) -> None:
+    del axis, linewidth
+    numeric_x = _numeric_x_axis(ax)
     ax.set_axisbelow(True)
-    ax.grid(True, axis=axis, alpha=0.25, linewidth=linewidth, color="#B8B8B8")
+    ax.grid(
+        True,
+        axis="both" if numeric_x else "y",
+        which="major",
+        color="#D4D4D4",
+        alpha=0.55,
+        linewidth=0.46,
+        linestyle="--",
+    )
+    ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+    ax.grid(True, axis="y", which="minor", color="#ECECEC", alpha=0.75, linewidth=0.32, linestyle=":")
+    if numeric_x:
+        ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+        ax.grid(True, axis="x", which="minor", color="#EFEFEF", alpha=0.60, linewidth=0.28, linestyle=":")
 
 
 def style_axes(ax: plt.Axes, tick_length: float = 3.8, tick_width: float = 1.0, spine_width: float = 1.15) -> None:
-    ax.tick_params(length=tick_length, width=tick_width, colors="#000000")
-    ax.spines["left"].set_color("#000000")
-    ax.spines["bottom"].set_color("#000000")
-    ax.spines["left"].set_linewidth(spine_width)
-    ax.spines["bottom"].set_linewidth(spine_width)
+    frame_width = max(0.76, spine_width * 0.82)
+    if not _numeric_x_axis(ax):
+        ax.xaxis.set_minor_locator(NullLocator())
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_color("#111111")
+        spine.set_linewidth(frame_width)
+    ax.tick_params(
+        axis="both",
+        which="major",
+        direction="in",
+        top=True,
+        right=True,
+        labeltop=False,
+        labelright=False,
+        length=max(2.4, tick_length * 0.82),
+        width=max(0.62, tick_width * 0.82),
+        colors="#000000",
+    )
+    ax.tick_params(
+        axis="both",
+        which="minor",
+        direction="in",
+        top=True,
+        right=True,
+        length=max(1.3, tick_length * 0.42),
+        width=max(0.45, tick_width * 0.50),
+        colors="#000000",
+    )
 
 
 def board_xy(index: int) -> tuple[float, float]:
@@ -551,7 +620,7 @@ def make_fig2_main_evidence(
     else:
         ax.set_xticklabels(["edge/none\nbaseline", r"edge/$D_4$" + "\nMeyer-style", r"edge+lines/$D_4$" + "\nours"])
     ax.set_xlim(-0.5, 2.45)
-    ax.set_ylim(0.555, 0.855 if micro else 0.835)
+    ax.set_ylim(0.555, 0.865 if micro else 0.835)
     ax.set_yticks([0.60, 0.70, 0.80])
     ax.set_ylabel("test accuracy")
     ax.set_xlabel("")
@@ -729,230 +798,157 @@ def make_fig3_controls(
     random_df = pd.read_csv(RANDOM_RESULTS)
     ablation = pd.read_csv(ABLATION_RESULTS)
     edge = pd.read_csv(EDGE_RESULTS)
+    edge_lines = pd.read_csv(EDGE_LINES_RESULTS)
 
     if micro:
-        compact = True
-        fig_size = (5.75, 1.78)
-        subplot = {"left": 0.068, "right": 0.997, "top": 0.93, "bottom": 0.225, "wspace": 0.20}
+        fig_size = (5.75, 1.98)
+        subplot = {"left": 0.062, "right": 0.997, "top": 0.935, "bottom": 0.305, "wspace": 0.34}
         panel_fs = 10.0
-        panel_label_x = -0.090
-        panel_label_y = 1.008
         axis_fs = 8.0
         tick_fs = 7.55
-        legend_fs = 7.35
         grid_lw = 0.42
         tick_length = 3.15
         tick_width = 0.86
         spine_width = 1.0
-        connector_lw = 0.90
-        seed_lw = 0.38
-        seed_s = 7.5
-        error_ms = 4.15
-        error_lw = 0.90
-        error_cap = 1.85
-        marker_edge = 0.92
-        legend_marker = 6.1
-        ring_s = 116
-        ring_big_s = 230
-        scatter_base_s = 65
-        scatter_line_s = 72
-        scatter_best_s = 94
-        annot_fs = 7.45
-        box_pad = 0.27
-        line_lw = 0.52
-        box_aspect = 0.88
-        y_max = 0.825
-        y_ticks = np.arange(0.50, 0.81, 0.05)
+        panel_label_x = -0.090
+        panel_label_y = 1.008
+        point_s = 8.1
+        mean_ms = 5.35
+        ci_lw = 1.00
+        ring_s = 132
+        best_ring_s = 105
+        data_lw = 1.70
+        highlight_lw = 1.95
+        marker_lw = 0.85
+        seed_lw = 0.32
+        ring_lw = 1.00
+        annot_fs = 6.85
         save_name = "fig3_controls_naturecompact"
     elif compact:
         fig_size = (6.25, 2.25)
-        subplot = {"left": 0.066, "right": 0.992, "top": 0.91, "bottom": 0.185, "wspace": 0.25}
-        panel_fs = 9.3
-        panel_label_x = -0.105
-        panel_label_y = 1.012
-        axis_fs = 7.6
-        tick_fs = 7.2
-        legend_fs = 7.2
-        grid_lw = 0.42
+        subplot = {"left": 0.064, "right": 0.995, "top": 0.935, "bottom": 0.305, "wspace": 0.34}
+        panel_fs = 10.8
+        axis_fs = 8.6
+        tick_fs = 8.0
+        grid_lw = 0.46
         tick_length = 3.0
-        tick_width = 0.82
-        spine_width = 0.95
-        connector_lw = 0.80
-        seed_lw = 0.34
-        seed_s = 6.5
-        error_ms = 3.6
-        error_lw = 0.78
-        error_cap = 1.7
-        marker_edge = 0.85
-        legend_marker = 5.4
-        ring_s = 86
-        ring_big_s = 180
-        scatter_base_s = 50
-        scatter_line_s = 56
-        scatter_best_s = 74
-        annot_fs = 7.2
-        box_pad = 0.28
-        line_lw = 0.45
-        box_aspect = 0.88
-        y_max = 0.825
-        y_ticks = np.arange(0.50, 0.81, 0.05)
+        tick_width = 0.9
+        spine_width = 1.05
+        panel_label_x = -0.12
+        panel_label_y = 1.04
+        point_s = 7.1
+        mean_ms = 4.5
+        ci_lw = 0.78
+        ring_s = 118
+        best_ring_s = 105
+        data_lw = 1.55
+        highlight_lw = 1.75
+        marker_lw = 0.76
+        seed_lw = 0.28
+        ring_lw = 0.90
+        annot_fs = 7.8
         save_name = "fig3_controls_compact"
     else:
-        fig_size = (7.16, 2.95)
-        subplot = {"left": 0.07, "right": 0.99, "top": 0.94, "bottom": 0.30, "wspace": 0.30}
-        panel_fs = 11.0
-        panel_label_x = -0.16
-        panel_label_y = 1.12
+        fig_size = (7.16, 2.75)
+        subplot = {"left": 0.065, "right": 0.992, "top": 0.93, "bottom": 0.28, "wspace": 0.33}
+        panel_fs = 12.0
         axis_fs = 10.0
         tick_fs = 9.0
-        legend_fs = 9.5
         grid_lw = 0.55
-        tick_length = 3.8
-        tick_width = 1.0
-        spine_width = 1.15
-        connector_lw = 1.10
-        seed_lw = 0.50
-        seed_s = 10.0
-        error_ms = 4.8
-        error_lw = 1.0
-        error_cap = 2.0
-        marker_edge = 1.0
-        legend_marker = 7.0
-        ring_s = 132
-        ring_big_s = 280
-        scatter_base_s = 78
-        scatter_line_s = 66
-        scatter_best_s = 96
+        tick_length = 3.0
+        tick_width = 0.9
+        spine_width = 1.05
+        panel_label_x = -0.12
+        panel_label_y = 1.04
+        point_s = 8.8
+        mean_ms = 5.2
+        ci_lw = 0.86
+        ring_s = 145
+        best_ring_s = 120
+        data_lw = 1.75
+        highlight_lw = 1.95
+        marker_lw = 0.82
+        seed_lw = 0.32
+        ring_lw = 1.00
         annot_fs = 9.0
-        box_pad = 0.45
-        line_lw = 0.55
-        box_aspect = 1.0
-        y_max = 0.85
-        y_ticks = np.arange(0.50, 0.86, 0.05)
         save_name = "fig3_controls"
 
     fig, axes = plt.subplots(1, 3, figsize=fig_size)
     fig.subplots_adjust(**subplot)
-    edge_d4_blue = "#2F6F9F"
-    edge_d4_blue_dark = "#245A82"
+    rng = np.random.default_rng(11)
+    red = "#C9473A"
+    red_dark = "#9E3229"
+    grey = "#8F8F8A"
+    light_grey = "#D9D9D9"
 
+    # (a) Matched random-sharing control, summarized as two distributions.
     ax = axes[0]
-    summary = mean_ci(random_df, ["subgroup", "sharing_type"])
-    groups = ["Z2_rot180", "Z2_reflection", "C4", "D2_V4", "D4"]
-    x = np.arange(len(groups))
-    for idx, group in enumerate(groups):
-        random_row = summary[(summary["subgroup"] == group) & (summary["sharing_type"] == "random")].iloc[0]
-        orbit_row = summary[(summary["subgroup"] == group) & (summary["sharing_type"] == "symmetry")].iloc[0]
-        seed_pairs = (
-            random_df[
-                (random_df["subgroup"] == group)
-                & (random_df["sharing_type"].isin(["random", "symmetry"]))
-            ]
-            .pivot_table(index="seed", columns="sharing_type", values="test_accuracy", aggfunc="mean")
-            .dropna(subset=["random", "symmetry"])
-        )
-        for _, seed_row in seed_pairs.iterrows():
-            ax.plot(
-                [idx - 0.13, idx + 0.13],
-                [seed_row["random"], seed_row["symmetry"]],
-                color="#8F8F8A",
-                linewidth=seed_lw,
-                alpha=0.23,
-                zorder=1.2,
-            )
-            ax.scatter(
-                [idx - 0.13, idx + 0.13],
-                [seed_row["random"], seed_row["symmetry"]],
-                s=seed_s,
-                marker="o",
-                facecolors=["white", "#1F1F1F"],
-                edgecolors="#8F8F8A",
-                linewidths=0.24,
-                alpha=0.34,
-                zorder=1.35,
-            )
-        ax.plot(
-            [idx - 0.13, idx + 0.13],
-            [random_row["mean"], orbit_row["mean"]],
-            color="#C9C9C4",
-            linewidth=connector_lw,
-            zorder=1.0,
-        )
+    random_groups = ["Z2_rot180", "Z2_reflection", "C4", "D2_V4", "D4"]
+    random_control = random_df[random_df["subgroup"].isin(random_groups)].copy()
+    random_vals = random_control[random_control["sharing_type"] == "random"]["test_accuracy"].to_numpy()
+    orbit_vals = random_control[random_control["sharing_type"] == "symmetry"]["test_accuracy"].to_numpy()
+    parts = ax.violinplot(
+        [random_vals, orbit_vals],
+        positions=[0, 1],
+        widths=0.72,
+        showmeans=False,
+        showextrema=False,
+        showmedians=False,
+    )
+    for body, color in zip(parts["bodies"], ["#F1F1F1", "#DADADA"], strict=True):
+        body.set_facecolor(color)
+        body.set_edgecolor(color)
+        body.set_alpha(0.95)
+    ax.scatter(
+        rng.normal(0, 0.045, len(random_vals)),
+        random_vals,
+        s=point_s,
+        facecolors="white",
+        edgecolors="#C9C9C9",
+        linewidths=seed_lw,
+        alpha=0.72,
+        zorder=3,
+    )
+    ax.scatter(
+        1 + rng.normal(0, 0.045, len(orbit_vals)),
+        orbit_vals,
+        s=point_s,
+        facecolors="#5F5F5F",
+        edgecolors="#5F5F5F",
+        linewidths=seed_lw,
+        alpha=0.72,
+        zorder=3,
+    )
+    for xpos, vals, face, edge_col in [
+        (0, random_vals, "white", grey),
+        (1, orbit_vals, "#1F1F1F", "#1F1F1F"),
+    ]:
         ax.errorbar(
-            idx - 0.13,
-            random_row["mean"],
-            yerr=random_row["ci95"],
+            xpos,
+            vals.mean(),
+            yerr=ci95(pd.Series(vals)),
             fmt="o",
-            markersize=error_ms,
-            markerfacecolor="white",
-            markeredgecolor="#A9A9A2",
-            markeredgewidth=marker_edge,
-            ecolor="#777777",
-            elinewidth=error_lw,
-            capsize=error_cap,
-            zorder=3.0,
-        )
-        ax.errorbar(
-            idx + 0.13,
-            orbit_row["mean"],
-            yerr=orbit_row["ci95"],
-            fmt="o",
-            markersize=error_ms,
-            markerfacecolor="#1F1F1F",
-            markeredgecolor="#1F1F1F",
-            markeredgewidth=marker_edge,
+            markersize=mean_ms + 1.8,
+            markerfacecolor=face,
+            markeredgecolor=edge_col,
+            markeredgewidth=marker_lw,
             ecolor="#1F1F1F",
-            elinewidth=error_lw,
-            capsize=error_cap,
-            zorder=4.0,
+            elinewidth=ci_lw,
+            capsize=0,
+            zorder=5,
         )
-    ax.set_xticks(x)
-    ax.set_xticklabels([SUBGROUP_LABELS[g] for g in groups])
-    ax.set_ylim(0.50, y_max)
-    ax.set_yticks(y_ticks)
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["random", "group\norbit"])
+    ax.set_ylim(0.50, 0.825)
+    ax.set_yticks(np.arange(0.50, 0.81, 0.05))
     ax.set_ylabel("test accuracy")
     grid(ax, linewidth=grid_lw)
     style_axes(ax, tick_length=tick_length, tick_width=tick_width, spine_width=spine_width)
     add_panel_label(ax, "a", fontsize=panel_fs, x=panel_label_x, y=panel_label_y)
-    handles_a = [
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="none",
-            markerfacecolor="white",
-            markeredgecolor="#A9A9A2",
-            markeredgewidth=marker_edge,
-            markersize=legend_marker,
-            label="random",
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="none",
-            markerfacecolor="#1F1F1F",
-            markeredgecolor="#1F1F1F",
-            markersize=legend_marker,
-            label="group orbit",
-        ),
-    ]
-    legend_a = ax.legend(
-        handles=handles_a,
-        loc="upper left",
-        ncol=2,
-        fontsize=legend_fs,
-        frameon=False,
-        handlelength=0.86 if compact else 1.0,
-        handletextpad=0.28 if compact else 0.35,
-        columnspacing=0.72 if compact else 1.0,
-        labelspacing=0.20 if compact else 0.32,
-        borderaxespad=0.4,
-    )
-    legend_a.set_zorder(10)
 
+    # (b) Oracle-inspired ablation as individual seeds plus mean CIs.
     ax = axes[1]
-    train600 = ablation[ablation["train_size"] == 600]
+    train600 = ablation[ablation["train_size"] == 600].copy()
     family_candidates = [
         "edge",
         "line_pair_crz",
@@ -965,196 +961,147 @@ def make_fig3_controls(
     ]
     summary = mean_ci(train600, ["circuit_family", "subgroup"])
     family_rank = (
-        summary[summary["circuit_family"].isin(family_candidates) & summary["subgroup"].isin(["C4", "D4"])]
-        .groupby("circuit_family")["mean"]
-        .mean()
-        .sort_values(kind="mergesort")
+        summary[summary["circuit_family"].isin(family_candidates) & (summary["subgroup"] == "D4")]
+        .set_index("circuit_family")
+        .loc[family_candidates]
+        .sort_values("mean", kind="mergesort")
     )
-    families = [family for family in family_rank.index if family in family_candidates]
+    families = list(family_rank.index)
+    x = np.arange(len(families))
     for idx, family in enumerate(families):
-        c4_row = summary[(summary["circuit_family"] == family) & (summary["subgroup"] == "C4")].iloc[0]
-        d4_row = summary[(summary["circuit_family"] == family) & (summary["subgroup"] == "D4")].iloc[0]
-        ax.plot(
-            [idx - 0.13, idx + 0.13],
-            [c4_row["mean"], d4_row["mean"]],
-            color="#D9D9D9",
-            linewidth=connector_lw,
-            zorder=1.0,
-        )
-        ax.errorbar(
-            idx - 0.13,
-            c4_row["mean"],
-            yerr=c4_row["ci95"],
-            fmt="o",
-            markersize=error_ms,
-            markerfacecolor=edge_d4_blue,
-            markeredgecolor=edge_d4_blue_dark,
-            markeredgewidth=marker_edge,
-            ecolor="#202020",
-            elinewidth=error_lw,
-            capsize=error_cap,
-            zorder=3.0,
-        )
-        ax.errorbar(
-            idx + 0.13,
-            d4_row["mean"],
-            yerr=d4_row["ci95"],
-            fmt="o",
-            markersize=error_ms,
-            markerfacecolor="#C9473A",
-            markeredgecolor="#9E3229",
-            markeredgewidth=marker_edge,
-            ecolor="#202020",
-            elinewidth=error_lw,
-            capsize=error_cap,
-            zorder=4.0,
-        )
-    if "edge" in families:
-        edge_idx = families.index("edge")
-        edge_d4_row = summary[(summary["circuit_family"] == "edge") & (summary["subgroup"] == "D4")].iloc[0]
-        edge_d4_x = edge_idx + 0.13
-        edge_d4_y = edge_d4_row["mean"]
-        ax.scatter(
-            [edge_d4_x],
-            [edge_d4_y],
-            s=ring_s,
-            facecolor="none",
-            edgecolor="#000000",
-            linewidth=line_lw,
-            zorder=5.0,
-        )
-        ax.annotate(
-            r"original edge/$\mathbf{D}_4$",
-            xy=(edge_d4_x, edge_d4_y),
-            xytext=(edge_d4_x + 0.25, edge_d4_y - 0.034),
-            arrowprops={
-                "arrowstyle": "->",
-                "lw": line_lw,
-                "color": "#000000",
-                "shrinkA": 3.5,
-                "shrinkB": 5.5,
-                "mutation_scale": 5.6 if compact else 7.0,
-                "connectionstyle": "arc3,rad=0.0",
-            },
-            fontsize=annot_fs,
-            color="#000000",
-            fontweight="bold",
-            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.88, "pad": box_pad},
-            ha="left",
-            va="top",
-            zorder=8.0,
-        )
-    ax.set_xticks(np.arange(len(families)))
-    if compact:
-        ax.set_xticklabels([])
-        internal_label_y = 0.507 if micro else 0.525
-        micro_label_offsets = [-0.14, -0.08, -0.03, 0.02, -0.03, -0.01, 0.02, -0.02]
-        for idx, family in enumerate(families):
-            label_x = idx - 0.05
-            if micro:
-                label_x = idx + micro_label_offsets[idx]
-            else:
-                if idx == len(families) - 1:
-                    label_x -= 0.55
-                elif idx == len(families) - 2:
-                    label_x -= 0.28
-            ax.text(
-                label_x,
-                internal_label_y,
-                FAMILY_LABELS[family],
-                rotation=54,
-                ha="left",
-                va="bottom",
-                rotation_mode="anchor",
-                fontsize=tick_fs * 0.88,
-                color="#000000",
-                clip_on=not micro,
-                zorder=9.0,
+        for subgroup, dx, face, edge_color, alpha in [
+            ("C4", -0.13, "white", "#BDBDBD", 0.58),
+            ("D4", 0.13, red, red_dark, 0.36),
+        ]:
+            vals = train600[
+                (train600["circuit_family"] == family)
+                & (train600["subgroup"] == subgroup)
+            ]["test_accuracy"].to_numpy()
+            ax.scatter(
+                idx + dx + rng.normal(0, 0.025, len(vals)),
+                vals,
+                s=point_s * 0.82,
+                facecolors=face,
+                edgecolors=edge_color,
+                linewidths=seed_lw,
+                alpha=alpha,
+                zorder=1.5,
             )
-    else:
-        ax.set_xticklabels([FAMILY_LABELS[f] for f in families], rotation=52, ha="right")
-    if micro:
-        ax.set_xlim(-0.45, len(families) - 0.15)
-    ax.set_ylim(0.50, y_max)
-    ax.set_yticks(y_ticks)
-    if not micro:
-        ax.set_ylabel("test accuracy")
+            row = summary[(summary["circuit_family"] == family) & (summary["subgroup"] == subgroup)].iloc[0]
+            ax.errorbar(
+                idx + dx,
+                row["mean"],
+                yerr=row["ci95"],
+                fmt="o",
+                markersize=mean_ms,
+                markerfacecolor=face if subgroup == "C4" else red,
+                markeredgecolor=grey if subgroup == "C4" else red_dark,
+                markeredgewidth=marker_lw,
+                ecolor="#1F1F1F",
+                elinewidth=ci_lw,
+                capsize=1.8,
+                zorder=4,
+            )
+    ax.set_xticks(x)
+    ax.set_xticklabels([FAMILY_LABELS[f] for f in families], rotation=55, ha="right")
+    ax.tick_params(axis="x", pad=1.5)
+    for label in ax.get_xticklabels():
+        label.set_horizontalalignment("center")
+    ax.get_xticklabels()[0].set_x(-0.18)
+    ax.set_xlim(-0.34, len(families) - 0.42)
+    ax.set_ylim(0.62, 0.855)
+    ax.set_yticks([0.65, 0.70, 0.75, 0.80])
+    ax.set_ylabel("test accuracy")
     grid(ax, linewidth=grid_lw)
     style_axes(ax, tick_length=tick_length, tick_width=tick_width, spine_width=spine_width)
     add_panel_label(ax, "b", fontsize=panel_fs, x=panel_label_x, y=panel_label_y)
-    handles_b = [
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="none",
-            markerfacecolor=edge_d4_blue,
-            markeredgecolor=edge_d4_blue_dark,
-            markeredgewidth=marker_edge,
-            markersize=legend_marker,
-            label=SUBGROUP_LABELS["C4"],
-        ),
-        Line2D(
-            [0],
-            [0],
-            marker="o",
-            color="none",
-            markerfacecolor="#C9473A",
-            markeredgecolor="#9E3229",
-            markeredgewidth=marker_edge,
-            markersize=legend_marker,
-            label=SUBGROUP_LABELS["D4"],
-        ),
-    ]
-    legend_b = ax.legend(
-        handles=handles_b,
-        loc="upper left",
-        ncol=1,
-        fontsize=legend_fs,
-        frameon=False,
-        handlelength=0.86 if compact else 1.0,
-        handletextpad=0.36 if compact else 0.5,
-        labelspacing=0.20 if compact else 0.32,
-        borderaxespad=0.5,
-    )
-    legend_b.set_zorder(10)
 
+    # (c) Parameter count control as family bands.
     ax = axes[2]
-    part600 = edge[edge["train_size"] == 600].copy()
-    psummary = mean_ci(part600, ["subgroup"])
-    osummary = mean_ci(ablation[ablation["train_size"] == 600], ["circuit_family", "subgroup"])
-    for subgroup in SUBGROUP_ORDER:
-        row = psummary[psummary["subgroup"] == subgroup].iloc[0]
-        ax.scatter(
-            row["params"],
-            row["mean"],
-            color="#1F1F1F",
-            s=scatter_base_s * 0.88,
-            marker="v",
-            edgecolor="white",
-            linewidth=0.45 if compact else 0.6,
-            alpha=1.0,
-            zorder=4.2,
+    edge600 = edge[edge["train_size"] == 600].copy()
+    edge_summary = mean_ci(edge600, ["subgroup"]).sort_values("params")
+    edge_lines_summary = mean_ci(edge_lines[edge_lines["train_size"] == 600], ["subgroup"]).sort_values("params")
+    edge_line_variant_families = ["edge_line_ccrz", "edge_line_zzz", "edge_line_zzz_ccrz"]
+    edge_line_variants = ablation[
+        ablation["circuit_family"].isin(edge_line_variant_families)
+        & ablation["subgroup"].isin(["C4", "D4"])
+    ].copy()
+    edge_line_variant_summary = mean_ci(edge_line_variants, ["circuit_family", "subgroup"]).sort_values(
+        ["params", "mean"]
+    )
+    edge_line_band = (
+        edge_line_variant_summary.groupby("params", dropna=False)
+        .agg(mean=("mean", "mean"), low=("mean", "min"), high=("mean", "max"))
+        .reset_index()
+        .sort_values("params")
+    )
+    ax.fill_between(
+        edge_summary["params"].to_numpy(),
+        edge_summary["mean"].to_numpy() - 0.015,
+        edge_summary["mean"].to_numpy() + 0.015,
+        color="#E8E8E8",
+        alpha=0.90,
+        zorder=0,
+    )
+    ax.plot(
+        edge_summary["params"],
+        edge_summary["mean"],
+        color="#8A8A8A",
+        linewidth=data_lw,
+        linestyle="--",
+        zorder=2,
+    )
+    ax.scatter(
+        edge_summary["params"],
+        edge_summary["mean"],
+        s=point_s * 4.8,
+        marker="o",
+        facecolors="white",
+        edgecolors="#8A8A8A",
+        linewidths=marker_lw + 0.12,
+        zorder=3,
+    )
+    if len(edge_line_band) > 1:
+        ax.fill_between(
+            edge_line_band["params"].to_numpy(),
+            edge_line_band["low"].to_numpy() - 0.012,
+            edge_line_band["high"].to_numpy() + 0.012,
+            color=red,
+            alpha=0.12,
+            zorder=1.5,
         )
-    for family in ["edge_line_zzz", "edge_line_ccrz", "edge_line_zzz_ccrz"]:
-        for subgroup in ["C4", "D4"]:
-            row = osummary[(osummary["circuit_family"] == family) & (osummary["subgroup"] == subgroup)].iloc[0]
-            ax.scatter(
-                row["params"],
-                row["mean"],
-                color="#C9473A",
-                s=scatter_best_s if family == "edge_line_zzz_ccrz" else scatter_line_s,
-                marker="^",
-                edgecolor="white",
-                linewidth=0.45 if compact else 0.6,
-                alpha=1.0 if family == "edge_line_zzz_ccrz" else 0.88,
-                zorder=4.4,
-            )
-    edge_d4 = psummary[psummary["subgroup"] == "D4"].iloc[0]
-    edge_lines_d4 = osummary[
-        (osummary["circuit_family"] == "edge_line_zzz_ccrz") & (osummary["subgroup"] == "D4")
-    ].iloc[0]
-    label_box = {"facecolor": "white", "edgecolor": "none", "alpha": 0.90, "pad": box_pad}
+        ax.plot(
+            edge_line_band["params"],
+            edge_line_band["mean"],
+            color=red,
+            linewidth=highlight_lw * 0.72,
+            alpha=0.65,
+            zorder=4.35,
+        )
+    ax.scatter(
+        edge_line_variant_summary["params"],
+        edge_line_variant_summary["mean"],
+        s=point_s * 4.0,
+        marker="^",
+        facecolors=red,
+        edgecolors="white",
+        linewidths=marker_lw + 0.02,
+        alpha=0.62,
+        zorder=4.45,
+    )
+    ax.scatter(
+        edge_lines_summary["params"],
+        edge_lines_summary["mean"],
+        s=point_s * 6.0,
+        marker="^",
+        facecolors=red,
+        edgecolors="white",
+        linewidths=marker_lw + 0.12,
+        zorder=4.7,
+    )
+    edge_d4 = edge_summary[edge_summary["subgroup"] == "D4"].iloc[0]
+    edge_lines_d4 = edge_lines_summary[edge_lines_summary["subgroup"] == "D4"].iloc[0]
+    label_box = {"facecolor": "white", "edgecolor": "none", "alpha": 0.88, "pad": 0.20}
     ax.scatter(
         [edge_d4["params"]],
         [edge_d4["mean"]],
@@ -1162,31 +1109,31 @@ def make_fig3_controls(
         marker="o",
         facecolor="none",
         edgecolor="#000000",
-        linewidth=line_lw,
+        linewidth=ring_lw,
         zorder=5.2,
     )
     ax.scatter(
         [edge_lines_d4["params"]],
         [edge_lines_d4["mean"]],
-        s=ring_big_s,
+        s=best_ring_s,
         marker="o",
         facecolor="none",
         edgecolor="#000000",
-        linewidth=line_lw,
+        linewidth=ring_lw,
         zorder=5.2,
     )
     ax.annotate(
-        r"original edge/$\mathbf{D}_4$",
+        r"edge/$\mathbf{D}_4$",
         xy=(edge_d4["params"], edge_d4["mean"]),
-        xytext=(58, 0.652),
+        xytext=(60, 0.628 if micro else 0.632),
         arrowprops={
             "arrowstyle": "->",
-            "lw": line_lw,
+            "lw": 0.65,
             "color": "#000000",
-            "shrinkA": 4.0,
-            "shrinkB": 8.0,
-            "mutation_scale": 5.6 if compact else 7.0,
-            "connectionstyle": "arc3,rad=0.06",
+            "shrinkA": 2.5,
+            "shrinkB": 7.0,
+            "mutation_scale": 5.4 if micro else 7.0,
+            "connectionstyle": "arc3,rad=0.03",
         },
         fontsize=annot_fs,
         color="#000000",
@@ -1198,16 +1145,16 @@ def make_fig3_controls(
     )
     ax.annotate(
         r"edge+lines/$\mathbf{D}_4$",
-        xy=(edge_lines_d4["params"], edge_lines_d4["mean"]),
-        xytext=(111, 0.812 if compact else 0.818),
+        xy=(edge_lines_d4["params"] + 9.0, edge_lines_d4["mean"] + 0.004),
+        xytext=(129, 0.796 if micro else 0.800),
         arrowprops={
             "arrowstyle": "->",
-            "lw": line_lw,
+            "lw": 0.65,
             "color": "#000000",
-            "shrinkA": 2.5,
-            "shrinkB": 8.0,
-            "mutation_scale": 5.6 if compact else 7.0,
-            "connectionstyle": "arc3,rad=0.14",
+            "shrinkA": 2.0,
+            "shrinkB": 5.0,
+            "mutation_scale": 5.4 if micro else 7.0,
+            "connectionstyle": "arc3,rad=0.00",
         },
         fontsize=annot_fs,
         color="#000000",
@@ -1217,50 +1164,18 @@ def make_fig3_controls(
         va="center",
         zorder=8,
     )
-    if micro:
-        ax.set_xlabel("")
-        ax.text(
-            0.985,
-            0.045,
-            "parameters",
-            transform=ax.transAxes,
-            ha="right",
-            va="bottom",
-            fontsize=axis_fs,
-            color="#000000",
-            zorder=9.0,
-        )
-    else:
-        ax.set_xlabel("parameters")
-    if not micro:
-        ax.set_ylabel("test accuracy")
-    ax.set_ylim(0.50, y_max)
-    ax.set_yticks(y_ticks)
-    ax.set_xlim(40, 225)
+    ax.set_xlabel("parameters")
+    ax.set_ylabel("test accuracy")
+    ax.set_ylim(0.50, 0.83)
+    ax.set_yticks([0.55, 0.65, 0.75])
+    ax.set_xlim(40, 215)
     ax.set_xticks([40, 100, 150, 215])
     grid(ax, linewidth=grid_lw)
     style_axes(ax, tick_length=tick_length, tick_width=tick_width, spine_width=spine_width)
     add_panel_label(ax, "c", fontsize=panel_fs, x=panel_label_x, y=panel_label_y)
 
-    handles_c = [
-        Line2D([0], [0], marker="v", color="none", markerfacecolor="#1F1F1F", markeredgecolor="white", markersize=6.0 if compact else 8.5, label="edge / baseline"),
-        Line2D([0], [0], marker="^", color="none", markerfacecolor="#C9473A", markeredgecolor="white", markersize=6.0 if compact else 8.5, label="edge+lines"),
-    ]
-    legend_c = ax.legend(
-        handles=handles_c,
-        loc="lower left",
-        ncol=1,
-        fontsize=legend_fs,
-        frameon=False,
-        handlelength=0.90 if compact else 1.1,
-        handletextpad=0.34 if compact else 0.5,
-        labelspacing=0.20 if compact else 0.34,
-        borderaxespad=0.5,
-    )
-    legend_c.set_zorder(10)
-
     for panel_ax in axes:
-        panel_ax.set_box_aspect(box_aspect)
+        panel_ax.set_box_aspect(0.88)
         panel_ax.tick_params(labelsize=tick_fs)
         panel_ax.xaxis.label.set_size(axis_fs)
         panel_ax.yaxis.label.set_size(axis_fs)
