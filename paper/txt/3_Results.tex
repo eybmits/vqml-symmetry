@@ -1,7 +1,7 @@
 \begin{figure*}[t]
 \centering
 \includegraphics[width=.94\textwidth]{gfx/fig3_controls}
-\caption{\normalsize Controls and ablations. (a) Parameter-matched random sharing underperforms group-orbit sharing. (b) Ablations are anchored by the labelled edge/$D_4$ ansatz; the strongest model combines edge interactions with both line channels. (c) Accuracy is not explained by parameter count alone.}
+\caption{Controls and ablations. (a) Parameter-matched random sharing underperforms group-orbit sharing. (b) Ablations are anchored by the labelled edge/$D_4$ ansatz; the strongest model combines edge interactions with both line channels. (c) Accuracy is not explained by parameter count alone.}
 \label{fig:controls}
 \end{figure*}
 
@@ -18,7 +18,7 @@ simulation~\cite{bergholm2018pennylane}, and PyTorch
 optimization~\cite{paszke2019pytorch}.
 
 Across these experiments, three trends emerge, summarized in
-\Cref{fig:main}. First, the unconstrained edge ansatz has more
+Fig.~\ref{fig:main}. First, the unconstrained edge ansatz has more
 parameters but generalizes worse than the $D_4$-equivariant
 edge model. At 600 training examples, edge/none reaches about
 $0.63$ test accuracy, while edge/$D_4$ reaches about $0.69$
@@ -33,13 +33,13 @@ slightly ahead at the smallest training size. We interpret this
 as evidence that symmetry strength is a tunable architectural
 bias: partial symmetry can preserve most of the benefit while
 leaving the circuit less constrained. The random-sharing
-control in \Cref{fig:controls}(a) confirms that the gain is not
+control in Fig.~\ref{fig:controls}(a) confirms that the gain is not
 caused by parameter reduction alone; parameter-matched sharing
 without group-orbit structure performs worse.
 
 The largest improvement comes from changing the interaction
 structure. Adding winning-line gates to the equivariant edge
-circuit, as shown in \Cref{fig:main}(c), raises the best $D_4$
+circuit, as shown in Fig.~\ref{fig:main}(c), raises the best $D_4$
 model from about $0.69$ to roughly $0.80$ test accuracy, with
 the $C_4$ variant close behind. The edge ansatz can only
 represent rows, columns, and diagonals indirectly, whereas the
@@ -47,7 +47,7 @@ line gates act directly on the motifs that determine the label.
 This is the central result: symmetry helps, but task-aligned
 equivariant interactions help more.
 
-The controls in \Cref{fig:controls} rule out simpler
+The controls in Fig.~\ref{fig:controls} rule out simpler
 explanations. The effect is not arbitrary parameter reduction,
 because random sharing underperforms orbit sharing. It is also
 not just parameter count: edge+lines/$D_4$ has 90 parameters,

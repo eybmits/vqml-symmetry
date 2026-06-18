@@ -1016,12 +1016,12 @@ def make_fig3_controls(
     style_axes(ax, tick_length=tick_length, tick_width=tick_width, spine_width=spine_width)
     add_panel_label(ax, "b", fontsize=panel_fs, x=panel_label_x, y=panel_label_y)
 
-    # (c) Parameter count control as family bands.
+    # (c) Parameter count control as individual means with uncertainty.
     ax = axes[2]
     edge600 = edge[edge["train_size"] == 600].copy()
     edge_summary = mean_ci(edge600, ["subgroup"]).sort_values("params")
     edge_lines_summary = mean_ci(edge_lines[edge_lines["train_size"] == 600], ["subgroup"]).sort_values("params")
-    edge_line_variant_families = ["edge_line_ccrz", "edge_line_zzz", "edge_line_zzz_ccrz"]
+    edge_line_variant_families = ["edge_line_ccrz", "edge_line_zzz"]
     edge_line_variants = ablation[
         ablation["circuit_family"].isin(edge_line_variant_families)
         & ablation["subgroup"].isin(["C4", "D4"])
@@ -1029,103 +1029,91 @@ def make_fig3_controls(
     edge_line_variant_summary = mean_ci(edge_line_variants, ["circuit_family", "subgroup"]).sort_values(
         ["params", "mean"]
     )
-    edge_line_band = (
-        edge_line_variant_summary.groupby("params", dropna=False)
-        .agg(mean=("mean", "mean"), low=("mean", "min"), high=("mean", "max"))
-        .reset_index()
-        .sort_values("params")
-    )
-    ax.fill_between(
-        edge_summary["params"].to_numpy(),
-        edge_summary["mean"].to_numpy() - 0.015,
-        edge_summary["mean"].to_numpy() + 0.015,
-        color="#E8E8E8",
-        alpha=0.90,
-        zorder=0,
-    )
-    ax.plot(
-        edge_summary["params"],
-        edge_summary["mean"],
-        color="#8A8A8A",
-        linewidth=data_lw,
-        linestyle="--",
-        zorder=2,
-    )
+    variant_offsets = {"edge_line_ccrz": -2.3, "edge_line_zzz": 2.3}
+    edge_line_variant_summary["plot_params"] = edge_line_variant_summary["params"] + edge_line_variant_summary[
+        "circuit_family"
+    ].map(variant_offsets).fillna(0.0)
+    edge_d4 = edge_summary[edge_summary["subgroup"] == "D4"].iloc[0]
+    edge_lines_d4 = edge_lines_summary[edge_lines_summary["subgroup"] == "D4"].iloc[0]
+    edge_other = edge_summary[edge_summary["subgroup"] != "D4"]
+    edge_lines_other = edge_lines_summary[edge_lines_summary["subgroup"] != "D4"]
     ax.scatter(
-        edge_summary["params"],
-        edge_summary["mean"],
-        s=point_s * 4.8,
+        edge_other["params"],
+        edge_other["mean"],
+        s=point_s * 4.0,
         marker="o",
         facecolors="white",
         edgecolors="#8A8A8A",
-        linewidths=marker_lw + 0.12,
+        linewidths=marker_lw,
         zorder=3,
     )
-    if len(edge_line_band) > 1:
-        ax.fill_between(
-            edge_line_band["params"].to_numpy(),
-            edge_line_band["low"].to_numpy() - 0.012,
-            edge_line_band["high"].to_numpy() + 0.012,
-            color=red,
-            alpha=0.12,
-            zorder=1.5,
-        )
-        ax.plot(
-            edge_line_band["params"],
-            edge_line_band["mean"],
-            color=red,
-            linewidth=highlight_lw * 0.72,
-            alpha=0.65,
-            zorder=4.35,
-        )
-    ax.scatter(
-        edge_line_variant_summary["params"],
-        edge_line_variant_summary["mean"],
-        s=point_s * 4.0,
-        marker="^",
-        facecolors=red,
-        edgecolors="white",
-        linewidths=marker_lw + 0.02,
-        alpha=0.62,
-        zorder=4.45,
-    )
-    ax.scatter(
-        edge_lines_summary["params"],
-        edge_lines_summary["mean"],
-        s=point_s * 6.0,
-        marker="^",
-        facecolors=red,
-        edgecolors="white",
-        linewidths=marker_lw + 0.12,
-        zorder=4.7,
-    )
-    edge_d4 = edge_summary[edge_summary["subgroup"] == "D4"].iloc[0]
-    edge_lines_d4 = edge_lines_summary[edge_lines_summary["subgroup"] == "D4"].iloc[0]
-    label_box = {"facecolor": "white", "edgecolor": "none", "alpha": 0.88, "pad": 0.20}
     ax.scatter(
         [edge_d4["params"]],
         [edge_d4["mean"]],
-        s=ring_s,
+        s=point_s * 4.8,
         marker="o",
-        facecolor="none",
-        edgecolor="#000000",
-        linewidth=ring_lw,
-        zorder=5.2,
+        facecolors="#1F1F1F",
+        edgecolors="#1F1F1F",
+        linewidths=marker_lw,
+        zorder=5.0,
+    )
+    ax.scatter(
+        edge_line_variant_summary["plot_params"],
+        edge_line_variant_summary["mean"],
+        s=point_s * 3.6,
+        marker="^",
+        facecolors=red,
+        edgecolors="white",
+        linewidths=marker_lw * 0.72,
+        alpha=0.42,
+        zorder=4.45,
+    )
+    ax.scatter(
+        edge_lines_other["params"],
+        edge_lines_other["mean"],
+        s=point_s * 4.8,
+        marker="^",
+        facecolors=red,
+        edgecolors="white",
+        linewidths=marker_lw * 0.85,
+        alpha=0.58,
+        zorder=4.7,
     )
     ax.scatter(
         [edge_lines_d4["params"]],
         [edge_lines_d4["mean"]],
-        s=best_ring_s,
-        marker="o",
-        facecolor="none",
-        edgecolor="#000000",
-        linewidth=ring_lw,
+        s=point_s * 5.7,
+        marker="^",
+        facecolors=red,
+        edgecolors=red,
+        linewidths=marker_lw * 0.7,
         zorder=5.2,
     )
+    for summary_df, x_col, error_color, error_alpha, zorder, min_yerr in [
+        (edge_summary, "params", "#6F6F6F", 0.78, 5.45, 0.010),
+        (edge_line_variant_summary, "plot_params", red, 0.42, 5.50, None),
+        (edge_lines_summary, "params", red, 0.72, 5.55, None),
+    ]:
+        yerr = summary_df["ci95"].to_numpy(dtype=float)
+        if min_yerr is not None:
+            yerr = np.maximum(yerr, min_yerr)
+        ax.errorbar(
+            summary_df[x_col],
+            summary_df["mean"],
+            yerr=yerr,
+            fmt="none",
+            ecolor=error_color,
+            elinewidth=ci_lw * 0.56,
+            capsize=1.15,
+            capthick=ci_lw * 0.56,
+            alpha=error_alpha,
+            zorder=zorder,
+        )
+    label_box = {"facecolor": "white", "edgecolor": "none", "alpha": 0.88, "pad": 0.20}
     ax.annotate(
         r"edge/$\mathbf{D}_4$",
         xy=(edge_d4["params"], edge_d4["mean"]),
-        xytext=(60, 0.628 if micro else 0.632),
+        xytext=(60, 0.622 if micro else 0.626),
         arrowprops={
             "arrowstyle": "->",
             "lw": 0.65,
@@ -1145,8 +1133,8 @@ def make_fig3_controls(
     )
     ax.annotate(
         r"edge+lines/$\mathbf{D}_4$",
-        xy=(edge_lines_d4["params"] + 9.0, edge_lines_d4["mean"] + 0.004),
-        xytext=(129, 0.796 if micro else 0.800),
+        xy=(edge_lines_d4["params"] + 5.0, edge_lines_d4["mean"] + 0.004),
+        xytext=(121, 0.800 if micro else 0.804),
         arrowprops={
             "arrowstyle": "->",
             "lw": 0.65,
@@ -1166,8 +1154,8 @@ def make_fig3_controls(
     )
     ax.set_xlabel("parameters")
     ax.set_ylabel("test accuracy")
-    ax.set_ylim(0.50, 0.83)
-    ax.set_yticks([0.55, 0.65, 0.75])
+    ax.set_ylim(0.60, 0.83)
+    ax.set_yticks([0.60, 0.70, 0.80])
     ax.set_xlim(40, 215)
     ax.set_xticks([40, 100, 150, 215])
     grid(ax, linewidth=grid_lw)

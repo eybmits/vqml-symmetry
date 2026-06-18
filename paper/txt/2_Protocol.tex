@@ -8,9 +8,9 @@ reachable boards, we enumerate it exactly and draw
 class-balanced train and test splits from this set. The labels
 are invariant under the eight rotations and reflections of the
 board, forming the dihedral group $D_4$; this symmetry is
-illustrated in \Cref{fig:protocol}(a).
+illustrated in Fig.~\ref{fig:protocol}(a).
 
-We use one qubit per field, as shown in \Cref{fig:protocol}(b).
+We use one qubit per field, as shown in Fig.~\ref{fig:protocol}(b).
 Each value $g_i$ is mapped to the angle $x_i=2\pi g_i/3$ and
 encoded by an $R_X$ rotation,
 \[
@@ -46,7 +46,7 @@ trainable block. Unless stated otherwise, we use $L=3$ layers
 and $p=2$ repetitions, keeping depth fixed across all sweeps.
 
 Our baseline is the edge ansatz of Meyer et al.,
-shown in \Cref{fig:protocol}(c). It applies local $R_YR_X$
+shown in Fig.~\ref{fig:protocol}(c). It applies local $R_YR_X$
 rotations and directed controlled-$R_Y$ entanglers on neighbouring
 rim fields and selected center connections. Symmetry enters only
 through parameter sharing: gates in the same $H$-orbit share the
@@ -77,7 +77,7 @@ ansatz couples neighbouring fields, but Tic-Tac-Toe labels are
 decided by complete three-cell winning lines. We therefore add
 orbit-shared gates on the eight winning triples: three rows,
 three columns, and two diagonals, as shown in
-\Cref{fig:protocol}(d). Each triple receives one $ZZZ$ rotation
+Fig.~\ref{fig:protocol}(d). Each triple receives one $ZZZ$ rotation
 and one $\mathrm{CCR}_Z$ interaction. The resulting edge+lines
 model keeps the original edge ansatz but adds trainable
 interactions directly on the label-relevant motifs. At
