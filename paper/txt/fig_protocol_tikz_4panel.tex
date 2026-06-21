@@ -216,10 +216,10 @@
     \ifnum\ang=0
       \node[font=\scriptsize, text=black!86] at (0.62,\yy) {\lab};
     \else
-      \begin{scope}[shift={(0.62,\yy)}]
-        \draw[-{Stealth[length=2.2pt,width=2.2pt]}, line width=0.52pt, draw=black!82]
-          (-0.25,0.25) arc[start angle=135,end angle=410,radius=0.35];
-        \node[font=\scriptsize, text=black!86, fill=panelgray, inner sep=0.2pt, minimum width=0.52cm, align=center] at (0,0) {\lab};
+      \begin{scope}[shift={(0.56,\yy)}]
+        \node[font=\scriptsize, text=black!86, fill=panelgray, inner sep=0.2pt, minimum width=0.54cm, align=center] at (0,0) {\lab};
+        \draw[-{Stealth[length=2.35pt,width=2.35pt]}, line width=0.62pt, draw=black!82, line cap=round]
+          ({0.37*cos(150)},{0.37*sin(150)}) arc[start angle=150,end angle=405,radius=0.37];
       \end{scope}
     \fi
     \begin{scope}[shift={(1.66,\yy)}, scale=0.52, rotate=\ang]\WhiteBoardA\end{scope}
