@@ -218,8 +218,10 @@
     \else
       \begin{scope}[shift={(0.58,\yy)}]
         \node[font=\scriptsize, text=black!86, fill=panelgray, inner sep=0.2pt, minimum width=0.54cm, align=center] at (0,0) {\lab};
-        \draw[-{Stealth[length=2.15pt,width=2.15pt]}, line width=0.58pt, draw=black!82, line cap=round]
-          ({0.31*cos(150)},{0.31*sin(150)}) arc[start angle=150,end angle=405,radius=0.31];
+        \begin{scope}[shift={(-0.03,0)}]
+          \draw[-{Stealth[length=2.15pt,width=2.15pt]}, line width=0.58pt, draw=black!82, line cap=round]
+            ({0.31*cos(150)},{0.31*sin(150)}) arc[start angle=150,end angle=405,radius=0.31];
+        \end{scope}
       \end{scope}
     \fi
     \begin{scope}[shift={(1.66,\yy)}, scale=0.52, rotate=\ang]\WhiteBoardA\end{scope}
