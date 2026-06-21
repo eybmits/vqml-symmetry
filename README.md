@@ -5,17 +5,18 @@ Reproducibility package for the short paper:
 **Symmetry as a Design Axis in Variational Quantum Learning**
 
 The repository contains the final checked results, figure-generation code,
-LaTeX source, generated manuscript PDF, and generated figure PDFs needed to
+LaTeX source, generated manuscript PDFs, and generated figure PDFs needed to
 inspect and reproduce the paper package. The benchmark is Tic-Tac-Toe board
 classification with exact labels and known `D4` board symmetries. The goal is
 to study symmetry-aware ansatz design in a controlled setting, not to claim
 quantum advantage.
 
-The checked-in manuscript is the anonymous review version.
+The checked-in manuscript outputs are `paper/main.pdf` with author metadata and
+`paper/main_anonymous.pdf` for anonymous review.
 
 ## Repository layout
 
-- `paper/`: manuscript source, generated anonymous PDF, and figure-generation code.
+- `paper/`: manuscript source, generated PDFs, and figure-generation code.
 - `results/csv/`: final checked CSV/JSON artifacts used by the figures and tables.
 - `src/`: Tic-Tac-Toe data, symmetry groups, circuits, training, and checks.
 - `experiments/`: final experiment matrix and artifact validation.
@@ -50,7 +51,7 @@ python3 paper/make_figures.py
 cd paper && make paper
 ```
 
-The expected manuscript is `paper/main.pdf`.
+The expected manuscripts are `paper/main.pdf` and `paper/main_anonymous.pdf`.
 
 ## Final evidence artifacts
 
@@ -100,11 +101,12 @@ cd paper && make paper
 ```
 
 If the generated figure PDFs already exist locally, the manuscript alone can be
-rebuilt with:
+rebuilt with either author metadata or anonymous metadata:
 
 ```bash
 cd paper
 make paper
+make anonymous
 ```
 
 ## Model and protocol

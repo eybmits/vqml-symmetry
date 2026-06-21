@@ -7,26 +7,61 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
-\usepackage[colorlinks=true,linkcolor=red,citecolor=green,urlcolor=blue]{hyperref}
+\usepackage{tikz}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\usepackage{cleveref}
 \usepackage{orcidlink}
+\usetikzlibrary{arrows.meta,calc,positioning}
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\newif\ifanonymouspaper
+\ifdefined\anonymousversion
+  \anonymouspapertrue
+\else
+  \anonymouspaperfalse
+\fi
+\ifanonymouspaper
+  \newcommand{\paperPdfAuthor}{Anonymous Authors}
+\else
+  \newcommand{\paperPdfAuthor}{Markus Baumann, Claudia Linnhoff-Popien, and Jonas Stein}
+\fi
 \hypersetup{
-  pdftitle={Exploiting More Than Symmetry in Variational Quantum Machine Learning},
-  pdfauthor={Markus Baumann and Claudia Linnhoff-Popien},
+  pdftitle={Symmetry as a Design Axis in Variational Quantum Learning},
+  pdfauthor={\paperPdfAuthor},
   pdfsubject={Variational quantum learning and equivariant ansatz design},
   pdfkeywords={quantum machine learning, equivariance, symmetry, inductive bias, variational quantum circuits, parameter sharing, generalization}
 }
-\newcommand{\orcid}[1]{\,\orcidlink{#1}}
+
+\renewcommand{\ttdefault}{cmtt}
+\renewcommand{\tableautorefname}{Tab.}
+\renewcommand{\figureautorefname}{Fig.}
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Tab.}
+\crefname{figure}{Fig.}{Figs.}
+\Crefname{figure}{Fig.}{Figs.}
+\DeclareRobustCommand{\IEEEauthorrefmark}[1]{\smash{\textsuperscript{\footnotesize #1}}}
 
 \begin{document}
 
-\title{Exploiting More Than Symmetry in Variational Quantum Machine Learning\thanks{Corresponding author: \href{mailto:markus.baumann@campus.lmu.de}{markus.baumann@campus.lmu.de}}}
+\title{Symmetry as a Design Axis in Variational Quantum Learning}
 
+\ifanonymouspaper
 \author{%
-\IEEEauthorblockN{Markus Baumann\textsuperscript{*}\orcid{0009-0007-3575-1006} and Claudia Linnhoff-Popien\textsuperscript{*}\orcid{0000-0001-6284-9286}}
-\IEEEauthorblockA{\textit{\textsuperscript{*}QAR-Lab, Department of Computer Science, LMU Munich, Munich, Germany}}
+\IEEEauthorblockN{Anonymous Authors}
 }
+\else
+\author{%
+\IEEEauthorblockN{%
+Markus Baumann\IEEEauthorrefmark{1}\orcidlink{0009-0007-3575-1006}\thanks{Corresponding author: \href{mailto:markus.baumann@ifi.lmu.de}{markus.baumann@ifi.lmu.de}.},
+Claudia Linnhoff-Popien\IEEEauthorrefmark{1}\orcidlink{0000-0001-6284-9286},
+and Jonas Stein\IEEEauthorrefmark{1}\orcidlink{0000-0001-5727-9151}
+}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}\textit{QAR-Lab, Department of Computer Science, LMU Munich, Munich, Germany}}
+}
+\fi
 
 \maketitle
 
@@ -63,9 +98,6 @@ quantum machine learning, equivariance, symmetry, inductive bias, variational qu
 
 \section*{Appendix}
 \input{txt/5_Reproducibility}
-
-\section*{Acknowledgment}
-The authors thank Jonas Stein\orcid{0000-0001-5727-9151} for valuable discussions and feedback.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

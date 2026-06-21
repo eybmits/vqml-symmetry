@@ -10,4 +10,4 @@ cd "${ROOT}"
 "${PYTHON}" -m src.sanity_checks --skip-smoke
 "${PYTHON}" -m experiments.consistent_paper_experiments --stage validate --epochs "${EPOCHS}"
 "${PYTHON}" paper/make_figures.py
-(cd paper && make paper)
+(cd paper && make all)

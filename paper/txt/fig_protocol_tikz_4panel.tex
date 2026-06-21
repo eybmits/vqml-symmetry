@@ -188,10 +188,10 @@
   subpanel/.style={rounded corners=5pt, line width=0.5pt},
   flow/.style={-{Stealth[length=5.0pt,width=5.0pt]}, line width=0.9pt, draw=black!75},
 ]
-  \path[use as bounding box] (-0.05,0.06) rectangle (17.95,6.42);
+  \path[use as bounding box] (-0.18,0.06) rectangle (17.95,6.42);
 
   % ---- Panels ----
-  \draw[panel, fill=panelgray, draw=black!42]        (0.10,0.95) rectangle (4.10,5.95);
+  \draw[panel, fill=panelgray, draw=black!42]        (-0.12,0.95) rectangle (4.10,5.95);
   \draw[panel, fill=panelblue, draw=qteal!85]        (4.55,0.95) rectangle (8.25,5.95);
   \draw[panel, fill=panelgray, draw=black!42]        (8.70,0.95) rectangle (13.40,5.95);
   \draw[panel, fill=qgreen!7, draw=qgreen!60!black] (13.85,0.95) rectangle (17.85,5.95);
@@ -201,7 +201,7 @@
   \draw[flow] (13.45,3.45) -- (13.81,3.45);
 
   % Panel letters (outside, top-left) and captions (below)
-  \node[font=\bfseries\normalsize, text=black, anchor=south west] at (0.12,6.02) {a};
+  \node[font=\bfseries\normalsize, text=black, anchor=south west] at (-0.10,6.02) {a};
   \node[font=\bfseries\normalsize, text=black, anchor=south west] at (4.57,6.02) {b};
   \node[font=\bfseries\normalsize, text=black, anchor=south west] at (8.72,6.02) {c};
   \node[font=\bfseries\normalsize, text=black, anchor=south west] at (13.87,6.02) {d};
@@ -211,12 +211,19 @@
   \node[font=\small] at (15.85,0.46) {Winning-line gates (ours)};
 
   % ===== Panel (a): symmetry — rotations (rows) x flip (columns) =====
-  \node[font=\scriptsize, text=black!86, rotate=90] at (0.37,3.50) {Winner: \textcolor{qorange}{$\circ$}};
+  \node[font=\scriptsize, text=black!86, rotate=90] at (0.08,3.50) {Winner: \textcolor{qorange}{$\circ$}};
   \foreach \yy/\ang/\lab in {5.26/0/{$0^\circ$}, 4.08/90/{$90^\circ$}, 2.90/180/{$180^\circ$}, 1.72/270/{$270^\circ$}} {
-    \node[font=\scriptsize, text=black!86] at (0.90,\yy) {\lab};
+    \ifnum\ang=0
+      \node[font=\scriptsize, text=black!86] at (0.62,\yy) {\lab};
+    \else
+      \begin{scope}[shift={(0.62,\yy)}]
+        \draw[-{Stealth[length=2.2pt,width=2.2pt]}, line width=0.52pt, draw=black!82]
+          (-0.25,0.25) arc[start angle=135,end angle=410,radius=0.35];
+        \node[font=\scriptsize, text=black!86, fill=panelgray, inner sep=0.2pt, minimum width=0.52cm, align=center] at (0,0) {\lab};
+      \end{scope}
+    \fi
     \begin{scope}[shift={(1.66,\yy)}, scale=0.52, rotate=\ang]\WhiteBoardA\end{scope}
-    \node[font=\tiny, text=black!86] at (2.53,\yy+0.28) {Flip};
-    \draw[flow, line width=0.65pt] (2.35,\yy) -- (2.72,\yy);
+    \draw[flow, line width=0.65pt] (2.32,\yy) -- node[font=\tiny, text=black!86, above=1.2pt] {Flip} (2.76,\yy);
     \begin{scope}[shift={(3.42,\yy)}, scale=0.52, rotate=\ang, xscale=-1]\WhiteBoardA\end{scope}
   }
 
