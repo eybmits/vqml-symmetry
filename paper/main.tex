@@ -9,7 +9,9 @@
 \usepackage{xcolor}
 \usepackage{tikz}
 \usepackage[caption=false,font=footnotesize]{subfig}
-\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
+\definecolor{NeonRefGreen}{HTML}{39FF14}
+\definecolor{RepoLinkBlue}{HTML}{0057FF}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=NeonRefGreen,urlcolor=RepoLinkBlue]{hyperref}
 \usepackage{cleveref}
 \usepackage{orcidlink}
 \usetikzlibrary{arrows.meta,calc,positioning}
@@ -29,7 +31,7 @@
   \newcommand{\paperPdfAuthor}{Markus Baumann, Claudia Linnhoff-Popien, and Jonas Stein}
 \fi
 \hypersetup{
-  pdftitle={Exploiting More Than Symmetry in Variational Quantum Learning},
+  pdftitle={Exploiting More Than Symmetry in Variational Quantum Machine Learning},
   pdfauthor={\paperPdfAuthor},
   pdfsubject={Variational quantum learning and equivariant ansatz design},
   pdfkeywords={quantum machine learning, equivariance, symmetry, inductive bias, variational quantum circuits, parameter sharing, generalization}
@@ -46,7 +48,7 @@
 
 \begin{document}
 
-\title{Exploiting More Than Symmetry in Variational Quantum Learning}
+\title{Exploiting More Than Symmetry in Variational Quantum Machine Learning}
 
 \ifanonymouspaper
 \author{%
@@ -55,7 +57,7 @@
 \else
 \author{%
 \IEEEauthorblockN{%
-Markus Baumann\IEEEauthorrefmark{1}\orcidlink{0009-0007-3575-1006}\thanks{Corresponding author: \href{mailto:markus.baumann@ifi.lmu.de}{markus.baumann@ifi.lmu.de}.},
+Markus Baumann\IEEEauthorrefmark{1}\orcidlink{0009-0007-3575-1006}\thanks{Corresponding author: \href{mailto:markus.baumann@campus.lmu.de}{markus.baumann@campus.lmu.de}.},
 Claudia Linnhoff-Popien\IEEEauthorrefmark{1}\orcidlink{0000-0001-6284-9286},
 and Jonas Stein\IEEEauthorrefmark{1}\orcidlink{0000-0001-5727-9151}
 }
@@ -99,6 +101,7 @@ quantum machine learning, equivariance, symmetry, inductive bias, variational qu
 \section*{Appendix}
 \input{txt/5_Reproducibility}
 
+\hypersetup{urlcolor=NeonRefGreen}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 

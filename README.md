@@ -2,7 +2,7 @@
 
 Reproducibility package for the short paper:
 
-**Exploiting More Than Symmetry in Variational Quantum Learning**
+**Exploiting More Than Symmetry in Variational Quantum Machine Learning**
 
 The repository contains the final checked results, figure-generation code,
 LaTeX source, generated manuscript PDFs, and generated figure PDFs needed to
