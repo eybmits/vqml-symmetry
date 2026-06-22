@@ -12,7 +12,7 @@ to study symmetry-aware ansatz design in a controlled setting, not to claim
 quantum advantage.
 
 The checked-in manuscript outputs are `paper/main.pdf` with author metadata and
-`paper/main_anonymous.pdf` for anonymous review.
+`paper/main_anonymous.pdf` with anonymous metadata.
 
 ## Repository layout
 
