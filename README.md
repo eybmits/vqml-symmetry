@@ -1,4 +1,4 @@
-# vqml-symmetry-artifact
+# vqml-symmetry
 
 Reproducibility package for the short paper:
 
@@ -17,9 +17,9 @@ The checked-in manuscript outputs are `paper/main.pdf` with author metadata and
 ## Repository layout
 
 - `paper/`: manuscript source, generated PDFs, and figure-generation code.
-- `results/csv/`: final checked CSV/JSON artifacts used by the figures and tables.
+- `results/csv/`: final checked CSV/JSON outputs used by the figures and tables.
 - `src/`: Tic-Tac-Toe data, symmetry groups, circuits, training, and checks.
-- `experiments/`: final experiment matrix and artifact validation.
+- `experiments/`: final experiment matrix and package validation.
 - `scripts/`: one-command reproduction and optional full rerun entry points.
 
 ## Setup
@@ -33,13 +33,13 @@ python3 -m pip install -r requirements.txt
 The default simulation path uses PennyLane with `lightning.qubit` and adjoint
 gradients.
 
-## Reproduce the paper from checked artifacts
+## Reproduce the paper from checked outputs
 
-The primary reviewer path validates the committed CSV/JSON artifacts,
+The primary reviewer path validates the committed CSV/JSON outputs,
 regenerates the paper figures and summary table, and rebuilds the manuscript:
 
 ```bash
-scripts/reproduce_paper_from_artifacts.sh
+scripts/reproduce_paper_from_outputs.sh
 ```
 
 This runs:
@@ -53,7 +53,7 @@ cd paper && make paper
 
 The expected manuscripts are `paper/main.pdf` and `paper/main_anonymous.pdf`.
 
-## Final evidence artifacts
+## Final evidence outputs
 
 The final paper evidence lives in `results/csv/`:
 
@@ -80,7 +80,7 @@ The generated paper figures are:
 
 ## Optional full experiment rerun
 
-The committed CSV/JSON artifacts are sufficient for review and exact figure
+The committed CSV/JSON outputs are sufficient for review and exact figure
 reproduction. To rerun the final experiment matrix from scratch, use:
 
 ```bash
