@@ -1,4 +1,4 @@
-# qc_symmetry
+# qc-symmetry
 
 Reproducibility package for the short paper:
 
