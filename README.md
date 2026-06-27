@@ -1,4 +1,4 @@
-# qc-symmetry
+# vqml-symmetry-artifact
 
 Reproducibility package for the short paper:
 
